@@ -21,7 +21,6 @@ Under OSX with [Homebrew](http://mxcl.github.com/homebrew/) installed you can in
     $ brew install rbenv
     $ brew install ruby-build
     $ ruby-build install 1.9.3-p327
-    $ export JAVA_HOME=../path/to/jdk
     $ cd ../path/to/fgis
     $ bundle install
 
