@@ -8,9 +8,11 @@ define 'fgis' do
   compile.options.target = '1.7'
   compile.options.lint = 'all'
 
+  bootstrap_path = add_bootstrap_media(project)
+
   iml.add_ejb_facet
   iml.add_jpa_facet
-  iml.add_web_facet
+  iml.add_web_facet(:webroots => [_(:source, :main, :webapp), bootstrap_path])
 
   ipr.add_exploded_war_artifact(project,
                                 :build_on_make => true,
