@@ -1,0 +1,35 @@
+FGIS - Fire Ground Information System
+=====================================
+
+[![Build Status](https://secure.travis-ci.org/realityforge/fgis.png?branch=master)](http://travis-ci.org/realityforge/fgis)
+
+What is FGIS
+--------------
+
+FGIS was initiated at a Random Hacks Of Kindness (RHok) day and is designed to help fire fighters in the bush gain access to information that helps them ensure the safety of their teams and give them better tools to manage the fire.
+
+The initial project was done with a combination of RoR 3.2, CoffeeScript, Bootstrap etc. This is a spike to re-implement the functionality in a technology more familiar to the author.
+
+How-to Build
+------------
+
+FGIS uses [Apache Buildr](http://buildr.apache.org) to build the project which is a ruby based build tool. The easiest way to build the project is to use [rbenv](https://github.com/sstephenson/rbenv) to manage the ruby version and [bundler](http://gembundler.com/) to manage the gem dependencies for buildr.
+
+Under OSX with [Homebrew](http://mxcl.github.com/homebrew/) installed you can install the tool via;
+
+    $ brew update
+    $ brew install rbenv
+    $ brew install ruby-build
+    $ ruby-build install 1.9.3-p327
+    $ export JAVA_HOME=../path/to/jdk
+    $ cd ../path/to/fgis
+    $ bundle install
+
+To build you run the following commands
+
+    $ buildr clean package
+
+Credits
+-------
+
+The project was mostly a rewrite with front end code inspired by the initial RHoK hack.
