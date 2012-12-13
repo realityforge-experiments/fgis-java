@@ -217,8 +217,8 @@ generateData = ->
   ]
 
 
-$ ->
-  map = L.map('map').setView([-37.793566209439,144.94111608134], 14)
+initMap (lat, long) = ->
+  map = L.map('map').setView([lat,long], 14)
   L.tileLayer('http://{s}.tile.cloudmade.com/aeb94991e883413e8262bd55def34111/997/256/{z}/{x}/{y}.png',{
     attribution: 'Made with love at <a href="https://github.com/rhok-melbourne/fgis/">RHoK Melbourne</a>, Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
     maxZoom: 18
@@ -289,3 +289,6 @@ $ ->
         when "Point" then map.panTo [geo.geometry.coordinates[1], geo.geometry.coordinates[0]]
         when "LineString" then map.panTo [geo.geometry.coordinates[0][1], geo.geometry.coordinates[0][0]]
         when "Polygon" then map.panTo [geo.geometry.coordinates[0][0][1], geo.geometry.coordinates[0][0][0]]
+
+$ ->
+  initMap (-37.793566209439,144.94111608134)
