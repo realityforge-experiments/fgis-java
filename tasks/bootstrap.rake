@@ -5,6 +5,7 @@ def add_bootstrap_media(project)
     download_task.invoke
     unzip(target_dir => download_task.name).include('**/*.min.*').include('bootstrap/img/*').extract unless File.exist?(target_dir)
   end
+  project.file(target_dir => %w(unzip_bootstrap))
   project.resources do
     task('unzip_bootstrap').invoke
   end

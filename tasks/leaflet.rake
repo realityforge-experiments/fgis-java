@@ -10,6 +10,7 @@ def add_leaflet_media(project)
       unzip_task.extract
     end
   end
+  project.file(target_dir => %w(unzip_leaflet))
   project.resources do
     task('unzip_leaflet').invoke
   end

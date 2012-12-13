@@ -4,6 +4,7 @@ def define_coffee_script_dir(project)
   task 'process_coffee_script' do
     sh "coffee --bare --compile --output #{target_dir} #{source_dir}"
   end
+  project.file(target_dir => %w(process_coffee_script))
   project.resources do
     task('process_coffee_script').invoke
   end

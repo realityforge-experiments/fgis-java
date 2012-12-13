@@ -4,6 +4,7 @@ def define_process_sass_dir(project)
   task 'process_sass' do
     sh "scss -q --update #{source_dir}:#{target_dir}"
   end
+  project.file(target_dir => %w(process_sass))
   project.resources do
     task('process_sass').invoke
   end

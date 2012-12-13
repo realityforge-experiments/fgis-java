@@ -7,6 +7,7 @@ def define_jquery_dir(project)
     mkdir_p base_dir
     cp download_task.name, "#{base_dir}/jquery.js"
   end
+  project.file(target_dir => %w(unzip_jquery))
   project.resources do
     task('unzip_jquery').invoke
   end
