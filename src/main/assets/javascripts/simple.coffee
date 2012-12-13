@@ -1,35 +1,3 @@
-# Place all the behaviors and hooks related to the matching controller here.
-# All this logic will automatically be available in application.js.
-# You can use CoffeeScript in this file: http://jashkenas.github.com/coffee-script/
-
-latitude = null
-longitude = null
-
-#if navigator && navigator.geolocation
-# navigator.geolocation.getCurrentPosition(geo_success, geo_error)
-#else
-# alert 'Geolocation is not supported.'
-#
-#initGeo = ->
-#  if Modernizr.geolocation
-#    navigator.geolocation.getCurrentPosition showMap
-#
-#
-#showMap = (position) ->
-#  latitude = position.coords.latitude
-#  longitude = position.coords.longitude
-#  mapOptions = {
-#    zoom: 15,
-#    mapTypeId: google.maps.MapTypeId.ROADMAP
-#  }
-#  map = new google.maps.Map(document.getElementById("map"), mapOptions)
-#  latlng = new google.maps.LatLng(latitude, longitude)
-#  map.setCenter(latlng)
-#
-#  geocoder = new google.maps.Geocoder()
-#  geocoder.geocode({'latLng': latlng}, addAddressToMap)
-#
-
   # locations = []
   # polyline = null
 #
@@ -275,7 +243,7 @@ configureFeedBehaviour = ->
 
   configureFeedBehaviour()
 
-initMap (lat, long) = ->
+initMap = (lat, long) ->
   map = L.map('map').setView([lat,long], 14)
   L.tileLayer('http://{s}.tile.cloudmade.com/aeb94991e883413e8262bd55def34111/997/256/{z}/{x}/{y}.png',{
     attribution: 'Made with love at <a href="https://github.com/rhok-melbourne/fgis/">RHoK Melbourne</a>, Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
@@ -315,5 +283,13 @@ initMap (lat, long) = ->
 
     $('div.messages').append($(html).data('geo', v.geo))
 
-$ ->
-  initMap (-37.793566209439,144.94111608134)
+showMapAtDefault = ->
+  initMap(-37.793566209439, 144.94111608134)
+
+showMapAtGeoPosition = (position) ->
+  initMap( position.coords.latitude, position.coords.longitude)
+
+if navigator && navigator.geolocation
+  navigator.geolocation.getCurrentPosition(showMapAtGeoPosition, showMapAtDefault)
+else
+  showMapAtDefault
