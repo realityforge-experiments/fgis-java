@@ -23,6 +23,15 @@ define 'fgis' do
     end
   end
 
+  desc 'Generate assets and move them to idea artifact'
+  task 'assets:artifact' => %w(assets) do
+    target = _(:artifacts, project.name)
+    mkdir_p target
+    ([_(:source, :main, :webapp)] + assets).each do |asset|
+      cp_r Dir["#{asset}/*"], "#{target}/"
+    end
+  end
+
   project.resources do
     task('assets').invoke
   end
