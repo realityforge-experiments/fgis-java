@@ -23,6 +23,7 @@ Under OSX with [Homebrew](http://mxcl.github.com/homebrew/) installed you can in
     $ ruby-build install 1.9.3-p327
     $ cd ../path/to/fgis
     $ bundle install
+    $ rbenv rehash
 
 To build you run the following commands
 
