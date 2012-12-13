@@ -44,7 +44,7 @@
 
 # setInterval detectLocation, 1000
 
-$ ->
+generateData = ->
   data = [
     {
       "title":"Some Title",
@@ -216,13 +216,15 @@ $ ->
     }
   ]
 
+
+$ ->
   map = L.map('map').setView([-37.793566209439,144.94111608134], 14)
   L.tileLayer('http://{s}.tile.cloudmade.com/aeb94991e883413e8262bd55def34111/997/256/{z}/{x}/{y}.png',{
     attribution: 'Made with love at <a href="https://github.com/rhok-melbourne/fgis/">RHoK Melbourne</a>, Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
     maxZoom: 18
   }).addTo(map)
 
-  data.forEach (v) ->
+  generateData().forEach (v) ->
     current_time = new Date().getTime()
     feature_time = new Date(v.geo.features[0].properties.date_created).getTime()
     time_diff_in_minutes = Math.ceil((current_time - feature_time)/1000/60)
