@@ -135,7 +135,6 @@
     <script src="jquery/js/jquery.js"></script>
     <script src="bootstrap/js/bootstrap.min.js"></script>
     <script src="leaflet/leaflet.js"></script>
-    <script src="javascripts/bootstrap.js"></script>
     <script src="javascripts/simple.js"></script>
 </body>
 </html>
