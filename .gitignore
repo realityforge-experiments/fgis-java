@@ -7,4 +7,5 @@
 /*.ipr
 /*.iml
 /.bundle
+/.sass-cache
 /Gemfile.lock
