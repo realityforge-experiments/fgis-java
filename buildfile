@@ -33,6 +33,7 @@ define 'fgis' do
     end
   end
 
+   project.clean { rm_rf _(:artifacts) }
    project.clean { rm_rf _('.sass-cache') }
 
   iml.add_ejb_facet
