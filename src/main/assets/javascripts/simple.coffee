@@ -2,11 +2,34 @@
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://jashkenas.github.com/coffee-script/
 
-# if navigator && navigator.geolocation
-  # navigator.geolocation.getCurrentPosition(geo_success, geo_error)
-# else
-  # error 'Geolocation is not supported.'
+latitude = null
+longitude = null
+
+#if navigator && navigator.geolocation
+# navigator.geolocation.getCurrentPosition(geo_success, geo_error)
+#else
+# alert 'Geolocation is not supported.'
 #
+#initGeo = ->
+#  if Modernizr.geolocation
+#    navigator.geolocation.getCurrentPosition showMap
+#
+#
+#showMap = (position) ->
+#  latitude = position.coords.latitude
+#  longitude = position.coords.longitude
+#  mapOptions = {
+#    zoom: 15,
+#    mapTypeId: google.maps.MapTypeId.ROADMAP
+#  }
+#  map = new google.maps.Map(document.getElementById("map"), mapOptions)
+#  latlng = new google.maps.LatLng(latitude, longitude)
+#  map.setCenter(latlng)
+#
+#  geocoder = new google.maps.Geocoder()
+#  geocoder.geocode({'latLng': latlng}, addAddressToMap)
+#
+
   # locations = []
   # polyline = null
 #
@@ -216,6 +239,41 @@ generateData = ->
     }
   ]
 
+configureFeedBehaviour = ->
+  $('ul.breadcrumb li.sub-link').click ->
+    selected_view = $(this).data "view"
+    current_view = $('ul.breadcrumb li.active').data "view"
+    $('ul.breadcrumb li.active').removeClass "active"
+    $(this).addClass "active"
+    $('div.hud .' + selected_view).toggle()
+    $('div.hud .' + current_view).toggle()
+
+  $('button#updates_all').click ->
+    $('div.message').hide()
+    $('div.message').fadeIn('fast')
+
+  $('button#updates_sector').click ->
+    $('div.message').hide()
+    $('div.message[data-type="SECTOR"]').fadeIn('fast')
+
+  $('button#updates_team').click ->
+    $('div.message').hide()
+    $('div.message[data-type="TEAM"]').fadeIn('fast')
+
+  $('button#updates_you').click ->
+    $('div.message').hide()
+    $('div.message[data-type="YOU"]').fadeIn('fast')
+
+  $('div.message').click ->
+    geoList = $(this).data('geo').features
+    console.log geoList
+    geoList.forEach (geo) ->
+      switch geo.geometry.type
+        when "Point" then map.panTo [geo.geometry.coordinates[1], geo.geometry.coordinates[0]]
+        when "LineString" then map.panTo [geo.geometry.coordinates[0][1], geo.geometry.coordinates[0][0]]
+        when "Polygon" then map.panTo [geo.geometry.coordinates[0][0][1], geo.geometry.coordinates[0][0][0]]
+
+  configureFeedBehaviour()
 
 initMap (lat, long) = ->
   map = L.map('map').setView([lat,long], 14)
@@ -256,39 +314,6 @@ initMap (lat, long) = ->
             </div>"
 
     $('div.messages').append($(html).data('geo', v.geo))
-
-  $('ul.breadcrumb li.sub-link').click ->
-    selected_view = $(this).data "view"
-    current_view = $('ul.breadcrumb li.active').data "view"
-    $('ul.breadcrumb li.active').removeClass "active"
-    $(this).addClass "active"
-    $('div.hud .' + selected_view).toggle()
-    $('div.hud .' + current_view).toggle()
-
-  $('button#updates_all').click ->
-    $('div.message').hide()
-    $('div.message').fadeIn('fast')
-
-  $('button#updates_sector').click ->
-    $('div.message').hide()
-    $('div.message[data-type="SECTOR"]').fadeIn('fast')
-
-  $('button#updates_team').click ->
-    $('div.message').hide()
-    $('div.message[data-type="TEAM"]').fadeIn('fast')
-
-  $('button#updates_you').click ->
-    $('div.message').hide()
-    $('div.message[data-type="YOU"]').fadeIn('fast')
-
-  $('div.message').click ->
-    geoList = $(this).data('geo').features
-    console.log geoList
-    geoList.forEach (geo) ->
-      switch geo.geometry.type
-        when "Point" then map.panTo [geo.geometry.coordinates[1], geo.geometry.coordinates[0]]
-        when "LineString" then map.panTo [geo.geometry.coordinates[0][1], geo.geometry.coordinates[0][0]]
-        when "Polygon" then map.panTo [geo.geometry.coordinates[0][0][1], geo.geometry.coordinates[0][0][0]]
 
 $ ->
   initMap (-37.793566209439,144.94111608134)
