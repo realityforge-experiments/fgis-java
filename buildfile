@@ -16,6 +16,17 @@ define 'fgis' do
 
   assets = [bootstrap_path, leaflet_path, sass_path, coffee_script_path, jquery_path]
 
+  desc 'Build assets'
+  task 'assets' do
+    assets.each do |asset|
+      file(asset).invoke
+    end
+  end
+
+  project.resources do
+    task('assets').invoke
+  end
+
   package(:war).tap do |war|
     assets.each do |asset|
       war.include asset, :as => '.'

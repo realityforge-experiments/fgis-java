@@ -1,6 +1,6 @@
 def add_leaflet_media(project)
   target_dir = project._(:target, :generated, "leaflet/main/webapp")
-  task 'unzip_leaflet' do
+  project.file(target_dir) do
     download_task = download("downloads/leaflet.zip" => "https://github.com/CloudMade/Leaflet/zipball/v0.4.5")
     download_task.invoke
     leaflet_subdir = "#{target_dir}/leaflet"
@@ -10,10 +10,5 @@ def add_leaflet_media(project)
       unzip_task.extract
     end
   end
-  project.file(target_dir => %w(unzip_leaflet))
-  project.resources do
-    task('unzip_leaflet').invoke
-  end
-
   target_dir
 end
