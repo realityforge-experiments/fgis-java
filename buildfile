@@ -33,6 +33,8 @@ define 'fgis' do
     end
   end
 
+   project.clean { rm_rf _('.sass-cache') }
+
   iml.add_ejb_facet
   iml.add_jpa_facet
   iml.add_web_facet(:webroots => [_(:source, :main, :webapp)] + assets)
