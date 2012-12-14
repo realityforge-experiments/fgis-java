@@ -204,8 +204,6 @@ configureFeedBehaviour = ->
         when "LineString" then map.panTo [geo.geometry.coordinates[0][1], geo.geometry.coordinates[0][0]]
         when "Polygon" then map.panTo [geo.geometry.coordinates[0][0][1], geo.geometry.coordinates[0][0][0]]
 
-  configureFeedBehaviour()
-
 initMap = (lat, long) ->
   map = L.map('map').setView([lat,long], 14)
   L.tileLayer('http://{s}.tile.cloudmade.com/aeb94991e883413e8262bd55def34111/997/256/{z}/{x}/{y}.png',{
@@ -245,6 +243,8 @@ initMap = (lat, long) ->
             </div>"
 
     $('div.messages').append($(html).data('geo', v.geo))
+
+configureFeedBehaviour()
 
 showMapAtDefault = ->
   initMap(-37.793566209439, 144.94111608134)
