@@ -195,6 +195,16 @@ configureFeedBehaviour = ->
     $('div.message').hide()
     $('div.message[data-type="YOU"]').fadeIn('fast')
 
+addFeedItem = (time_diff, map, v) ->
+  html = "<div class=\"message\" data-type=\"#{v.geo.features[0].properties.type}\">
+            <i class=\"icon-chevron-right pull-right\" style=\"margin: 15px 10px;\"></i>
+            <p class=\"pull-right\">#{time_diff}</p>
+              <p>#{v.title}</p>
+            <p>#{v.description}</p>
+          </div>"
+
+  $('div.messages').append($(html).data('geo', v.geo))
+
   $('div.message').click ->
     geoList = $(this).data('geo').features
     console.log geoList
@@ -235,14 +245,8 @@ initMap = (lat, long) ->
         layer.bindPopup feature.properties.description + "<br><span style=\"float: right; font-size: 0.8em;\">(#{time_diff})</span>"
     }).addTo(map)
 
-    html = "<div class=\"message\" data-type=\"#{v.geo.features[0].properties.type}\">
-              <i class=\"icon-chevron-right pull-right\" style=\"margin: 15px 10px;\"></i>
-              <p class=\"pull-right\">#{time_diff}</p>
-                <p>#{v.title}</p>
-              <p>#{v.description}</p>
-            </div>"
+    addFeedItem(time_diff, map, v)
 
-    $('div.messages').append($(html).data('geo', v.geo))
 
 configureFeedBehaviour()
 
@@ -256,3 +260,5 @@ if navigator && navigator.geolocation
   navigator.geolocation.getCurrentPosition(showMapAtGeoPosition, showMapAtDefault)
 else
   showMapAtDefault
+
+configureFeedBehaviour()
