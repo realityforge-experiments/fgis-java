@@ -11,7 +11,7 @@ generateData = ->
             "properties":{
               "type":"SECTOR",
               "description":"Northern Front",
-              "color":"red";
+              "color":"red",
               "date_created": "Sat Nov 20 2012 17:49:08 GMT+1100 (EST)"
             },
             "geometry":{
@@ -39,7 +39,7 @@ generateData = ->
             "properties":{
               "type":"TEAM"
               "description":"Fuel",
-              "color":"green";
+              "color":"green",
               "date_created": "Sat Dec 01 2012 17:49:08 GMT+1100 (EST)"
             },
             "geometry":{
@@ -67,7 +67,7 @@ generateData = ->
             "properties":{
               "type":"SECTOR"
               "description":"Fire Line",
-              "color":"red";
+              "color":"red",
               "date_created": "Sat Dec 02 2012 00:49:08 GMT+1100 (EST)"
             },
             "geometry":{
@@ -95,7 +95,7 @@ generateData = ->
             "properties":{
               "type":"SECTOR"
               "description":"Starting Point",
-              "color":"black";
+              "color":"black",
               "date_created": "Sat Dec 01 2012 00:49:08 GMT+1100 (EST)"
             },
             "geometry":{
@@ -123,7 +123,7 @@ generateData = ->
             "properties":{
               "type":"YOU"
               "description":"Pacman",
-              "color":"yellow";
+              "color":"yellow",
               "date_created": "Sat Dec 01 2012 00:49:08 GMT+1100 (EST)"
             },
             "geometry":{
@@ -151,7 +151,7 @@ generateData = ->
             "properties":{
               "type":"SECTOR"
               "description":"Ghosts",
-              "color":"blue";
+              "color":"blue",
               "date_created": "Sat Dec 01 2012 00:49:08 GMT+1100 (EST)"
             },
             "geometry":{
