@@ -36,6 +36,14 @@ Domgen.repository(:FGIS) do |repository|
         q.datetime(:StartAt)
       end
 
+      t.query('findAllByResource') do |q|
+        q.jpa.jpql = "O.Resource.ID = :ResourceID"
+        q.jpa.limit = true
+        q.jpa.offset = true
+        q.jpa.order_by = 'O.CollectedAt DESC'
+        q.integer(:ResourceID)
+      end
+
       t.sql.index([:Location], :index_type => :gist)
     end
   end
