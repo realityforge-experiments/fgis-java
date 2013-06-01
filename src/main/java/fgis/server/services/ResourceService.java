@@ -46,6 +46,25 @@ public class ResourceService
   private ResourceTrackRepository _resourceTrackService;
 
   @GET
+  @Produces({ MediaType.APPLICATION_JSON })
+  public String getResources( @PathParam("types") final int resourceID,
+                             @QueryParam( "fields" ) @Nullable final String fields )
+    throws ParseException
+  {
+    final Resource resource = _resourceService.findByID( resourceID );
+    if ( null == resource )
+    {
+      throw new WebApplicationException( ResponseUtil.entityNotFoundResponse() );
+    }
+
+    final List<ResourceTrack> tracks = getResourceTracks( resourceID );
+
+    final FieldFilter filter = FieldFilter.parse( fields );
+
+    return toGeoJson( filter, resource, tracks );
+  }
+
+  @GET
   @Path("/{id}")
   @Produces({ MediaType.APPLICATION_JSON })
   public String getResource( @PathParam("id") final int resourceID,
@@ -111,7 +130,7 @@ public class ResourceService
 
       for ( final ResourceTrack track : tracks )
       {
-        g.writeStartArray().write( track.getLocation().getX() ).write( track.getLocation().getY() ).writeEnd();
+        writePoint( g, track.getLocation().getX(), track.getLocation().getY() );
       }
 
       g.
@@ -130,5 +149,10 @@ public class ResourceService
     g.writeEnd().close();
 
     return writer.toString();
+  }
+
+  private void writePoint( final JsonGenerator g, final double x, final double y )
+  {
+    g.writeStartArray().write( x ).write( y ).writeEnd();
   }
 }
