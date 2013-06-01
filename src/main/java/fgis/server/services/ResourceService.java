@@ -10,7 +10,10 @@ import java.io.StringWriter;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import javax.annotation.Nullable;
 import javax.ejb.ConcurrencyManagement;
 import javax.ejb.ConcurrencyManagementType;
@@ -26,6 +29,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.ParameterExpression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.ws.rs.Consumes;
@@ -37,6 +41,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
+import org.geolatte.geom.DimensionalFlag;
+import org.geolatte.geom.Geometry;
+import org.geolatte.geom.PointSequenceBuilder;
+import org.geolatte.geom.PointSequenceBuilders;
+import org.geolatte.geom.Polygon;
+import org.geolatte.geom.crs.CrsId;
 import org.glassfish.json.JsonGeneratorFactoryImpl;
 
 @SuppressWarnings({ "UnusedDeclaration", "JavaDoc" })
@@ -62,6 +72,7 @@ public class ResourceService
   @Produces( { MediaType.APPLICATION_JSON } )
   public String getResources( @QueryParam( "types" ) @Nullable final String types,
                               @QueryParam( "fields" ) @Nullable final String fields,
+                              @QueryParam( "bbox" ) @Nullable final String bbox,
                               @QueryParam( "offset" ) @DefaultValue( "0" ) final int offset,
                               @QueryParam( "limit" ) @DefaultValue( "50" ) final int limit )
     throws ParseException
@@ -73,10 +84,25 @@ public class ResourceService
     final Root<Resource> entity = query.from( Resource.class );
     query.select( entity );
     final ArrayList<Predicate> predicates = new ArrayList<Predicate>();
+    final Map<String, Object> params = new HashMap<String, Object>();
+
+    if ( null != bbox )
+    {
+      final Polygon extents = parseBBox( bbox );
+      final ParameterExpression<String> extent = b.parameter( String.class, "Extent" );
+
+      predicates.add( b.isTrue( b.function( "ST_Intersects",
+                                            Boolean.class,
+                                            b.function( "ST_GeomFromText",
+                                                        Geometry.class,
+                                                        extent ),
+                                            entity.get( Resource_.Location ) ) ) );
+      params.put( "Extent", extents.asText() );
+    }
 
     if ( null != types )
     {
-      predicates.add( entity.get( Resource_.Type ).in( (Object[])types.split( "," ) ) );
+      predicates.add( entity.get( Resource_.Type ).in( (Object[]) types.split( "," ) ) );
     }
 
     query.where( b.and( predicates.toArray( new Predicate[ predicates.size() ] ) ) );
@@ -84,6 +110,10 @@ public class ResourceService
     final TypedQuery<Resource> typedQuery = _em.createQuery( query );
     typedQuery.setFirstResult( offset );
     typedQuery.setMaxResults( limit );
+    for ( final Entry<String, Object> entry : params.entrySet() )
+    {
+      typedQuery.setParameter( entry.getKey(), entry.getValue() );
+    }
     final List<Resource> resources = typedQuery.getResultList();
 
     final ArrayList<ResourceEntry> entries = new ArrayList<>( resources.size() );
@@ -94,6 +124,30 @@ public class ResourceService
     }
 
     return toGeoJson( filter, entries );
+  }
+
+  private Polygon parseBBox( final String bbox )
+    throws ParseException
+  {
+    final String[] points = bbox.split( "," );
+    if ( 4 != points.length )
+    {
+      throw new ParseException( "Unable to split 4 points", 0 );
+    }
+    final double x1 = Double.parseDouble( points[ 0 ] );
+    final double y1 = Double.parseDouble( points[ 1 ] );
+    final double x2 = Double.parseDouble( points[ 2 ] );
+    final double y2 = Double.parseDouble( points[ 3 ] );
+
+    final PointSequenceBuilder builder =
+      PointSequenceBuilders.variableSized( DimensionalFlag.d2D, CrsId.UNDEFINED );
+    builder.add( x1, y1 );
+    builder.add( x2, y1 );
+    builder.add( x2, y2 );
+    builder.add( x1, y2 );
+    builder.add( x1, y1 );
+
+    return new Polygon( builder.toPointSequence() );
   }
 
   @GET
