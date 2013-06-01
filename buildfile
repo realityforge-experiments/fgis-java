@@ -73,5 +73,7 @@ define 'fgis' do
                                 :build_on_make => true,
                                 :enable_ejb => true,
                                 :enable_jpa => true,
-                                :dependencies => [project])
+                                :dependencies => [project,
+                                                  :jts,
+                                                  :geolatte_geom])
 end
