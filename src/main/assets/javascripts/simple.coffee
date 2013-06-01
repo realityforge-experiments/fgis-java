@@ -1,5 +1,5 @@
 generateData = ->
-  data = [
+  [
     {
       "title":"Some Title",
       "description":"Some description",
