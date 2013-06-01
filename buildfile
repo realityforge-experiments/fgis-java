@@ -67,6 +67,7 @@ define 'fgis' do
   iml.add_ejb_facet
   iml.add_jpa_facet
   iml.add_web_facet(:webroots => [_(:source, :main, :webapp)] + assets)
+  iml.excluded_directories << _('.sass-cache')
 
   ipr.add_exploded_war_artifact(project,
                                 :build_on_make => true,
