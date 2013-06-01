@@ -73,7 +73,7 @@ handleGeoJsonPacket = (map, v) ->
     style: (feature) ->
       return {color: color};
     onEachFeature: (feature, layer) ->
-      layer.bindPopup feature.properties.description + "<br><span style=\"float: right; font-size: 0.8em;\">(#{time_diff})</span>"
+      layer.bindPopup v.type + " - " + v.title + "<br><span style=\"float: right; font-size: 0.8em;\">(#{time_diff})</span>"
   })
   if( !TopLayers[v.id] )
     TopLayers[v.id] = []

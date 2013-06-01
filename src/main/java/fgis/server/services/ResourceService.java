@@ -250,8 +250,6 @@ public class ResourceService
           writeStartObject().
             write( "type", "Feature" ).
             writeStartObject( "properties" ).
-              write( "type", resource.getName() + "'s Trail" ).
-              write( "description", resource.getName() + "'s Trail" ).
               write( "date_created", tracks.get( 0 ).getCollectedAt().getTime() ).
             writeEnd().
             writeStartObject( "geometry" ).
