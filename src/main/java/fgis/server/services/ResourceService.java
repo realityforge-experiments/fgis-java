@@ -49,14 +49,14 @@ import org.geolatte.geom.Polygon;
 import org.geolatte.geom.crs.CrsId;
 import org.glassfish.json.JsonGeneratorFactoryImpl;
 
-@SuppressWarnings({ "UnusedDeclaration", "JavaDoc" })
-@TransactionAttribute(TransactionAttributeType.REQUIRED)
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@TransactionAttribute( TransactionAttributeType.REQUIRED )
 @Startup
 @Singleton
-@ConcurrencyManagement(ConcurrencyManagementType.BEAN)
-@Path("/resource")
-@Produces({ MediaType.APPLICATION_JSON })
-@Consumes({ MediaType.APPLICATION_JSON })
+@ConcurrencyManagement( ConcurrencyManagementType.BEAN )
+@Path( "/resource" )
+@Produces( { MediaType.APPLICATION_JSON } )
+@Consumes( { MediaType.APPLICATION_JSON } )
 public class ResourceService
 {
   @PersistenceContext( unitName = "FGIS" )
@@ -232,12 +232,12 @@ public class ResourceService
       g.write( "title", resource.getName() );
     }
 
-    if( filter.allow( "description" ) )
+    if ( filter.allow( "description" ) )
     {
       g.write( "description", resource.getName() );
     }
 
-    if( filter.allow( "geo" ) )
+    if ( filter.allow( "geo" ) )
     {
       g.writeStartObject( "geo" ).
         write( "type", "FeatureCollection" ).
