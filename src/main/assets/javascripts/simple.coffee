@@ -1,3 +1,5 @@
+TopLayers = []
+
 configureFeedBehaviour = ->
   $('ul.breadcrumb li.sub-link').click ->
     selected_view = $(this).data "view"
@@ -55,7 +57,7 @@ handleGeoJsonPacket = (map, v) ->
     time_diff = time_diff_in_hours + " hours ago"
     if time_diff_in_hours == 0
       time_diff = time_diff_in_minutes + " minutes ago"
-  L.geoJson(v.geo.features[0], {
+  layer = L.geoJson(v.geo.features[0], {
     pointToLayer: (feature, latlon) ->
       markerIcon = L.icon
         iconUrl: 'images/marker-icon.png'
@@ -65,7 +67,13 @@ handleGeoJsonPacket = (map, v) ->
       return {color: feature.properties.color};
     onEachFeature: (feature, layer) ->
       layer.bindPopup feature.properties.description + "<br><span style=\"float: right; font-size: 0.8em;\">(#{time_diff})</span>"
-  }).addTo(map)
+  })
+  TopLayers.unshift(layer)
+  layer.addTo(map)
+  if TopLayers.length > 3
+    l = TopLayers.pop()
+    console.log l
+    map.removeLayer(l);
 
   addFeedItem(time_diff, map, v)
 
