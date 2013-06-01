@@ -3,6 +3,8 @@ package fgis.server.services;
 import fgis.server.entity.fgis.Resource;
 import fgis.server.entity.fgis.ResourceTrack;
 import fgis.server.entity.fgis.dao.ResourceRepository;
+import fgis.server.entity.fgis.dao.ResourceTrackRepository;
+import java.util.Calendar;
 import java.util.List;
 import javax.ejb.ConcurrencyManagement;
 import javax.ejb.ConcurrencyManagementType;
@@ -32,7 +34,10 @@ import org.json.JSONObject;
 public class ResourceService
 {
   @EJB
-  private ResourceRepository _service;
+  private ResourceRepository _resourceService;
+
+  @EJB
+  private ResourceTrackRepository _resourceTrackService;
 
   @GET
   @Path( "/{id}" )
@@ -40,8 +45,8 @@ public class ResourceService
   public String getResource( final @PathParam( "id" ) int resourceID )
     throws JSONException
   {
-    final Resource resource = _service.getByID( resourceID );
-    final List<ResourceTrack> tracks = resource.getResourceTracks();
+    final Resource resource = _resourceService.getByID( resourceID );
+    final List<ResourceTrack> tracks = getResourceTracks( resourceID );
 
     return toJson( resource, tracks );
   }
@@ -51,9 +56,17 @@ public class ResourceService
   public String getResourceAsGeoJson( final @PathParam( "id" ) int resourceID )
     throws JSONException
   {
-    final Resource resource = _service.getByID( resourceID );
+    final Resource resource = _resourceService.getByID( resourceID );
+    final List<ResourceTrack> tracks = getResourceTracks( resourceID );
 
-    return toGeoJson( resource, resource.getResourceTracks() );
+    return toGeoJson( resource, tracks );
+  }
+
+  private List<ResourceTrack> getResourceTracks( final int resourceID )
+  {
+    final Calendar calendar = Calendar.getInstance();
+    calendar.roll( Calendar.MINUTE, -1 );
+    return _resourceTrackService.findAllByResourceSince( resourceID, calendar.getTime() );
   }
 
   private String toGeoJson( final Resource resource, final List<ResourceTrack> tracks )
