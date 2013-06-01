@@ -1,6 +1,8 @@
 require 'buildr/git_auto_version'
 require 'buildr/top_level_generate_dir'
 
+download(artifact(:postgis_jdbc) => 'https://github.com/realityforge/repository/raw/master/org/postgis/postgis-jdbc/2.0.2SVN/postgis-jdbc-2.0.2SVN.jar')
+
 desc 'FGIS: Fire Ground Information System'
 define 'fgis' do
   project.group = 'org.realityforge.fgis'
@@ -36,6 +38,22 @@ define 'fgis' do
   project.resources do
     task('assets').invoke
   end
+
+  compile.with :javax_persistence,
+               :javax_transaction,
+               :eclipselink,
+               :postgresql,
+               :postgis_jdbc,
+               :jts,
+               :geolatte_geom,
+               :ejb_api,
+               :javaee_api,
+               :javax_validation,
+               :javax_annotation,
+               :json,
+               :jackson_core,
+               :jackson_mapper,
+               :javax_validation
 
   package(:war).tap do |war|
     assets.each do |asset|
