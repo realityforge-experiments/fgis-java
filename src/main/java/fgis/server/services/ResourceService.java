@@ -45,7 +45,12 @@ public class ResourceService
   @Produces({ MediaType.APPLICATION_JSON })
   public String getResource( final @PathParam("id") int resourceID )
   {
-    final Resource resource = _resourceService.getByID( resourceID );
+    final Resource resource = _resourceService.findByID( resourceID );
+    if ( null == resource )
+    {
+      throw new WebApplicationException( ResponseUtil.entityNotFoundResponse() );
+    }
+
     final List<ResourceTrack> tracks = getResourceTracks( resourceID );
 
     return toGeoJson( resource, tracks );
