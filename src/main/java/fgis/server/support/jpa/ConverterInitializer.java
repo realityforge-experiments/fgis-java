@@ -67,16 +67,20 @@ public class ConverterInitializer
 
   private Field getField( final Class type, final String attributeName )
   {
-    final Field field;
-    try
+    Class t = type;
+    while ( t != Object.class )
     {
-      field = type.getDeclaredField( attributeName );
+      try
+      {
+        return t.getDeclaredField( attributeName );
+      }
+      catch ( final NoSuchFieldException nsfe )
+      {
+        //Ignore
+      }
+      t = t.getSuperclass();
     }
-    catch ( final NoSuchFieldException nsfe )
-    {
-      throw new IllegalStateException( "Unable to find field: " + attributeName, nsfe );
-    }
-    return field;
+    throw new IllegalStateException( "Unable to find field: " + attributeName );
   }
 
   // only consider mappings that are deemed to produce
