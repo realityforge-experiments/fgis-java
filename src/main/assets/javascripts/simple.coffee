@@ -26,7 +26,7 @@ configureFeedBehaviour = ->
     $('div.message[data-type="YOU"]').fadeIn('fast')
 
 addFeedItem = (time_diff, map, v) ->
-  html = "<div class=\"message\" data-type=\"#{v.geo.features[0].properties.type}\">
+  html = "<div class=\"message\" data-type=\"#{v.type}\">
             <i class=\"icon-chevron-right pull-right\" style=\"margin: 15px 10px;\"></i>
             <p class=\"pull-right\">#{time_diff}</p>
               <p>#{v.title}</p>
