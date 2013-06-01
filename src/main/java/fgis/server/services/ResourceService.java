@@ -76,7 +76,7 @@ public class ResourceService
 
     if ( null != types )
     {
-      predicates.add( entity.get( Resource_.Type ).in( types.split( "," ) ) );
+      predicates.add( entity.get( Resource_.Type ).in( (Object[])types.split( "," ) ) );
     }
 
     query.where( b.and( predicates.toArray( new Predicate[ predicates.size() ] ) ) );
