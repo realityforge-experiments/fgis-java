@@ -1,5 +1,5 @@
 source 'http://rubygems.org'
-gem 'buildr', '= 1.4.9'
+gem 'buildr', '= 1.4.12'
 # Should remove this dependency when upgrading to next buildr
 gem 'ffi-ncurses'
 gem 'braid', '= 0.7.1'
