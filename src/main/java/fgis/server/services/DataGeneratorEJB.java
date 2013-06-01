@@ -19,6 +19,11 @@ import org.geolatte.geom.crs.CrsId;
 @Stateless
 public class DataGeneratorEJB
 {
+  private static final double INITIAL_X = 144.92978643046;
+  private static final double INITIAL_Y = -37.794939500455;
+  private static final double SCALE_FACTOR = 100.0;
+  private static final Random RANDOM = new Random();
+
   @EJB
   private ResourceRepository _resourceService;
 
@@ -29,31 +34,59 @@ public class DataGeneratorEJB
   @Schedule( second = "*/5", minute = "*", hour = "*", persistent = false )
   public void insertData()
   {
-    final String resourceName = "Peter";
+    jitterResource( "Person", "Peter" );
+    jitterResource( "Person", "Phil" );
+    jitterResource( "Person", "James" );
+    jitterResource( "Person", "Karen" );
+    jitterResource( "Slip-On", "THX-1138" );
+    jitterResource( "Passenger Vehicle", "LUH-3417" );
+    jitterResource( "Tanker", "SEN-5241" );
+  }
+
+  private void jitterResource( final String resourceType, final String resourceName )
+  {
+    final Resource resource = findOrCreateResource( resourceType, resourceName );
+
+    final Point lastLocation = resource.getLocation();
+    final double startX = null == lastLocation ? INITIAL_X : lastLocation.getX();
+    final double startY = null == lastLocation ? INITIAL_Y : lastLocation.getY();
+    final double latPosition = startX + jitterLocation();
+    final double longPosition = startY + jitterLocation();
+
+    final Point point = toPoint( latPosition, longPosition );
+
+    updateResourceLocation( resource, point );
+  }
+
+  private Point toPoint( final double latPosition, final double longPosition )
+  {
+    final PointSequenceBuilder builder =
+      PointSequenceBuilders.variableSized( DimensionalFlag.d2D, CrsId.UNDEFINED );
+    builder.add( latPosition, longPosition );
+    return new Point( builder.toPointSequence() );
+  }
+
+  private double jitterLocation()
+  {
+    return ( RANDOM.nextDouble() / SCALE_FACTOR ) - ( 1 / SCALE_FACTOR / 2 );
+  }
+
+  private Resource findOrCreateResource( final String resourceType, final String resourceName )
+  {
     Resource resource = _resourceService.findByName( resourceName );
     if ( null == resource )
     {
-      resource = new Resource( "Person", resourceName );
+      resource = new Resource( resourceType, resourceName );
       _resourceService.persist( resource );
     }
-    final Random random = new Random();
+    return resource;
+  }
 
-    final Point lastLocation = resource.getLocation();
-
-    final PointSequenceBuilder builder =
-      PointSequenceBuilders.variableSized( DimensionalFlag.d2D, CrsId.UNDEFINED );
-    final double startX = null == lastLocation ? 144.92978643046 : lastLocation.getX();
-    final double startY = null == lastLocation ? -37.794939500455 : lastLocation.getY();
-
-    final double latPosition = startX + ( random.nextDouble() / 100 ) - 0.005;
-    final double longPosition = startY + ( random.nextDouble() / 100 ) - 0.005;
-    builder.add( latPosition , longPosition );
-
-
-    System.out.println( "Generating point " + latPosition + ", " + longPosition +
-                        " for resource " + resource.getName() );
-
-    final Point point = new Point( builder.toPointSequence() );
+  private void updateResourceLocation( final Resource resource, final Point point )
+  {
+    //final String message =
+    //  "Generating point " + point.getX() + ", " + point.getY() + " for resource " + resource.getName();
+    //System.out.println( message );
     _resourceTrackRepository.persist( new ResourceTrack( resource, new Date(), point ) );
     resource.setLocation( point );
   }
