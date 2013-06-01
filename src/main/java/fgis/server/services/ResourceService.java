@@ -7,7 +7,10 @@ import fgis.server.entity.fgis.dao.ResourceTrackRepository;
 import fgis.server.support.FieldFilter;
 import java.io.StringWriter;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import javax.annotation.Nullable;
 import javax.ejb.ConcurrencyManagement;
@@ -46,28 +49,40 @@ public class ResourceService
   private ResourceTrackRepository _resourceTrackService;
 
   @GET
-  @Produces({ MediaType.APPLICATION_JSON })
-  public String getResources( @PathParam("types") final int resourceID,
-                             @QueryParam( "fields" ) @Nullable final String fields )
+  @Produces( { MediaType.APPLICATION_JSON } )
+  public String getResources( @QueryParam( "types" ) @Nullable final String types,
+                              @QueryParam( "fields" ) @Nullable final String fields )
     throws ParseException
   {
     final FieldFilter filter = FieldFilter.parse( fields );
-    final Resource resource = _resourceService.findByID( resourceID );
-    if ( null == resource )
+
+    System.out.println( "types = " + types );
+    final List<Resource> resources;
+    if ( null != types )
     {
-      throw new WebApplicationException( ResponseUtil.entityNotFoundResponse() );
+      final ArrayList<String> set = new ArrayList<>();
+      Collections.addAll( set, types.split( "," ) );
+      resources = _resourceService.findAllByTypeInArea( set );
+    }
+    else
+    {
+      resources = _resourceService.findAllInArea();
     }
 
-    final List<ResourceTrack> tracks = getResourceTracks( resourceID );
+    final ArrayList<ResourceEntry> entries = new ArrayList<>( resources.size() );
+    for ( final Resource resource : resources )
+    {
+      final List<ResourceTrack> tracks = getResourceTracks( resource.getID() );
+      entries.add( new ResourceEntry( resource, tracks ) );
+    }
 
-
-    return toGeoJson( filter, resource, tracks );
+    return toGeoJson( filter, entries );
   }
 
   @GET
-  @Path("/{id}")
-  @Produces({ MediaType.APPLICATION_JSON })
-  public String getResource( @PathParam("id") final int resourceID,
+  @Path( "/{id}" )
+  @Produces( { MediaType.APPLICATION_JSON } )
+  public String getResource( @PathParam( "id" ) final int resourceID,
                              @QueryParam( "fields" ) @Nullable final String fields )
     throws ParseException
   {
@@ -80,7 +95,7 @@ public class ResourceService
     }
 
     final List<ResourceTrack> tracks = getResourceTracks( resourceID );
-    return toGeoJson( filter, resource, tracks );
+    return toGeoJson( filter, new ResourceEntry( resource, tracks ) );
   }
 
   private List<ResourceTrack> getResourceTracks( final int resourceID )
@@ -91,16 +106,57 @@ public class ResourceService
   }
 
   private String toGeoJson( final FieldFilter filter,
-                            final Resource resource,
-                            final List<ResourceTrack> tracks )
+                            final ResourceEntry resource )
+  {
+    final StringWriter writer = new StringWriter();
+    final JsonGenerator g = newGenerator( writer );
+
+    writeResource( g, filter, resource );
+
+    g.close();
+
+    return writer.toString();
+  }
+
+  private String toGeoJson( final FieldFilter filter,
+                            final List<ResourceEntry> entries )
+  {
+    final StringWriter writer = new StringWriter();
+    final JsonGenerator g = newGenerator( writer );
+
+    g.writeStartArray();
+    for ( final ResourceEntry entry : entries )
+    {
+      writeResource( g, filter, entry );
+    }
+    g.writeEnd();
+
+    g.close();
+
+    return writer.toString();
+  }
+
+  private JsonGenerator newGenerator( final StringWriter writer )
   {
     final JsonGeneratorFactory factory = new JsonGeneratorFactoryImpl();
-    final StringWriter writer = new StringWriter();
-    final JsonGenerator g = factory.createGenerator( writer );
+    return factory.createGenerator( writer );
+  }
+
+  private void writeResource( final JsonGenerator g,
+                              final FieldFilter filter,
+                              final ResourceEntry entry )
+  {
+    final Resource resource = entry.getResource();
+    final List<ResourceTrack> tracks = entry.getTracks();
 
     g.writeStartObject();
 
-    if( filter.allow( "title" ) )
+    if ( filter.allow( "id" ) )
+    {
+      g.write( "id", resource.getID() );
+    }
+
+    if ( filter.allow( "title" ) )
     {
       g.write( "title", resource.getName() );
     }
@@ -145,9 +201,7 @@ public class ResourceService
         writeEnd().
       writeEnd();
     }
-    g.writeEnd().close();
-
-    return writer.toString();
+    g.writeEnd();
   }
 
   private void writePoint( final JsonGenerator g, final double x, final double y )

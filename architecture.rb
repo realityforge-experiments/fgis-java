@@ -16,6 +16,11 @@ Domgen.repository(:FGIS) do |repository|
       t.text(:Type, :immutable => true)
       t.text(:Name, :immutable => true)
       t.query('findByName')
+      t.query('findAllByTypeInArea') do |q|
+        q.text(:Type, :collection_type => :sequence)
+        q.jpa.jpql = "O.Type IN :Type"
+      end
+      t.query('findAllInArea')
     end
 
     data_module.entity(:ResourceTrack) do |t|
