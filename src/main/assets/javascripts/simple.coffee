@@ -1,4 +1,4 @@
-TopLayers = []
+TopLayers = {}
 
 configureFeedBehaviour = ->
   $('ul.breadcrumb li.sub-link').click ->
@@ -68,10 +68,12 @@ handleGeoJsonPacket = (map, v) ->
     onEachFeature: (feature, layer) ->
       layer.bindPopup feature.properties.description + "<br><span style=\"float: right; font-size: 0.8em;\">(#{time_diff})</span>"
   })
-  TopLayers.unshift(layer)
+  if( !TopLayers[v.id] )
+    TopLayers[v.id] = []
+  TopLayers[v.id].unshift(layer)
   layer.addTo(map)
-  if TopLayers.length > 3
-    l = TopLayers.pop()
+  if TopLayers[v.id].length > 3
+    l = TopLayers[v.id].pop()
     console.log l
     map.removeLayer(l);
 
