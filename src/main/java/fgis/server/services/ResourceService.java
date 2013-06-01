@@ -227,6 +227,11 @@ public class ResourceService
       g.write( "id", resource.getID() );
     }
 
+    if ( filter.allow( "type" ) )
+    {
+      g.write( "type", resource.getType() );
+    }
+
     if ( filter.allow( "title" ) )
     {
       g.write( "title", resource.getName() );
