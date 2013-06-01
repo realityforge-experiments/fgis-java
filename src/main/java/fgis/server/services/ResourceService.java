@@ -242,6 +242,11 @@ public class ResourceService
       g.write( "description", resource.getName() );
     }
 
+    if ( filter.allow( "updated_at" ) && tracks.size() > 0 )
+    {
+      g.write( "updated_at", tracks.get( 0 ).getCollectedAt().getTime() );
+    }
+
     if ( filter.allow( "geo" ) )
     {
       g.writeStartObject( "geo" ).
@@ -250,7 +255,6 @@ public class ResourceService
           writeStartObject().
             write( "type", "Feature" ).
             writeStartObject( "properties" ).
-              write( "date_created", tracks.get( 0 ).getCollectedAt().getTime() ).
             writeEnd().
             writeStartObject( "geometry" ).
               write( "type", "LineString" ).
