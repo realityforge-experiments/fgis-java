@@ -25,6 +25,10 @@ public class PostgisConverter
   @Override
   public Object convertObjectValueToDataValue( final Object objectValue, final Session session )
   {
+    if( null == objectValue )
+    {
+      return null;
+    }
     final Geometry geometry = (Geometry) objectValue;
     final String wkt = Wkt.newEncoder( Dialect.POSTGIS_EWKT_1 ).encode( geometry );
     try
@@ -40,6 +44,10 @@ public class PostgisConverter
   @Override
   public Geometry convertDataValueToObjectValue( final Object dataValue, final Session session )
   {
+    if( null == dataValue )
+    {
+      return null;
+    }
     final String wkt;
     if ( dataValue instanceof PGgeometry )
     {
