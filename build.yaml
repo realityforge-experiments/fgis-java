@@ -28,4 +28,4 @@ artifacts:
   geolatte_common: org.geolatte:geolatte-common:jar:0.5
 
   geolatte_geom: org.geolatte:geolatte-geom:jar:0.12-rf
-  jts: com.vividsolutions:jts:jar:1.10
+  jts: com.vividsolutions:jts:jar:1.13
