@@ -49,5 +49,6 @@ public class DataGeneratorEJB
 
     final Point point = new Point( builder.toPointSequence() );
     _resourceTrackRepository.persist( new ResourceTrack( resource, new Date(), point ) );
+    resource.setLocation( point );
   }
 }
