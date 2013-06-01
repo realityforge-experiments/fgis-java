@@ -39,6 +39,15 @@ define 'fgis' do
     task('assets').invoke
   end
 
+  Domgen::GenerateTask.new(:FGIS,
+                           "server",
+                           [:ee],
+                           _(:target, :generated, "domgen"),
+                           project) do |t|
+    t.description = 'Generates the Java code for the persistent objects'
+    t.verbose = !!ENV['DEBUG_DOMGEN']
+  end
+
   compile.with :javax_persistence,
                :javax_transaction,
                :eclipselink,

@@ -1,6 +1,8 @@
 /artifacts
 /downloads
+/config/database.yml
 /generated
+/databases/generated
 /target
 /reports
 /*.iws
