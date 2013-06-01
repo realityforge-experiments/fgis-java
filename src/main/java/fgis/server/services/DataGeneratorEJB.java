@@ -41,7 +41,7 @@ public class DataGeneratorEJB
     final PointSequenceBuilder builder =
       PointSequenceBuilders.variableSized( DimensionalFlag.d2D, CrsId.UNDEFINED );
     final double latPosition = 144.92978643046 + random.nextDouble() / 1;
-    final double longPosition = 37.794939500455+ random.nextDouble() / 1;
+    final double longPosition = -37.794939500455 + random.nextDouble() / 1;
     builder.add( latPosition , longPosition );
 
     System.out.println( "Generating point " + latPosition + ", " + longPosition +
