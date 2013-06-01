@@ -214,7 +214,8 @@ addFeedItem = (time_diff, map, v) ->
         when "LineString" then map.panTo [geo.geometry.coordinates[0][1], geo.geometry.coordinates[0][0]]
         when "Polygon" then map.panTo [geo.geometry.coordinates[0][0][1], geo.geometry.coordinates[0][0][0]]
 
-handleGeoJsonPacket = (v) ->
+handleGeoJsonPacket = (map, v) ->
+  console.log v
   current_time = new Date().getTime()
   feature_time = new Date(v.geo.features[0].properties.date_created).getTime()
   time_diff_in_minutes = Math.ceil((current_time - feature_time)/1000/60)
@@ -247,8 +248,10 @@ initMap = (lat, long) ->
     maxZoom: 18
   }).addTo(map)
 
-  generateData().forEach (v) ->
-    handleGeoJsonPacket(v)
+  callback = (response) ->
+    handleGeoJsonPacket(map, response)
+  $.get '/fgis/api/resource/6', {}, callback, 'json'
+  #$.get '/fgis/api/resource/geojson/?type=truck,fire,tree', {}, callback, 'json'
 
 showMapAtDefault = ->
   initMap(-37.793566209439, 144.94111608134)

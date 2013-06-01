@@ -51,6 +51,7 @@ define 'fgis' do
   compile.with :javax_persistence,
                :javax_transaction,
                :eclipselink,
+               :javax_json,
                :postgresql,
                :postgis_jdbc,
                :jts,
@@ -59,7 +60,6 @@ define 'fgis' do
                :javaee_api,
                :javax_validation,
                :javax_annotation,
-               :json,
                :jackson_core,
                :jackson_mapper,
                :javax_validation
@@ -83,7 +83,7 @@ define 'fgis' do
                                 :enable_ejb => true,
                                 :enable_jpa => true,
                                 :dependencies => [project,
-                                                  :json,
+                                                  :javax_json,
                                                   :jts,
                                                   :geolatte_geom])
 end
