@@ -5,6 +5,7 @@ import fgis.server.entity.fgis.ResourceTrack;
 import fgis.server.entity.fgis.dao.ResourceRepository;
 import fgis.server.entity.fgis.dao.ResourceTrackRepository;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 import javax.ejb.EJB;
 import javax.ejb.Schedule;
@@ -38,11 +39,17 @@ public class DataGeneratorEJB
     }
     final Random random = new Random();
 
+    final Point lastLocation = resource.getLocation();
+
     final PointSequenceBuilder builder =
       PointSequenceBuilders.variableSized( DimensionalFlag.d2D, CrsId.UNDEFINED );
-    final double latPosition = 144.92978643046 + random.nextDouble() / 1;
-    final double longPosition = -37.794939500455 + random.nextDouble() / 1;
+    final double startX = null == lastLocation ? 144.92978643046 : lastLocation.getX();
+    final double startY = null == lastLocation ? -37.794939500455 : lastLocation.getY();
+
+    final double latPosition = startX + ( random.nextDouble() / 100 ) - 0.005;
+    final double longPosition = startY + ( random.nextDouble() / 100 ) - 0.005;
     builder.add( latPosition , longPosition );
+
 
     System.out.println( "Generating point " + latPosition + ", " + longPosition +
                         " for resource " + resource.getName() );
