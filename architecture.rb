@@ -18,7 +18,7 @@ Domgen.repository(:FGIS) do |repository|
 
     data_module.entity(:ResourceTrack) do |t|
       t.integer(:ID, :primary_key => true)
-      t.reference(:Resource, :immutable => true)
+      t.reference(:Resource, :immutable => true, :"inverse.traversable" => true)
       t.datetime(:CollectedAt, :immutable => true)
       t.point(:Location, :immutable => true)
 

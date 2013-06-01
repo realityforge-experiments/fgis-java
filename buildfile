@@ -83,6 +83,9 @@ define 'fgis' do
                                 :enable_ejb => true,
                                 :enable_jpa => true,
                                 :dependencies => [project,
+                                                  :json,
                                                   :jts,
                                                   :geolatte_geom])
 end
+
+task('domgen:all').enhance(%w(fgis:assets))
