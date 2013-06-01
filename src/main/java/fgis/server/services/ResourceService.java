@@ -51,6 +51,7 @@ public class ResourceService
                              @QueryParam( "fields" ) @Nullable final String fields )
     throws ParseException
   {
+    final FieldFilter filter = FieldFilter.parse( fields );
     final Resource resource = _resourceService.findByID( resourceID );
     if ( null == resource )
     {
@@ -59,7 +60,6 @@ public class ResourceService
 
     final List<ResourceTrack> tracks = getResourceTracks( resourceID );
 
-    final FieldFilter filter = FieldFilter.parse( fields );
 
     return toGeoJson( filter, resource, tracks );
   }
@@ -71,6 +71,8 @@ public class ResourceService
                              @QueryParam( "fields" ) @Nullable final String fields )
     throws ParseException
   {
+    final FieldFilter filter = FieldFilter.parse( fields );
+
     final Resource resource = _resourceService.findByID( resourceID );
     if ( null == resource )
     {
@@ -78,9 +80,6 @@ public class ResourceService
     }
 
     final List<ResourceTrack> tracks = getResourceTracks( resourceID );
-
-    final FieldFilter filter = FieldFilter.parse( fields );
-
     return toGeoJson( filter, resource, tracks );
   }
 
