@@ -1,0 +1,19 @@
+PATH
+  remote: .
+  specs:
+    dbt (0.9.0.dev)
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+    minitest (5.0.2)
+    rake (10.0.4)
+
+PLATFORMS
+  java
+  ruby
+
+DEPENDENCIES
+  dbt!
+  minitest (>= 5.0.2)
+  rake
