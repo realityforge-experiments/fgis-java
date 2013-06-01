@@ -5,7 +5,6 @@ import fgis.server.entity.fgis.ResourceTrack;
 import fgis.server.entity.fgis.dao.ResourceRepository;
 import fgis.server.entity.fgis.dao.ResourceTrackRepository;
 import java.util.Date;
-import java.util.List;
 import java.util.Random;
 import javax.ejb.EJB;
 import javax.ejb.Schedule;
