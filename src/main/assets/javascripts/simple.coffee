@@ -54,7 +54,7 @@ handleGeoJsonPacket = (map, v) ->
   else if( v.type == 'Tanker' )
     color = 'red'
   current_time = new Date().getTime()
-  feature_time = new Date(v.geo.features[0].properties.date_created).getTime()
+  feature_time = new Date(v.updated_at).getTime()
   time_diff_in_minutes = Math.ceil((current_time - feature_time)/1000/60)
   time_diff_in_hours = Math.floor((current_time - feature_time)/1000/60/60)
   time_diff_in_days = Math.floor((current_time - feature_time)/1000/60/60/24)
