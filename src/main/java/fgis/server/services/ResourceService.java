@@ -2,6 +2,7 @@ package fgis.server.services;
 
 import fgis.server.entity.fgis.Resource;
 import fgis.server.entity.fgis.ResourceTrack;
+import fgis.server.entity.fgis.Resource_;
 import fgis.server.entity.fgis.dao.ResourceRepository;
 import fgis.server.entity.fgis.dao.ResourceTrackRepository;
 import fgis.server.support.FieldFilter;
@@ -9,8 +10,6 @@ import java.io.StringWriter;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import javax.annotation.Nullable;
 import javax.ejb.ConcurrencyManagement;
@@ -22,7 +21,15 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonGeneratorFactory;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -42,6 +49,9 @@ import org.glassfish.json.JsonGeneratorFactoryImpl;
 @Consumes({ MediaType.APPLICATION_JSON })
 public class ResourceService
 {
+  @PersistenceContext( unitName = "FGIS" )
+  private EntityManager _em;
+
   @EJB
   private ResourceRepository _resourceService;
 
@@ -51,23 +61,30 @@ public class ResourceService
   @GET
   @Produces( { MediaType.APPLICATION_JSON } )
   public String getResources( @QueryParam( "types" ) @Nullable final String types,
-                              @QueryParam( "fields" ) @Nullable final String fields )
+                              @QueryParam( "fields" ) @Nullable final String fields,
+                              @QueryParam( "offset" ) @DefaultValue( "0" ) final int offset,
+                              @QueryParam( "limit" ) @DefaultValue( "50" ) final int limit )
     throws ParseException
   {
     final FieldFilter filter = FieldFilter.parse( fields );
 
-    System.out.println( "types = " + types );
-    final List<Resource> resources;
+    final CriteriaBuilder b = _em.getCriteriaBuilder();
+    final CriteriaQuery<Resource> query = b.createQuery( Resource.class );
+    final Root<Resource> entity = query.from( Resource.class );
+    query.select( entity );
+    final ArrayList<Predicate> predicates = new ArrayList<Predicate>();
+
     if ( null != types )
     {
-      final ArrayList<String> set = new ArrayList<>();
-      Collections.addAll( set, types.split( "," ) );
-      resources = _resourceService.findAllByTypeInArea( set );
+      predicates.add( entity.get( Resource_.Type ).in( types.split( "," ) ) );
     }
-    else
-    {
-      resources = _resourceService.findAllInArea();
-    }
+
+    query.where( b.and( predicates.toArray( new Predicate[ predicates.size() ] ) ) );
+
+    final TypedQuery<Resource> typedQuery = _em.createQuery( query );
+    typedQuery.setFirstResult( offset );
+    typedQuery.setMaxResults( limit );
+    final List<Resource> resources = typedQuery.getResultList();
 
     final ArrayList<ResourceEntry> entries = new ArrayList<>( resources.size() );
     for ( final Resource resource : resources )
