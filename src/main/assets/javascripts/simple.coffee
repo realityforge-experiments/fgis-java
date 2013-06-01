@@ -69,6 +69,12 @@ handleGeoJsonPacket = (map, v) ->
 
   addFeedItem(time_diff, map, v)
 
+downloadResourceData = (map) ->
+  callback = (response) ->
+    response.forEach (v) ->
+      handleGeoJsonPacket(map, v)
+  $.get '/fgis/api/resource', {}, callback, 'json'
+
 initMap = (lat, long) ->
   map = L.map('map').setView([lat,long], 14)
   L.tileLayer('http://{s}.tile.cloudmade.com/aeb94991e883413e8262bd55def34111/997/256/{z}/{x}/{y}.png',{
@@ -76,10 +82,9 @@ initMap = (lat, long) ->
     maxZoom: 18
   }).addTo(map)
 
-  callback = (response) ->
-    handleGeoJsonPacket(map, response)
-  $.get '/fgis/api/resource/6', {}, callback, 'json'
-  #$.get '/fgis/api/resource/geojson/?type=truck,fire,tree', {}, callback, 'json'
+  downloadResourceData(map)
+  callback = -> downloadResourceData(map)
+  setInterval callback, 1000
 
 showMapAtDefault = ->
   initMap(-37.793566209439, 144.94111608134)
