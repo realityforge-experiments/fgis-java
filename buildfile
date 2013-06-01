@@ -1,4 +1,5 @@
 require 'buildr/git_auto_version'
+require 'buildr/top_level_generate_dir'
 
 desc 'FGIS: Fire Ground Information System'
 define 'fgis' do
