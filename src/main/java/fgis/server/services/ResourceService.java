@@ -25,7 +25,7 @@ import org.json.JSONObject;
 @Startup
 @Singleton
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
-@Path("/geo")
+@Path("/resource")
 @Produces({ MediaType.APPLICATION_JSON })
 @Consumes({ MediaType.APPLICATION_JSON })
 public class ResourceService
