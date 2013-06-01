@@ -23,6 +23,12 @@ Domgen.repository(:FGIS) do |repository|
       t.datetime(:CollectedAt, :immutable => true)
       t.point(:Location, :immutable => true)
 
+      t.query('findAllByResourceSince') do |q|
+        q.jpa.jpql = "O.Resource.ID = :ResourceID AND O.CollectedAt >= :StartAt"
+        q.integer(:ResourceID)
+        q.datetime(:StartAt)
+      end
+
       t.sql.index([:Location], :index_type => :gist)
     end
   end
