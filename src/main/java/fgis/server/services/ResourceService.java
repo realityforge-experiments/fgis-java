@@ -4,9 +4,12 @@ import fgis.server.entity.fgis.Resource;
 import fgis.server.entity.fgis.ResourceTrack;
 import fgis.server.entity.fgis.dao.ResourceRepository;
 import fgis.server.entity.fgis.dao.ResourceTrackRepository;
+import fgis.server.support.FieldFilter;
 import java.io.StringWriter;
+import java.text.ParseException;
 import java.util.Calendar;
 import java.util.List;
+import javax.annotation.Nullable;
 import javax.ejb.ConcurrencyManagement;
 import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.EJB;
@@ -21,6 +24,8 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import org.glassfish.json.JsonGeneratorFactoryImpl;
 
@@ -43,7 +48,9 @@ public class ResourceService
   @GET
   @Path("/{id}")
   @Produces({ MediaType.APPLICATION_JSON })
-  public String getResource( final @PathParam("id") int resourceID )
+  public String getResource( @PathParam("id") final int resourceID,
+                             @QueryParam( "fields" ) @Nullable final String fields )
+    throws ParseException
   {
     final Resource resource = _resourceService.findByID( resourceID );
     if ( null == resource )
@@ -53,7 +60,9 @@ public class ResourceService
 
     final List<ResourceTrack> tracks = getResourceTracks( resourceID );
 
-    return toGeoJson( resource, tracks );
+    final FieldFilter filter = FieldFilter.parse( fields );
+
+    return toGeoJson( filter, resource, tracks );
   }
 
   private List<ResourceTrack> getResourceTracks( final int resourceID )
@@ -63,16 +72,29 @@ public class ResourceService
     return _resourceTrackService.findAllByResourceSince( resourceID, calendar.getTime() );
   }
 
-  private String toGeoJson( final Resource resource, final List<ResourceTrack> tracks )
+  private String toGeoJson( final FieldFilter filter,
+                            final Resource resource,
+                            final List<ResourceTrack> tracks )
   {
     final JsonGeneratorFactory factory = new JsonGeneratorFactoryImpl();
     final StringWriter writer = new StringWriter();
-    final JsonGenerator generator = factory.createGenerator( writer );
+    final JsonGenerator g = factory.createGenerator( writer );
 
-    generator.writeStartObject().
-      write( "title", resource.getName() ).
-      write( "description", resource.getName() ).
-      writeStartObject( "geo" ).
+    g.writeStartObject();
+
+    if( filter.allow( "title" ) )
+    {
+      g.write( "title", resource.getName() );
+    }
+
+    if( filter.allow( "description" ) )
+    {
+      g.write( "description", resource.getName() );
+    }
+
+    if( filter.allow( "geo" ) )
+    {
+      g.writeStartObject( "geo" ).
         write( "type", "FeatureCollection" ).
         writeStartArray( "features" ).
           writeStartObject().
@@ -87,12 +109,12 @@ public class ResourceService
               write( "type", "LineString" ).
               writeStartArray( "coordinates" );
 
-    for ( final ResourceTrack track : tracks )
-    {
-      generator.writeStartArray().write( track.getLocation().getX() ).write( track.getLocation().getY() ).writeEnd();
-    }
+      for ( final ResourceTrack track : tracks )
+      {
+        g.writeStartArray().write( track.getLocation().getX() ).write( track.getLocation().getY() ).writeEnd();
+      }
 
-    generator.
+      g.
               writeEnd().
             writeEnd().
             writeStartObject( "crs" ).
@@ -103,9 +125,9 @@ public class ResourceService
             writeEnd().
           writeEnd().
         writeEnd().
-      writeEnd().
-    writeEnd().
-    close();
+      writeEnd();
+    }
+    g.writeEnd().close();
 
     return writer.toString();
   }
