@@ -248,7 +248,7 @@ public class ResourceService
               write( "type", resource.getName() + "'s Trail" ).
               write( "description", resource.getName() + "'s Trail" ).
               write( "color", "blue" ).
-              write( "date_created", "Sat Dec 01 2012 17:49:08 GMT+1100 (EST)" ). // tracks.get( 0 ).getCollectedAt()
+              write( "date_created", tracks.get( 0 ).getCollectedAt().getTime() ).
             writeEnd().
             writeStartObject( "geometry" ).
               write( "type", "LineString" ).
