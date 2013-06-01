@@ -88,9 +88,11 @@ public class ResourceService
     featureJson.put( "properties", propsJson );
 
     propsJson.put( "type", "Trail" );
+    propsJson.put( "description", "Trail" );
     propsJson.put( "resource_id", resource.getID() );
     propsJson.put( "color", "blue" );
-    //propsJson.put( "created_at", ??? );
+    propsJson.put( "date_created", tracks.get( 0 ).getCollectedAt() );
+    propsJson.put( "date_created", "Sat Dec 01 2012 17:49:08 GMT+1100 (EST)" );
 
     final JSONObject crsJson = new JSONObject();
     featureJson.put( "crs", crsJson );
@@ -102,47 +104,19 @@ public class ResourceService
     final JSONObject geometryJson = new JSONObject();
     featureJson.put( "geometry", geometryJson );
     geometryJson.put( "type", "LineString" );
+    final JSONArray outerCoordinatesJson = new JSONArray();
     final JSONArray coordinatesJson = new JSONArray();
+    outerCoordinatesJson.put( coordinatesJson );
     geometryJson.put( "coordinates", coordinatesJson );
 
     for ( final ResourceTrack track : tracks )
     {
       final JSONArray coordinateJson = new JSONArray();
       coordinatesJson.put( coordinateJson );
-      coordinateJson.put( track.getLocation().getY() );
       coordinateJson.put( track.getLocation().getX() );
+      coordinateJson.put( track.getLocation().getY() );
     }
 
-/*
-{
-      "title":"Some Title",
-      "description":"Some description",
-      "geo":{
-        "type": "FeatureCollection",
-        "features": [
-          {
-            "type":"Feature",
-            "properties":{
-              "type":"SECTOR"
-              "description":"Fire Line",
-              "color":"red",
-              "date_created": "Sat Dec 02 2012 00:49:08 GMT+1100 (EST)"
-            },
-            "geometry":{
-              "type":"LineString",
-              "coordinates":[[142.83105455338, -36.970823407174], [144.16040025651, -37.344358563424], [144.54492174088, -36.278684735299]]
-            },
-            "crs":{
-              "type":"name",
-              "properties":{
-                "name":"urn:ogc:def:crs:OGC:1.3:CRS84"
-              }
-            }
-          }
-        ]
-      }
-    }
-*/
     return json.toString();
   }
 
