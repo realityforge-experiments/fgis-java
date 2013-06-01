@@ -64,6 +64,8 @@ define 'fgis' do
                :jackson_mapper,
                :javax_validation
 
+  test.using :testng
+
   package(:war).tap do |war|
     assets.each do |asset|
       war.include asset, :as => '.'
