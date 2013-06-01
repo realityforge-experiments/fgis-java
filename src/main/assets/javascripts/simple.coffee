@@ -214,6 +214,32 @@ addFeedItem = (time_diff, map, v) ->
         when "LineString" then map.panTo [geo.geometry.coordinates[0][1], geo.geometry.coordinates[0][0]]
         when "Polygon" then map.panTo [geo.geometry.coordinates[0][0][1], geo.geometry.coordinates[0][0][0]]
 
+handleGeoJsonPacket = (v) ->
+  current_time = new Date().getTime()
+  feature_time = new Date(v.geo.features[0].properties.date_created).getTime()
+  time_diff_in_minutes = Math.ceil((current_time - feature_time)/1000/60)
+  time_diff_in_hours = Math.floor((current_time - feature_time)/1000/60/60)
+  time_diff_in_days = Math.floor((current_time - feature_time)/1000/60/60/24)
+  if time_diff_in_days > 0
+    time_diff = time_diff_in_days + " days ago"
+  else
+    time_diff = time_diff_in_hours + " hours ago"
+    if time_diff_in_hours == 0
+      time_diff = time_diff_in_minutes + " minutes ago"
+  L.geoJson(v.geo.features[0], {
+    pointToLayer: (feature, latlon) ->
+      markerIcon = L.icon
+        iconUrl: 'images/marker-icon.png'
+        shadowUrl: 'images/marker-shadow.png'
+      L.marker(latlon, {icon: markerIcon}).addTo(map);
+    style: (feature) ->
+      return {color: feature.properties.color};
+    onEachFeature: (feature, layer) ->
+      layer.bindPopup feature.properties.description + "<br><span style=\"float: right; font-size: 0.8em;\">(#{time_diff})</span>"
+  }).addTo(map)
+
+  addFeedItem(time_diff, map, v)
+
 initMap = (lat, long) ->
   map = L.map('map').setView([lat,long], 14)
   L.tileLayer('http://{s}.tile.cloudmade.com/aeb94991e883413e8262bd55def34111/997/256/{z}/{x}/{y}.png',{
@@ -222,33 +248,7 @@ initMap = (lat, long) ->
   }).addTo(map)
 
   generateData().forEach (v) ->
-    current_time = new Date().getTime()
-    feature_time = new Date(v.geo.features[0].properties.date_created).getTime()
-    time_diff_in_minutes = Math.ceil((current_time - feature_time)/1000/60)
-    time_diff_in_hours = Math.floor((current_time - feature_time)/1000/60/60)
-    time_diff_in_days = Math.floor((current_time - feature_time)/1000/60/60/24)
-    if time_diff_in_days > 0
-      time_diff = time_diff_in_days + " days ago"
-    else
-      time_diff = time_diff_in_hours + " hours ago"
-      if time_diff_in_hours == 0
-        time_diff = time_diff_in_minutes + " minutes ago"
-    L.geoJson(v.geo.features[0], {
-      pointToLayer: (feature, latlon) ->
-        markerIcon = L.icon
-          iconUrl: 'images/marker-icon.png'
-          shadowUrl: 'images/marker-shadow.png'
-        L.marker(latlon, {icon: markerIcon}).addTo(map);
-      style: (feature) ->
-        return {color: feature.properties.color};
-      onEachFeature: (feature, layer) ->
-        layer.bindPopup feature.properties.description + "<br><span style=\"float: right; font-size: 0.8em;\">(#{time_diff})</span>"
-    }).addTo(map)
-
-    addFeedItem(time_diff, map, v)
-
-
-configureFeedBehaviour()
+    handleGeoJsonPacket(v)
 
 showMapAtDefault = ->
   initMap(-37.793566209439, 144.94111608134)
