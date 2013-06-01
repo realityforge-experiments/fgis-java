@@ -46,6 +46,13 @@ addFeedItem = (time_diff, map, v) ->
 
 handleGeoJsonPacket = (map, v) ->
   console.log v
+  color = 'green'
+  if( v.type == 'Person' )
+    color = 'blue'
+  else if( v.type == 'Slip-On' )
+    color = 'yellow'
+  else if( v.type == 'Tanker' )
+    color = 'red'
   current_time = new Date().getTime()
   feature_time = new Date(v.geo.features[0].properties.date_created).getTime()
   time_diff_in_minutes = Math.ceil((current_time - feature_time)/1000/60)
@@ -64,7 +71,7 @@ handleGeoJsonPacket = (map, v) ->
         shadowUrl: 'images/marker-shadow.png'
       L.marker(latlon, {icon: markerIcon}).addTo(map);
     style: (feature) ->
-      return {color: feature.properties.color};
+      return {color: color};
     onEachFeature: (feature, layer) ->
       layer.bindPopup feature.properties.description + "<br><span style=\"float: right; font-size: 0.8em;\">(#{time_diff})</span>"
   })
