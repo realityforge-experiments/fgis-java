@@ -33,7 +33,7 @@ public class DataGeneratorEJB
     Resource resource = _resourceService.findByName( resourceName );
     if ( null == resource )
     {
-      resource = new Resource( resourceName );
+      resource = new Resource( "Person", resourceName );
       _resourceService.persist( resource );
     }
     final Random random = new Random();

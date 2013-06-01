@@ -13,6 +13,7 @@ Domgen.repository(:FGIS) do |repository|
 
     data_module.entity(:Resource) do |t|
       t.integer(:ID, :primary_key => true)
+      t.text(:Type, :immutable => true)
       t.text(:Name, :immutable => true)
       t.query('findByName')
     end
