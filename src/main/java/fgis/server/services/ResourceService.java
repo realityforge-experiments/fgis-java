@@ -3,6 +3,7 @@ package fgis.server.services;
 import fgis.server.entity.fgis.Resource;
 import fgis.server.entity.fgis.ResourceTrack;
 import fgis.server.entity.fgis.dao.ResourceRepository;
+import java.util.List;
 import javax.ejb.ConcurrencyManagement;
 import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.EJB;
@@ -20,14 +21,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-@SuppressWarnings({ "UnusedDeclaration", "JavaDoc" })
-@TransactionAttribute(TransactionAttributeType.REQUIRED)
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@TransactionAttribute( TransactionAttributeType.REQUIRED )
 @Startup
 @Singleton
-@ConcurrencyManagement(ConcurrencyManagementType.BEAN)
-@Path("/resource")
-@Produces({ MediaType.APPLICATION_JSON })
-@Consumes({ MediaType.APPLICATION_JSON })
+@ConcurrencyManagement( ConcurrencyManagementType.BEAN )
+@Path( "/resource" )
+@Produces( { MediaType.APPLICATION_JSON } )
+@Consumes( { MediaType.APPLICATION_JSON } )
 public class ResourceService
 {
   @EJB
@@ -35,25 +36,120 @@ public class ResourceService
 
   @GET
   @Path( "/{id}" )
+  @Produces( { MediaType.APPLICATION_JSON } )
   public String getResource( final @PathParam( "id" ) int resourceID )
     throws JSONException
   {
     final Resource resource = _service.getByID( resourceID );
+    final List<ResourceTrack> tracks = resource.getResourceTracks();
 
+    return toJson( resource, tracks );
+  }
+
+  @GET
+  @Path( "/geojson/{id}" )
+  public String getResourceAsGeoJson( final @PathParam( "id" ) int resourceID )
+    throws JSONException
+  {
+    final Resource resource = _service.getByID( resourceID );
+
+    return toGeoJson( resource, resource.getResourceTracks() );
+  }
+
+  private String toGeoJson( final Resource resource, final List<ResourceTrack> tracks )
+    throws JSONException
+  {
     final JSONObject json = new JSONObject();
-    final JSONArray jsonSectors = new JSONArray();
+    json.put( "title", resource.getName() );
+    json.put( "description", resource.getName() );
+    final JSONObject geoSectionJson = new JSONObject();
+    json.put( "geo", geoSectionJson );
+    geoSectionJson.put( "type", "FeatureCollection" );
+    final JSONArray featuresJson = new JSONArray();
+    geoSectionJson.put( "features", featuresJson );
+
+    final JSONObject featureJson = new JSONObject();
+    featuresJson.put( featureJson );
+    featureJson.put( "type", "Feature" );
+    final JSONObject propsJson = new JSONObject();
+    featureJson.put( "properties", propsJson );
+
+    propsJson.put( "type", "Trail" );
+    propsJson.put( "resource_id", resource.getID() );
+    propsJson.put( "color", "blue" );
+    //propsJson.put( "created_at", ??? );
+
+    final JSONObject crsJson = new JSONObject();
+    featureJson.put( "crs", crsJson );
+    crsJson.put( "type", "name" );
+    final JSONObject crsPropertiesJson = new JSONObject();
+    crsJson.put( "properties", crsPropertiesJson );
+    crsPropertiesJson.put( "name", "urn:ogc:def:crs:OGC:1.3:CRS84" );
+
+    final JSONObject geometryJson = new JSONObject();
+    featureJson.put( "geometry", geometryJson );
+    geometryJson.put( "type", "LineString" );
+    final JSONArray coordinatesJson = new JSONArray();
+    geometryJson.put( "coordinates", coordinatesJson );
+
+    for ( final ResourceTrack track : tracks )
+    {
+      final JSONArray coordinateJson = new JSONArray();
+      coordinatesJson.put( coordinateJson );
+      coordinateJson.put( track.getLocation().getY() );
+      coordinateJson.put( track.getLocation().getX() );
+    }
+
+/*
+{
+      "title":"Some Title",
+      "description":"Some description",
+      "geo":{
+        "type": "FeatureCollection",
+        "features": [
+          {
+            "type":"Feature",
+            "properties":{
+              "type":"SECTOR"
+              "description":"Fire Line",
+              "color":"red",
+              "date_created": "Sat Dec 02 2012 00:49:08 GMT+1100 (EST)"
+            },
+            "geometry":{
+              "type":"LineString",
+              "coordinates":[[142.83105455338, -36.970823407174], [144.16040025651, -37.344358563424], [144.54492174088, -36.278684735299]]
+            },
+            "crs":{
+              "type":"name",
+              "properties":{
+                "name":"urn:ogc:def:crs:OGC:1.3:CRS84"
+              }
+            }
+          }
+        ]
+      }
+    }
+*/
+    return json.toString();
+  }
+
+  private String toJson( final Resource resource, final List<ResourceTrack> tracks )
+    throws JSONException
+  {
+    final JSONObject json = new JSONObject();
+    final JSONArray jsonPoints = new JSONArray();
     json.put( "id", resource.getID() );
     json.put( "name", resource.getName() );
-    json.put( "points", jsonSectors );
+    json.put( "points", jsonPoints );
 
     int index = 0;
-    for ( final ResourceTrack track : resource.getResourceTracks() )
+    for ( final ResourceTrack track : tracks )
     {
       final JSONObject jsonSector = new JSONObject();
       jsonSector.put( "id", track.getID() );
       jsonSector.put( "collected_at", track.getCollectedAt().toString() );
       jsonSector.put( "location", track.getLocation().asText() );
-      jsonSectors.put( index++, jsonSector );
+      jsonPoints.put( index++, jsonSector );
     }
     return json.toString();
   }
