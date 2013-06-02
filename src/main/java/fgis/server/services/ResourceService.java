@@ -1,5 +1,6 @@
 package fgis.server.services;
 
+import fgis.server.data_type.fgis.LocationUpdateDTO;
 import fgis.server.entity.fgis.Resource;
 import fgis.server.entity.fgis.ResourceTrack;
 import fgis.server.entity.fgis.Resource_;
@@ -10,6 +11,7 @@ import java.io.StringWriter;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +37,7 @@ import javax.persistence.criteria.Root;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -43,6 +46,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import org.geolatte.geom.DimensionalFlag;
 import org.geolatte.geom.Geometry;
+import org.geolatte.geom.Point;
 import org.geolatte.geom.PointSequenceBuilder;
 import org.geolatte.geom.PointSequenceBuilders;
 import org.geolatte.geom.Polygon;
@@ -159,14 +163,57 @@ public class ResourceService
   {
     final FieldFilter filter = FieldFilter.parse( fields );
 
+    final Resource resource = getResource( resourceID );
+
+    final List<ResourceTrack> tracks = getResourceTracks( resourceID );
+    return toGeoJson( filter, new ResourceEntry( resource, tracks ) );
+  }
+
+  @GET
+  @Path( "/{id}/location" )
+  @Consumes( { MediaType.APPLICATION_JSON } )
+  public String updateResourceLocation( @PathParam( "id" ) final int resourceID,
+                                        @QueryParam( "x" ) final float x,
+                                        @QueryParam( "y" ) final float y )
+    throws ParseException
+  {
+    System.out.println( "updateResourceLocation(" + x + "," + y +")" );
+    updateResourceLocation( getResource( resourceID ), toPoint( x, y ) );
+    return "{\"result\":\"OK\"}";
+  }
+
+  @POST
+  @Path( "/{id}/location" )
+  @Consumes( { MediaType.APPLICATION_JSON } )
+  public void updateResourceLocation( @PathParam( "id" ) final int resourceID, final LocationUpdateDTO update )
+    throws ParseException
+  {
+    updateResourceLocation( getResource( resourceID ),
+                            toPoint( update.getCoordinatess().get( 0 ), update.getCoordinatess().get( 1 ) ) );
+  }
+
+  private Resource getResource( final int resourceID )
+  {
     final Resource resource = _resourceService.findByID( resourceID );
     if ( null == resource )
     {
       throw new WebApplicationException( ResponseUtil.entityNotFoundResponse() );
     }
+    return resource;
+  }
 
-    final List<ResourceTrack> tracks = getResourceTracks( resourceID );
-    return toGeoJson( filter, new ResourceEntry( resource, tracks ) );
+  private Point toPoint( final double latPosition, final double longPosition )
+  {
+    final PointSequenceBuilder builder =
+      PointSequenceBuilders.variableSized( DimensionalFlag.d2D, CrsId.UNDEFINED );
+    builder.add( latPosition, longPosition );
+    return new Point( builder.toPointSequence() );
+  }
+
+  private void updateResourceLocation( final Resource resource, final Point point )
+  {
+    _resourceTrackService.persist( new ResourceTrack( resource, new Date(), point ) );
+    resource.setLocation( point );
   }
 
   private List<ResourceTrack> getResourceTracks( final int resourceID )
@@ -252,13 +299,13 @@ public class ResourceService
       g.writeStartObject( "geo" ).
         write( "type", "FeatureCollection" ).
         writeStartArray( "features" ).
-          writeStartObject().
-            write( "type", "Feature" ).
-            writeStartObject( "properties" ).
-            writeEnd().
-            writeStartObject( "geometry" ).
-              write( "type", "LineString" ).
-              writeStartArray( "coordinates" );
+        writeStartObject().
+        write( "type", "Feature" ).
+        writeStartObject( "properties" ).
+        writeEnd().
+        writeStartObject( "geometry" ).
+        write( "type", "LineString" ).
+        writeStartArray( "coordinates" );
 
       for ( final ResourceTrack track : tracks )
       {
@@ -266,17 +313,17 @@ public class ResourceService
       }
 
       g.
-              writeEnd().
-            writeEnd().
-            writeStartObject( "crs" ).
-              write( "type", "name" ).
-              writeStartObject( "properties" ).
-                write( "name", "urn:ogc:def:crs:OGC:1.3:CRS84" ).
-              writeEnd().
-            writeEnd().
-          writeEnd().
         writeEnd().
-      writeEnd();
+        writeEnd().
+        writeStartObject( "crs" ).
+        write( "type", "name" ).
+        writeStartObject( "properties" ).
+        write( "name", "urn:ogc:def:crs:OGC:1.3:CRS84" ).
+        writeEnd().
+        writeEnd().
+        writeEnd().
+        writeEnd().
+        writeEnd();
     }
     g.writeEnd();
   }
