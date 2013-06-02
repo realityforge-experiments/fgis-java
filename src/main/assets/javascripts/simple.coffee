@@ -87,10 +87,10 @@ handleGeoJsonPacket = (map, v) ->
   addFeedItem(time_diff, map, v)
 
 downloadResourceData = (map) ->
-  callback = (response) ->
+  handleDownloadCallback = (response) ->
     response.forEach (v) ->
       handleGeoJsonPacket(map, v)
-  $.get '/fgis/api/resource', {}, callback, 'json'
+  $.get '/fgis/api/resource', {}, handleDownloadCallback, 'json'
 
 initMap = (lat, long) ->
   map = L.map('map').setView([lat,long], 14)
@@ -100,8 +100,8 @@ initMap = (lat, long) ->
   }).addTo(map)
 
   downloadResourceData(map)
-  callback = -> downloadResourceData(map)
-  setInterval callback, 1000
+  intervalDownloadCallback = -> downloadResourceData(map)
+  setInterval intervalDownloadCallback, 1000
 
 showMapAtDefault = ->
   initMap(-37.793566209439, 144.94111608134)
