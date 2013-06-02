@@ -37,7 +37,6 @@ addFeedItem = (time_diff, map, v) ->
 
   $('div.message').click ->
     geoList = $(this).data('geo').features
-    console.log geoList
     geoList.forEach (geo) ->
       switch geo.geometry.type
         when "Point" then map.panTo [geo.geometry.coordinates[1], geo.geometry.coordinates[0]]
@@ -81,7 +80,6 @@ handleGeoJsonPacket = (map, v) ->
   layer.addTo(map)
   if TopLayers[v.id].length > 3
     l = TopLayers[v.id].pop()
-    console.log l
     map.removeLayer(l);
 
   addFeedItem(time_diff, map, v)
