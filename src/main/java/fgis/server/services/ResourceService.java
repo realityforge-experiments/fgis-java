@@ -81,6 +81,7 @@ public class ResourceService
                               @QueryParam( "limit" ) @DefaultValue( "50" ) final int limit )
     throws ParseException
   {
+    System.out.println( "getResources(" + types + "," + fields + ")" );
     final FieldFilter filter = FieldFilter.parse( fields );
 
     final CriteriaBuilder b = _em.getCriteriaBuilder();
@@ -177,7 +178,7 @@ public class ResourceService
                                         @QueryParam( "y" ) final double y )
     throws ParseException
   {
-    System.out.println( "updateResourceLocation(" + x + "," + y +")" );
+    System.out.println( "updateResourceLocation(" + resourceID + "," + x + "," + y +")" );
     updateResourceLocation( getResource( resourceID ), toPoint( x, y ) );
     return "{\"result\":\"OK\"}";
   }
