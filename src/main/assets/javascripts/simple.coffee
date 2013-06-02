@@ -109,6 +109,14 @@ showMapAtGeoPosition = (position) ->
 
 if navigator && navigator.geolocation
   navigator.geolocation.getCurrentPosition(showMapAtGeoPosition, showMapAtDefault)
+
+  sendLocationDataToServer = (position) ->
+    sentDataSuccessCallback = (response) ->
+      console.log "Sent data - hoorah!"
+    $.get '/fgis/api/resource/6/location?x=' + position.coords.longitude + '&y=' + position.coords.latitude, {}, sentDataSuccessCallback, 'json'
+  sendLocationDataToServerCallback = ->
+    navigator.geolocation.getCurrentPosition(sendLocationDataToServer)
+  setInterval sendLocationDataToServerCallback, 1000
 else
   showMapAtDefault
 
