@@ -1,6 +1,7 @@
 package fgis.server.services;
 
 import fgis.server.data_type.fgis.LocationUpdateDTO;
+import fgis.server.data_type.fgis.ResourceDetailsDTO;
 import fgis.server.entity.fgis.Resource;
 import fgis.server.entity.fgis.ResourceTrack;
 import fgis.server.entity.fgis.Resource_;
@@ -131,6 +132,21 @@ public class ResourceService
     return toGeoJson( filter, entries );
   }
 
+  @POST
+  @Produces( { MediaType.APPLICATION_JSON } )
+  public void createResource( final ResourceDetailsDTO details )
+    throws ParseException
+  {
+    final String name = details.getName();
+    Resource resource = _resourceService.findByName( name );
+    if ( null != resource )
+    {
+      throw new WebApplicationException( ResponseUtil.entityNotFoundResponse() );
+    }
+
+    _resourceService.persist( new Resource( details.getType(), name ) );
+  }
+
   private Polygon parseBBox( final String bbox )
     throws ParseException
   {
@@ -178,7 +194,7 @@ public class ResourceService
                                         @QueryParam( "y" ) final double y )
     throws ParseException
   {
-    System.out.println( "updateResourceLocation(" + resourceID + "," + x + "," + y +")" );
+    System.out.println( "updateResourceLocation(" + resourceID + "," + x + "," + y + ")" );
     updateResourceLocation( getResource( resourceID ), toPoint( x, y ) );
     return "{\"result\":\"OK\"}";
   }

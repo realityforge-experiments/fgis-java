@@ -11,6 +11,11 @@ Domgen.repository(:FGIS) do |repository|
 
   repository.data_module(:FGIS) do |data_module|
 
+    data_module.struct(:ResourceDetailsDTO) do |s|
+      s.text(:Type)
+      s.text(:Name)
+    end
+
     data_module.struct(:LocationUpdateDTO) do |s|
       s.datetime(:CollectedAt)
       s.real(:Coordinates, :collection_type => :sequence)
