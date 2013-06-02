@@ -44,7 +44,7 @@ addFeedItem = (time_diff, map, v) ->
         when "Polygon" then map.panTo [geo.geometry.coordinates[0][0][1], geo.geometry.coordinates[0][0][0]]
 
 handleGeoJsonPacket = (map, v) ->
-  console.log v
+  #console.log v
   color = 'green'
   if( v.type == 'Person' )
     color = 'blue'
