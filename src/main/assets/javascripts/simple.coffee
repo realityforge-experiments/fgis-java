@@ -107,16 +107,35 @@ showMapAtDefault = ->
 showMapAtGeoPosition = (position) ->
   initMap( position.coords.latitude, position.coords.longitude)
 
+getHashParams = ->
+  hashParams = {}
+  e
+  a = /\+/g # Regex for replacing addition symbol with a space
+  r = /([^&;=]+)=?([^&;]*)/g
+  d = (s) ->
+    decodeURIComponent( s.replace(a, " "))
+  q = window.location.hash.substring(1)
+
+  while (e = r.exec(q))
+     hashParams[d(e[1])] = d(e[2])
+
+  return hashParams
+
+hash_state = getHashParams()
+console.log(hash_state)
+
 if navigator && navigator.geolocation
   navigator.geolocation.getCurrentPosition(showMapAtGeoPosition, showMapAtDefault)
 
-  sendLocationDataToServer = (position) ->
-    sentDataSuccessCallback = (response) ->
-      console.log "Sent data - hoorah!"
-    $.get '/fgis/api/resource/6/location?x=' + position.coords.longitude + '&y=' + position.coords.latitude, {}, sentDataSuccessCallback, 'json'
-  sendLocationDataToServerCallback = ->
-    navigator.geolocation.getCurrentPosition(sendLocationDataToServer)
-  setInterval sendLocationDataToServerCallback, 1000
+  if !hash_state['track'] || 'false' != hash_state['track']
+    sendLocationDataToServer = (position) ->
+      sentDataSuccessCallback = (response) ->
+        console.log "Sent data - hoorah!"
+      resource_id = hash_state['resource_id'] || '6'
+      $.get '/fgis/api/resource/' + resource_id + '/location?x=' + position.coords.longitude + '&y=' + position.coords.latitude, {}, sentDataSuccessCallback, 'json'
+    sendLocationDataToServerCallback = ->
+      navigator.geolocation.getCurrentPosition(sendLocationDataToServer)
+    setInterval sendLocationDataToServerCallback, 1000
 else
   showMapAtDefault
 
