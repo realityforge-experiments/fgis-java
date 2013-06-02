@@ -86,6 +86,8 @@ handleGeoJsonPacket = (map, v) ->
 
 downloadResourceData = (map) ->
   handleDownloadCallback = (response) ->
+    $('div.messages').empty()
+
     response.forEach (v) ->
       handleGeoJsonPacket(map, v)
   $.get '/fgis/api/resource', {}, handleDownloadCallback, 'json'
