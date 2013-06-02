@@ -131,7 +131,7 @@ if navigator && navigator.geolocation
     sendLocationDataToServer = (position) ->
       sentDataSuccessCallback = (response) ->
         console.log "Sent data - hoorah!"
-      resource_id = hash_state['resource_id'] || '6'
+      resource_id = hash_state['resource_id'] || '8'
       $.get '/fgis/api/resource/' + resource_id + '/location?x=' + position.coords.longitude + '&y=' + position.coords.latitude, {}, sentDataSuccessCallback, 'json'
     sendLocationDataToServerCallback = ->
       navigator.geolocation.getCurrentPosition(sendLocationDataToServer)
