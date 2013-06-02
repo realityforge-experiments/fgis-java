@@ -27,7 +27,33 @@ Under OSX with [Homebrew](http://mxcl.github.com/homebrew/) installed you can in
 
 To build you run the following commands
 
-    $ buildr clean package
+    $ bundle exec buildr clean package
+
+How-to Run
+----------
+
+FGIS uses PostGIS as the back end data store and runs in the GlassFish application store. Under OSX with [Homebrew](http://mxcl.github.com/homebrew/) installed you can install the tools via;
+
+    $ brew update
+    $ brew install postgis
+    $ brew install glassfish
+
+Then you need to start the datbase server. On an OSX, brew install it is
+
+    $ pg_ctl -D /usr/local/var/postgres -l /usr/local/var/postgres/server.log start
+
+You also need to setup the database structure. This is easiest done using the buildr command.
+
+    $ bundle exec buildr dbt:create
+
+After creating the database structure then you need to start up the GlassFish server and configure it via;
+
+    $ alias asadmin=/usr/local/Cellar/glassfish/3.1.2.2/libexec/glassfish/bin/asadmin
+    $ asadmin start-domain
+    $ source config/setup.sh
+    $ asadmin deploy --name fgis --contextroot fgis --force target/fgis-*.war
+
+Then you can visit the local website at [http://127.0.0.1:8080/fgis](http://127.0.0.1:8080/fgis);
 
 Credits
 -------
