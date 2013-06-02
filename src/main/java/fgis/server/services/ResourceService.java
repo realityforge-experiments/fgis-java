@@ -295,6 +295,11 @@ public class ResourceService
       g.write( "updated_at", tracks.get( 0 ).getCollectedAt().getTime() );
     }
 
+    if ( filter.allow( "updated_at" ) && tracks.size() == 0 )
+    {
+      g.write( "updated_at", 0 );
+    }
+
     if ( filter.allow( "geo" ) )
     {
       g.writeStartObject( "geo" ).
