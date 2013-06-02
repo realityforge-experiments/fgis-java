@@ -70,6 +70,7 @@ define 'fgis' do
     assets.each do |asset|
       war.include asset, :as => '.'
     end
+    war.with :libs => artifacts(:javax_json, :jts, :geolatte_geom)
   end
 
   project.clean { rm_rf _(:artifacts) }
