@@ -173,8 +173,8 @@ public class ResourceService
   @Path( "/{id}/location" )
   @Consumes( { MediaType.APPLICATION_JSON } )
   public String updateResourceLocation( @PathParam( "id" ) final int resourceID,
-                                        @QueryParam( "x" ) final float x,
-                                        @QueryParam( "y" ) final float y )
+                                        @QueryParam( "x" ) final double x,
+                                        @QueryParam( "y" ) final double y )
     throws ParseException
   {
     System.out.println( "updateResourceLocation(" + x + "," + y +")" );
