@@ -51,7 +51,7 @@ After creating the database structure then you need to start up the GlassFish se
     $ alias asadmin=/usr/local/Cellar/glassfish/3.1.2.2/libexec/glassfish/bin/asadmin
     $ asadmin start-domain
     $ source config/setup.sh
-    $ asadmin deploy --name fgis --contextroot fgis --force target/fgis-*.war
+    $ asadmin deploy --name fgis --contextroot fgis --force=true target/fgis-*.war
 
 Then you can visit the local website at [http://127.0.0.1:8080/fgis](http://127.0.0.1:8080/fgis);
 
