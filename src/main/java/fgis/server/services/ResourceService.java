@@ -81,7 +81,7 @@ public class ResourceService
                               @QueryParam( "limit" ) @DefaultValue( "50" ) final int limit )
     throws ParseException
   {
-    System.out.println( "getResources(" + types + "," + fields + ")" );
+    //System.out.println( "getResources(" + types + "," + fields + ")" );
     final FieldFilter filter = FieldFilter.parse( fields );
 
     final CriteriaBuilder b = _em.getCriteriaBuilder();
