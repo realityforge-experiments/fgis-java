@@ -8,7 +8,7 @@ require 'dbt'
 
 Dbt::Config.environment = ENV['DB_ENV'] if ENV['DB_ENV']
 
-Dbt::Config.driver = 'Postgres'
+Dbt::Config.driver = 'Pg'
 Dbt::Config.config_filename = File.expand_path("#{workspace_dir}/config/database.yml")
 
 def define_dbt_tasks(project)
