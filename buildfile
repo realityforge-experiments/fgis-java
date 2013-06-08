@@ -30,46 +30,49 @@ define 'fgis' do
     end
   end
 
-  Domgen::GenerateTask.new(:FGIS,
-                           "server",
-                           [:ee],
-                           _(:target, :generated, "domgen"),
-                           project) do |t|
-    t.description = 'Generates the Java code for the persistent objects'
-    t.verbose = !!ENV['DEBUG_DOMGEN']
+  desc 'FGIS Server Code'
+  define 'server' do
+    Domgen::GenerateTask.new(:FGIS,
+                             "server",
+                             [:ee],
+                             _(:target, :generated, "domgen"),
+                             project)
+
+    compile.with :javax_persistence,
+                 :javax_transaction,
+                 :eclipselink,
+                 :javax_json,
+                 :postgresql,
+                 :postgis_jdbc,
+                 :jts,
+                 :geolatte_geom,
+                 :ejb_api,
+                 :javaee_api,
+                 :javax_validation,
+                 :javax_annotation,
+                 :jackson_core,
+                 :jackson_mapper,
+                 :javax_validation
+
+    test.using :testng
+
+    package :jar
+
+    iml.add_ejb_facet
+    iml.add_jpa_facet
   end
-
-  compile.with :javax_persistence,
-               :javax_transaction,
-               :eclipselink,
-               :javax_json,
-               :postgresql,
-               :postgis_jdbc,
-               :jts,
-               :geolatte_geom,
-               :ejb_api,
-               :javaee_api,
-               :javax_validation,
-               :javax_annotation,
-               :jackson_core,
-               :jackson_mapper,
-               :javax_validation
-
-  test.using :testng
 
   package(:war).tap do |war|
     project('client').assets.paths.each do |asset|
       war.include asset, :as => '.'
     end
-    war.with :libs => artifacts(:javax_json, :jts, :geolatte_geom)
+    war.with :libs => artifacts(:javax_json, :jts, :geolatte_geom, project('server'))
   end
 
   project.clean { rm_rf _("databases/generated") }
   project.clean { rm_rf _(:artifacts) }
   project.clean { rm_rf _('.sass-cache') }
 
-  iml.add_ejb_facet
-  iml.add_jpa_facet
   iml.add_web_facet(:webroots => [_(:source, :main, :webapp)] + project('client').assets.paths)
   iml.excluded_directories << _('.sass-cache')
 
@@ -78,6 +81,7 @@ define 'fgis' do
                                 :enable_ejb => true,
                                 :enable_jpa => true,
                                 :dependencies => [project,
+                                                  project('server'),
                                                   :javax_json,
                                                   :jts,
                                                   :geolatte_geom])
