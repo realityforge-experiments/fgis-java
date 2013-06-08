@@ -13,6 +13,7 @@ class TestConfig < Dbt::TestCase
     [:default_post_create_dirs, ['db-hooks/post'], ['foo']],
     [:default_database, :default, 'iris'],
     [:default_import, :default, 'import-lite'],
+    [:default_import_dir, 'import', 'import-lite'],
     [:repository_config_file, 'repository.yml', 'repo.yml'],
     [:datasets_dir_name, 'datasets', 'mydatasets'],
     [:fixture_dir_name, 'fixtures', 'myfixtures'],
@@ -48,5 +49,17 @@ class TestConfig < Dbt::TestCase
     assert_equal Dbt::Config.default_no_create?, false
     Dbt::Config.default_no_create = true
     assert_equal Dbt::Config.default_no_create?, true
+  end
+
+  def test_default_database?
+    Dbt::Config.default_database = :foo
+    assert_equal Dbt::Config.default_database?(:foo), true
+    assert_equal Dbt::Config.default_database?(:bar), false
+  end
+
+  def test_default_import?
+    Dbt::Config.default_import = :foo
+    assert_equal Dbt::Config.default_import?(:foo), true
+    assert_equal Dbt::Config.default_import?(:bar), false
   end
 end

@@ -92,8 +92,9 @@ class TestDatabaseDefinition < Dbt::TestCase
     definition = Dbt::DatabaseDefinition.new(:default, :imports => {:foo => {}})
     definition.module_groups
     assert_equal definition.imports.size, 1
-    assert_equal definition.imports[:foo].key, :foo
-    assert_equal definition.imports[:foo].database, definition
+    assert_equal definition.import_by_name(:foo).key, :foo
+    assert_equal definition.imports['foo'].key, :foo
+    assert_equal definition.imports['foo'].database, definition
   end
 
   def test_validate
@@ -110,5 +111,36 @@ class TestDatabaseDefinition < Dbt::TestCase
     assert_raises(RuntimeError) do
       definition2.validate
     end
+  end
+
+  def test_parse_repository_config
+    definition = Dbt::DatabaseDefinition.new(:default, {})
+    definition.parse_repository_config(<<-CONFIG)
+---
+modules: !omap
+- CodeMetrics:
+    schema: CodeMetrics
+    tables:
+    - "[CodeMetrics].[tblCollection]"
+    - "[CodeMetrics].[tblMethodMetric]"
+- Geo:
+    schema: Geo
+    tables:
+    - "[Geo].[tblMobilePOI]"
+    - "[Geo].[tblPOITrack]"
+    - "[Geo].[tblSector]"
+    - "[Geo].[tblOtherGeom]"
+- TestModule:
+    schema: TM
+    tables:
+    - "[TM].[tblBaseX]"
+    - "[TM].[tblFoo]"
+    - "[TM].[tblBar]"
+    CONFIG
+
+    assert_equal definition.modules, ['CodeMetrics', 'Geo', 'TestModule']
+    assert_equal definition.schema_overrides.size, 1
+    assert_equal definition.schema_name_for_module('TestModule'), 'TM'
+    assert_equal definition.table_ordering('Geo'), ["[Geo].[tblMobilePOI]","[Geo].[tblPOITrack]","[Geo].[tblSector]","[Geo].[tblOtherGeom]"]
   end
 end

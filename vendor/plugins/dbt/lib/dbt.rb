@@ -15,11 +15,16 @@ require 'rexml/document'
 
 require 'dbt/orderedhash'
 
+require 'dbt/base'
+require 'dbt/config'
+
 require 'dbt/doc'
 require 'dbt/core'
 
+require 'dbt/drivers/base'
 require 'dbt/drivers/abstract_db_config'
 require 'dbt/drivers/jdbc'
+require 'dbt/drivers/dialect/sql_server'
 require 'dbt/drivers/mssql'
 require 'dbt/drivers/dialect/postgres'
 require 'dbt/drivers/postgres'
