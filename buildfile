@@ -73,6 +73,7 @@ define 'fgis' do
     war.with :libs => artifacts(:javax_json, :jts, :geolatte_geom)
   end
 
+  project.clean { rm_rf _("databases/generated") }
   project.clean { rm_rf _(:artifacts) }
   project.clean { rm_rf _('.sass-cache') }
 
