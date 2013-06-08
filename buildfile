@@ -62,24 +62,31 @@ define 'fgis' do
     iml.add_jpa_facet
   end
 
-  package(:war).tap do |war|
-    project('client').assets.paths.each do |asset|
-      war.include asset, :as => '.'
+  desc 'FGIS Web Archive'
+  define 'web' do
+    package(:war).tap do |war|
+      project('client').assets.paths.each do |asset|
+        war.include asset, :as => '.'
+      end
+      war.with :libs => artifacts(:javax_json, :jts, :geolatte_geom, project('server'))
     end
-    war.with :libs => artifacts(:javax_json, :jts, :geolatte_geom, project('server'))
+    iml.add_web_facet(:webroots => [_(:source, :main, :webapp)] + project('client').assets.paths)
   end
 
   project.clean { rm_rf _("databases/generated") }
   project.clean { rm_rf _(:artifacts) }
   project.clean { rm_rf _('.sass-cache') }
 
-  iml.add_web_facet(:webroots => [_(:source, :main, :webapp)] + project('client').assets.paths)
   iml.excluded_directories << _('.sass-cache')
 
   ipr.add_exploded_war_artifact(project,
+                                :name => 'fgis',
                                 :build_on_make => true,
                                 :enable_ejb => true,
                                 :enable_jpa => true,
+                                :war_module_names => [project('web').iml.id],
+                                :ejb_module_names => [project('server').iml.id],
+                                :jpa_module_names => [project('server').iml.id],
                                 :dependencies => [project,
                                                   project('server'),
                                                   :javax_json,
