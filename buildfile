@@ -1,5 +1,6 @@
 require 'buildr/git_auto_version'
 require 'buildr/top_level_generate_dir'
+require 'buildr/single_intermediate_layout'
 
 download(artifact(:postgis_jdbc) => 'https://github.com/realityforge/repository/raw/master/org/postgis/postgis-jdbc/2.0.2SVN/postgis-jdbc-2.0.2SVN.jar')
 
@@ -11,32 +12,22 @@ define 'fgis' do
   compile.options.target = '1.7'
   compile.options.lint = 'all'
 
-  bootstrap_path = add_bootstrap_media(project)
-  leaflet_path = add_leaflet_media(project)
-  sass_path = define_process_sass_dir(project)
-  coffee_script_path = define_coffee_script_dir(project)
-  jquery_path = define_jquery_dir(project)
+  desc 'FGIS Client Code'
+  define 'client' do
+    add_bootstrap_media(project)
+    add_leaflet_media(project)
+    define_process_sass_dir(project)
+    define_coffee_script_dir(project)
+    define_jquery_dir(project)
 
-  assets = [bootstrap_path, leaflet_path, sass_path, coffee_script_path, jquery_path]
-
-  desc 'Build assets'
-  task 'assets' do
-    assets.each do |asset|
-      file(asset).invoke
+    desc 'Generate assets and move them to idea artifact'
+    task 'assets:artifact' => %w(assets) do
+      target = _(:artifacts, project.name)
+      mkdir_p target
+      ([_(:source, :main, :webapp)] + self.assets.paths).each do |asset|
+        cp_r Dir["#{asset}/*"], "#{target}/"
+      end
     end
-  end
-
-  desc 'Generate assets and move them to idea artifact'
-  task 'assets:artifact' => %w(assets) do
-    target = _(:artifacts, project.name)
-    mkdir_p target
-    ([_(:source, :main, :webapp)] + assets).each do |asset|
-      cp_r Dir["#{asset}/*"], "#{target}/"
-    end
-  end
-
-  project.resources do
-    task('assets').invoke
   end
 
   Domgen::GenerateTask.new(:FGIS,
@@ -67,7 +58,7 @@ define 'fgis' do
   test.using :testng
 
   package(:war).tap do |war|
-    assets.each do |asset|
+    project('client').assets.paths.each do |asset|
       war.include asset, :as => '.'
     end
     war.with :libs => artifacts(:javax_json, :jts, :geolatte_geom)
@@ -79,7 +70,7 @@ define 'fgis' do
 
   iml.add_ejb_facet
   iml.add_jpa_facet
-  iml.add_web_facet(:webroots => [_(:source, :main, :webapp)] + assets)
+  iml.add_web_facet(:webroots => [_(:source, :main, :webapp)] + project('client').assets.paths)
   iml.excluded_directories << _('.sass-cache')
 
   ipr.add_exploded_war_artifact(project,
@@ -92,4 +83,4 @@ define 'fgis' do
                                                   :geolatte_geom])
 end
 
-task('domgen:all').enhance(%w(fgis:assets))
+task('domgen:all').enhance(%w(fgis:client:assets))

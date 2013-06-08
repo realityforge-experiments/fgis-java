@@ -1,13 +1,13 @@
 /artifacts
-/downloads
+/client/downloads
 /config/database.yml
 /generated
-/databases/generated
+/*/generated
 /target
 /reports
 /*.iws
 /*.ipr
-/*.iml
+*.iml
 /.bundle
 /.sass-cache
 /Gemfile.lock
