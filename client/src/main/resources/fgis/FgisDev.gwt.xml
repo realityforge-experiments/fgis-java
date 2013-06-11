@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module rename-to='fgis'>
+  <inherits name='fgis.Fgis'/>
+
+  <!-- Compile a single permutation for all platforms -->
+  <collapse-all-properties/>
+
+  <add-linker name="xsiframe"/>
+  <set-configuration-property name="devModeRedirectEnabled" value="true"/>
+  <!--  enable source maps -->
+  <set-property name="compiler.useSourceMaps" value="true"/>
+</module>

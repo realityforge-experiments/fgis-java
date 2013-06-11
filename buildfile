@@ -20,6 +20,20 @@ define 'fgis' do
     define_coffee_script_dir(project)
     define_jquery_dir(project)
 
+    compile.with :gwt_openlayers,
+                 :gwt_user,
+                 :gwt_dev,
+                 :gwt_gin,
+                 :javax_inject,
+                 :javax_validation,
+                 :javax_validation_sources,
+                 :javax_annotation,
+                 :findbugs_annotations,
+                 :google_guice,
+                 :aopalliance,
+                 :google_guice_assistedinject
+
+
     desc 'Generate assets and move them to idea artifact'
     task 'assets:artifact' => %w(assets) do
       target = _(:artifacts, project.name)
@@ -28,6 +42,15 @@ define 'fgis' do
         cp_r Dir["#{asset}/*"], "#{target}/"
       end
     end
+
+    package :jar
+    package :sources
+
+    iml.add_gwt_facet({'fgis.FgisDev' => true,
+                       'fgis.Fgis' => false},
+                      :settings => {:compilerMaxHeapSize => "1024",
+                                    :additionalCompilerParameters => '-Dgwt.usearchives=false -Dgwt.persistentunitcache=false'})
+
   end
 
   desc 'FGIS Server Code'
@@ -40,6 +63,7 @@ define 'fgis' do
 
     compile.with :javax_persistence,
                  :javax_transaction,
+                 :javax_inject,
                  :eclipselink,
                  :javax_json,
                  :postgresql,
@@ -64,6 +88,23 @@ define 'fgis' do
 
   desc 'FGIS Web Archive'
   define 'web' do
+
+    gwt(["fgis.Fgis"],
+        :dependencies => [project('client').compile.dependencies,
+                          # The following picks up both the jar and sources
+                          # packages deliberately. It is needed for the
+                          # generators to access classes in annotations.
+                          project('client'),
+                          :javax_annotation,
+                          # Validation needed to quieten warnings from gwt compiler
+                          :javax_validation,
+                          :javax_validation_sources],
+        :java_args => ["-Xms512M", "-Xmx1024M", "-XX:PermSize=128M", "-XX:MaxPermSize=256M"],
+        :draft_compile => (ENV["FAST_GWT"] == 'true'),
+        #:log_level => 'ALL',
+        # Closure compiler seems to result in an error in GWT/GIN code. Unknown reason
+        :enable_closure_compiler => false)
+
     package(:war).tap do |war|
       project('client').assets.paths.each do |asset|
         war.include asset, :as => '.'
@@ -83,7 +124,9 @@ define 'fgis' do
                                 :name => 'fgis',
                                 :build_on_make => true,
                                 :enable_ejb => true,
+                                :enable_gwt => true,
                                 :enable_jpa => true,
+                                :gwt_module_names => [project('client').iml.id],
                                 :war_module_names => [project('web').iml.id],
                                 :ejb_module_names => [project('server').iml.id],
                                 :jpa_module_names => [project('server').iml.id],
