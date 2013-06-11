@@ -27,6 +27,8 @@ module Buildr
         @paths ||= [project._(:source, :main, :assets)]
       end
 
+      # TODO: Includes/excludes and exclude *.coffee, *.sass
+
       protected
 
       def initialize(*args) #:nodoc:
