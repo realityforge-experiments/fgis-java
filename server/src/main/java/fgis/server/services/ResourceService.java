@@ -323,6 +323,7 @@ public class ResourceService
         writeStartArray( "features" ).
         writeStartObject().
         write( "type", "Feature" ).
+        write( "id", resource.getID().toString() ).
         writeStartObject( "properties" ).
         writeEnd().
         writeStartObject( "geometry" ).
