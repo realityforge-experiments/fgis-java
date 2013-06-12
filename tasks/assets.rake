@@ -24,7 +24,11 @@ module Buildr
       end
 
       def paths
-        @paths ||= [project._(:source, :main, :assets)]
+        unless @paths
+          @paths = []
+          @paths << project._(:source, :main, :assets) if File.exist?(project._(:source, :main, :assets))
+        end
+        @paths
       end
 
       # TODO: Includes/excludes and exclude *.coffee, *.sass
