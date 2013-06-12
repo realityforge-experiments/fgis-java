@@ -4,30 +4,42 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import java.util.logging.Logger;
+import java.util.List;
 import org.gwtopenmaps.openlayers.client.LonLat;
 import org.gwtopenmaps.openlayers.client.Map;
 import org.gwtopenmaps.openlayers.client.MapOptions;
 import org.gwtopenmaps.openlayers.client.MapWidget;
 import org.gwtopenmaps.openlayers.client.OpenLayers;
 import org.gwtopenmaps.openlayers.client.Projection;
+import org.gwtopenmaps.openlayers.client.Style;
+import org.gwtopenmaps.openlayers.client.StyleMap;
 import org.gwtopenmaps.openlayers.client.control.LayerSwitcher;
 import org.gwtopenmaps.openlayers.client.control.OverviewMap;
 import org.gwtopenmaps.openlayers.client.control.ScaleLine;
+import org.gwtopenmaps.openlayers.client.control.SelectFeature;
+import org.gwtopenmaps.openlayers.client.event.VectorFeatureSelectedListener;
+import org.gwtopenmaps.openlayers.client.feature.VectorFeature;
+import org.gwtopenmaps.openlayers.client.format.GeoJSON;
 import org.gwtopenmaps.openlayers.client.layer.TransitionEffect;
+import org.gwtopenmaps.openlayers.client.layer.Vector;
+import org.gwtopenmaps.openlayers.client.layer.VectorOptions;
 import org.gwtopenmaps.openlayers.client.layer.WMS;
 import org.gwtopenmaps.openlayers.client.layer.WMSOptions;
 import org.gwtopenmaps.openlayers.client.layer.WMSParams;
+import org.gwtopenmaps.openlayers.client.protocol.HTTPProtocol;
+import org.gwtopenmaps.openlayers.client.protocol.HTTPProtocolOptions;
+import org.gwtopenmaps.openlayers.client.strategy.FixedStrategy;
+import org.gwtopenmaps.openlayers.client.strategy.FixedStrategyOptions;
+import org.gwtopenmaps.openlayers.client.strategy.Strategy;
 
 public final class FgisEntry
   implements EntryPoint
 {
-  private static final Logger LOG = Logger.getLogger( FgisEntry.class.getName() );
-
   public void onModuleLoad()
   {
     OpenLayers.setProxyHost( GWT.getHostPageBaseURL() + "map_proxy?targetURL=" );
@@ -69,6 +81,41 @@ public final class FgisEntry
       }
     } );
 
+    final Vector polyLayer = createLayerFromJson( "Polygon Layer", "data/poly.json" );
+    map.addLayer( polyLayer );
+    //In the json we have defined styles in the properties, here we set these properties
+    final Style style = new Style();
+    style.setFillColor( "${fill}" );
+    style.setStrokeColor( "${stroke}" );
+
+    final StyleMap styleMap = new StyleMap( style );
+    polyLayer.setStyleMap( styleMap );
+
+    polyLayer.redraw();
+
+    //SelectFeature control to capture clicks on the vectors.
+    //We use this to unSelect the selected feature
+    final SelectFeature selectFeature = new SelectFeature( polyLayer );
+    selectFeature.setAutoActivate( true );
+    map.addControl( selectFeature );
+    polyLayer.addVectorFeatureSelectedListener( new VectorFeatureSelectedListener()
+    {
+      public void onFeatureSelected( FeatureSelectedEvent eventObject )
+      {
+        final VectorFeature selectedFeature = eventObject.getVectorFeature();
+        selectFeature.unSelect( eventObject.getVectorFeature() );
+
+        final List<String> attrNames = selectedFeature.getAttributes().getAttributeNames();
+        String s = "";
+        for ( final String attrName : attrNames )
+        {
+          s += attrName + ": " + selectedFeature.getAttributes().getAttributeAsString( attrName ) + "\n";
+        }
+
+        Window.alert( "You clicked on a polygon with the following properties in the json file :\n " + s );
+      }
+    } );
+
     //Lets add some default controls to the map
     //+ sign in the upper right corner to display the layer switcher
     map.addControl( new LayerSwitcher() );
@@ -91,5 +138,26 @@ public final class FgisEntry
 
     //force the map to fall behind popups
     mapWidget.getElement().getFirstChildElement().getStyle().setZIndex( 0 );
+  }
+
+  public static Vector createLayerFromJson( final String layerName, final String url )
+  {
+
+    final FixedStrategyOptions fOptions = new FixedStrategyOptions();
+    final FixedStrategy fStrategy = new FixedStrategy( fOptions );
+
+    final GeoJSON geoJson = new GeoJSON();
+
+    final HTTPProtocolOptions httpProtOptions = new HTTPProtocolOptions();
+    httpProtOptions.setUrl( url );
+    httpProtOptions.setFormat( geoJson );
+
+    final HTTPProtocol httpProt = new HTTPProtocol( httpProtOptions );
+
+    final VectorOptions options = new VectorOptions();
+    options.setStrategies( new Strategy[]{ fStrategy } );
+    options.setProtocol( httpProt );
+
+    return new Vector( layerName, options );
   }
 }
