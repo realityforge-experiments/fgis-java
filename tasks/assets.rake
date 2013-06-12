@@ -59,7 +59,7 @@ module Buildr
           @assets = AssetsTask.define_task(project._(:target, :main, :webapp) => [])
           @assets.project = self
           project.task('assets').enhance([@assets])
-          project.package.enhance([@assets])
+          project.build.enhance([@assets])
         end
         @assets
       end
