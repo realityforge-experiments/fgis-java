@@ -66,6 +66,7 @@ define 'fgis' do
   define 'web' do
     package(:war).tap do |war|
       project('client').assets.paths.each do |asset|
+        war.tap do |war| war.enhance([asset]) end
         war.include asset, :as => '.'
       end
       war.with :libs => artifacts(:javax_json, :jts, :geolatte_geom, project('server'))
@@ -75,9 +76,6 @@ define 'fgis' do
 
   project.clean { rm_rf _("databases/generated") }
   project.clean { rm_rf _(:artifacts) }
-  project.clean { rm_rf _('.sass-cache') }
-
-  iml.excluded_directories << _('.sass-cache')
 
   ipr.add_exploded_war_artifact(project,
                                 :name => 'fgis',
