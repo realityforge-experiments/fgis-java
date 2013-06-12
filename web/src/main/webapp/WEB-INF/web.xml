@@ -6,4 +6,14 @@
   <welcome-file-list>
     <welcome-file>index.jsp</welcome-file>
   </welcome-file-list>
+
+  <servlet>
+    <servlet-name>map_proxy</servlet-name>
+    <servlet-class>org.gwtopenmaps.openlayers.server.GwtOpenLayersProxyServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>map_proxy</servlet-name>
+    <url-pattern>/map_proxy/*</url-pattern>
+  </servlet-mapping>
 </web-app>

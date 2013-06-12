@@ -110,7 +110,7 @@ define 'fgis' do
         war.tap do |war| war.enhance([asset]) end
         war.include asset, :as => '.'
       end
-      war.with :libs => artifacts(:javax_json, :jts, :geolatte_geom, project('server'))
+      war.with :libs => artifacts(:javax_json, :jts, :geolatte_geom, project('server'), :gwt_openlayers_server)
     end
     iml.add_web_facet(:webroots => [_(:source, :main, :webapp)] + project('client').assets.paths)
   end

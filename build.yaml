@@ -35,6 +35,7 @@ artifacts:
   javax_json: org.glassfish:javax.json:jar:1.0-b02
 
   gwt_openlayers: org.gwtopenmaps.openlayers:gwt-openlayers-client:jar:0.9
+  gwt_openlayers_server: org.gwtopenmaps.openlayers:gwt-openlayers-server:jar:0.9
   gwt_user: com.google.gwt:gwt-user:jar:2.5.1
   gwt_dev: com.google.gwt:gwt-dev:jar:2.5.1
   gwt_gin: com.google.gwt.inject:gin:jar:2.0.0
