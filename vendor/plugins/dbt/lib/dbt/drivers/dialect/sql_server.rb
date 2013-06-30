@@ -19,39 +19,20 @@ class Dbt
     end
 
     def port
-      config_value("port", true) || 1433
+      @port || 1433
     end
 
-    def instance
-      config_value("instance", true)
-    end
-
-    def appname
-      config_value("appname", true)
-    end
+    attr_accessor :instance
+    attr_accessor :appname
+    attr_accessor :data_path
+    attr_accessor :log_path
+    attr_accessor :restore_from
+    attr_accessor :backup_location
+    attr_accessor :instance_registry_key
+    attr_writer :force_drop
 
     def force_drop?
-      true == config_value("force_drop", true)
-    end
-
-    def data_path
-      config_value("data_path", true)
-    end
-
-    def log_path
-      config_value("log_path", true)
-    end
-
-    def restore_from
-      config_value("restore_from", false)
-    end
-
-    def backup_location
-      config_value("backup_location", true)
-    end
-
-    def instance_registry_key
-      config_value("instance_registry_key", false)
+      !!@force_drop
     end
   end
   module Dialect
@@ -133,7 +114,7 @@ ORDER BY t.Ordinal, t.Name
         database_objects("SQL_INLINE_TABLE_VALUED_FUNCTION", schema_name).each { |name| execute("DROP FUNCTION #{name}") }
         database_objects("SQL_TABLE_VALUED_FUNCTION", schema_name).each { |name| execute("DROP FUNCTION #{name}") }
         database_objects("VIEW", schema_name).each { |name| execute("DROP VIEW #{name}") }
-        tables.reverse.each do |table|
+        tables.each do |table|
           execute("DROP TABLE #{table}")
         end
         execute("DROP SCHEMA #{schema_name}")
@@ -257,6 +238,21 @@ SQL
   '
   EXEC(@sql)
 SQL
+      end
+
+      def setup_migrations
+        if query("SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'tblMigration'").empty?
+          execute("CREATE TABLE #{quote_table_name('dbo')}.#{quote_table_name('tblMigration')}(#{quote_column_name('Namespace')} varchar(50),#{quote_column_name('Migration')} varchar(255),#{quote_column_name('AppliedAt')} timestamp)")
+        end
+      end
+
+      def should_migrate?(namespace, migration_name)
+        setup_migrations
+        query("SELECT * FROM #{quote_table_name('dbo')}.#{quote_table_name('tblMigration')} WHERE #{quote_column_name('Namespace')} = #{quote_value(namespace)} AND #{quote_column_name('Migration')} = #{quote_value(migration_name)}").empty?
+      end
+
+      def mark_migration_as_run(namespace, migration_name)
+        execute("INSERT INTO #{quote_table_name('dbo')}.#{quote_table_name('tblMigration')}(#{quote_column_name('Namespace')},#{quote_column_name('Migration')},#{quote_column_name('AppliedAt')}) VALUES (#{quote_value(namespace)}, #{quote_value(migration_name)}, GETDATE()")
       end
 
       def pre_fixture_import(table)

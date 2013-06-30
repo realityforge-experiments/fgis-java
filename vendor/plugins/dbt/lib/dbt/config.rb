@@ -17,7 +17,7 @@ class Dbt # nodoc
   # Class used to statically configure the Dbt library
   class Config
 
-    @datasets_dir_name = nil
+    @default_datasets_dir_name = nil
     @repository_config_file = nil
     @default_up_dirs = nil
     @default_down_dirs = nil
@@ -28,7 +28,7 @@ class Dbt # nodoc
     @default_post_import_dirs = nil
     @index_file_name = nil
     @default_import = nil
-    @fixture_dir_name = nil
+    @default_fixture_dir_name = nil
     @environment = nil
     @driver = nil
     @default_migrations_dir_name = nil
@@ -151,16 +151,16 @@ class Dbt # nodoc
         @index_file_name || 'index.txt'
       end
 
-      attr_writer :fixture_dir_name
+      attr_writer :default_fixture_dir_name
 
-      def fixture_dir_name
-        @fixture_dir_name || 'fixtures'
+      def default_fixture_dir_name
+        @default_fixture_dir_name || 'fixtures'
       end
 
-      attr_writer :datasets_dir_name
+      attr_writer :default_datasets_dir_name
 
-      def datasets_dir_name
-        @datasets_dir_name || 'datasets'
+      def default_datasets_dir_name
+        @default_datasets_dir_name || 'datasets'
       end
 
       attr_writer :default_migrations_dir_name

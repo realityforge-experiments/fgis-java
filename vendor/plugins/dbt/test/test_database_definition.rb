@@ -24,6 +24,7 @@ class TestDatabaseDefinition < Dbt::TestCase
     assert_equal definition.finalize_dirs, Dbt::Config.default_finalize_dirs
     assert_equal definition.pre_create_dirs, Dbt::Config.default_pre_create_dirs
     assert_equal definition.post_create_dirs, Dbt::Config.default_post_create_dirs
+    assert_equal definition.datasets_dir_name, Dbt::Config.default_datasets_dir_name
 
     Dbt::Config.default_search_dirs = ['x']
     assert_equal definition.search_dirs, Dbt::Config.default_search_dirs
@@ -84,8 +85,9 @@ class TestDatabaseDefinition < Dbt::TestCase
     definition = Dbt::DatabaseDefinition.new(:default, :module_groups => {:foo => {}})
     definition.module_groups
     assert_equal definition.module_groups.size, 1
-    assert_equal definition.module_groups[:foo].key, :foo
-    assert_equal definition.module_groups[:foo].database, definition
+    assert_equal definition.module_group_by_name(:foo).key, :foo
+    assert_equal definition.module_groups['foo'].key, :foo
+    assert_equal definition.module_groups['foo'].database, definition
   end
 
   def test_imports

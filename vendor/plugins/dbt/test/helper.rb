@@ -13,7 +13,7 @@ class Dbt::TestCase < Minitest::Test
     Dbt::Config.default_search_dirs = nil
     Dbt::Config.default_no_create = nil
     Dbt::Config.config_filename = nil
-    Dbt::Config.datasets_dir_name = nil
+    Dbt::Config.default_datasets_dir_name = nil
     Dbt::Config.repository_config_file = nil
     Dbt::Config.default_up_dirs = nil
     Dbt::Config.default_down_dirs = nil
@@ -25,7 +25,7 @@ class Dbt::TestCase < Minitest::Test
     Dbt::Config.default_import_dir = nil
     Dbt::Config.index_file_name = nil
     Dbt::Config.default_import = nil
-    Dbt::Config.fixture_dir_name = nil
+    Dbt::Config.default_fixture_dir_name = nil
     Dbt::Config.environment = nil
     Dbt::Config.driver = nil
     Dbt::Config.default_migrations_dir_name = nil
@@ -73,5 +73,9 @@ class Dbt::TestCase < Minitest::Test
 
   def assert_file_exist(filename)
     assert File.exist?(filename), "File.exist?(#{filename})"
+  end
+
+  def assert_file_not_exist(filename)
+    assert !File.exist?(filename), "!File.exist?(#{filename})"
   end
 end

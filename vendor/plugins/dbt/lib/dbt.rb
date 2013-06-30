@@ -17,9 +17,16 @@ require 'dbt/orderedhash'
 
 require 'dbt/base'
 require 'dbt/config'
-
+require 'dbt/filter_container'
+require 'dbt/import_definition'
+require 'dbt/module_group_definition'
+require 'dbt/database_definition'
+require 'dbt/repository'
+require 'dbt/runtime'
 require 'dbt/doc'
 require 'dbt/core'
+require 'dbt/packaged'
+require 'dbt/rake_integration'
 
 require 'dbt/drivers/base'
 require 'dbt/drivers/abstract_db_config'

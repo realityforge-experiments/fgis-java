@@ -189,7 +189,7 @@ class TestRuntimeBasic < Dbt::TestCase
 
     Dbt::Config.default_up_dirs = ['.', 'Dir1', 'Dir2']
     Dbt::Config.default_finalize_dirs = ['Dir3', 'Dir4']
-    Dbt::Config.fixture_dir_name = 'foo'
+    Dbt::Config.default_fixture_dir_name = 'foo'
     Dbt::Config.default_pre_create_dirs = ['db-pre-create']
     Dbt::Config.default_post_create_dirs = ['db-post-create']
 
@@ -226,6 +226,103 @@ class TestRuntimeBasic < Dbt::TestCase
     mock.expects(:close).with().in_sequence(@s)
 
     Dbt.runtime.create(database)
+  end
+
+  def test_create_with_sql_and_index_covering_partial
+    mock = Dbt::DbDriver.new
+    Dbt.runtime.instance_variable_set("@db", mock)
+
+    config = create_postgres_config()
+
+    db_scripts = create_dir("databases")
+    module_name = 'MyModule'
+    table_names = ['[MyModule].[foo]']
+    database = create_simple_db_definition(db_scripts, module_name, table_names)
+
+    Dbt::Config.default_up_dirs = ['Dir1']
+    Dbt::Config.index_file_name = 'index2.txt'
+
+    create_file("databases/#{module_name}/Dir1/index2.txt", "d.sql\ne.sql")
+    create_table_sql("#{module_name}/Dir1", 'c')
+    create_table_sql("#{module_name}/Dir1", 'd')
+    create_table_sql("#{module_name}/Dir1", 'e')
+    create_table_sql("#{module_name}/Dir1", 'f')
+
+    mock.expects(:open).with(config, true).in_sequence(@s)
+    mock.expects(:drop).with(database, config).in_sequence(@s)
+    mock.expects(:create_database).with(database, config).in_sequence(@s)
+    mock.expects(:close).with().in_sequence(@s)
+    mock.expects(:open).with(config, false).in_sequence(@s)
+    mock.expects(:create_schema).with(module_name).in_sequence(@s)
+    expect_create_table(mock, module_name, 'Dir1/', 'd')
+    expect_create_table(mock, module_name, 'Dir1/', 'e')
+    expect_create_table(mock, module_name, 'Dir1/', 'c')
+    expect_create_table(mock, module_name, 'Dir1/', 'f')
+    mock.expects(:close).with().in_sequence(@s)
+
+    Dbt.runtime.create(database)
+  end
+
+  def test_create_with_sql_and_index_covering_full
+    mock = Dbt::DbDriver.new
+    Dbt.runtime.instance_variable_set("@db", mock)
+
+    config = create_postgres_config()
+
+    db_scripts = create_dir("databases")
+    module_name = 'MyModule'
+    table_names = ['[MyModule].[foo]']
+    database = create_simple_db_definition(db_scripts, module_name, table_names)
+
+    Dbt::Config.default_up_dirs = ['Dir1']
+    Dbt::Config.index_file_name = 'index2.txt'
+
+    create_file("databases/#{module_name}/Dir1/index2.txt", "d.sql\ne.sql")
+    create_table_sql("#{module_name}/Dir1", 'd')
+    create_table_sql("#{module_name}/Dir1", 'e')
+
+    mock.expects(:open).with(config, true).in_sequence(@s)
+    mock.expects(:drop).with(database, config).in_sequence(@s)
+    mock.expects(:create_database).with(database, config).in_sequence(@s)
+    mock.expects(:close).with().in_sequence(@s)
+    mock.expects(:open).with(config, false).in_sequence(@s)
+    mock.expects(:create_schema).with(module_name).in_sequence(@s)
+    expect_create_table(mock, module_name, 'Dir1/', 'd')
+    expect_create_table(mock, module_name, 'Dir1/', 'e')
+    mock.expects(:close).with().in_sequence(@s)
+
+    Dbt.runtime.create(database)
+  end
+
+  def test_create_with_sql_and_index_with_additional
+    mock = Dbt::DbDriver.new
+    Dbt.runtime.instance_variable_set("@db", mock)
+
+    config = create_postgres_config()
+
+    db_scripts = create_dir("databases")
+    module_name = 'MyModule'
+    table_names = ['[MyModule].[foo]']
+    database = create_simple_db_definition(db_scripts, module_name, table_names)
+
+    Dbt::Config.default_up_dirs = ['Dir1']
+    Dbt::Config.index_file_name = 'index2.txt'
+
+    create_file("databases/#{module_name}/Dir1/index2.txt", "d.sql\ne.sql\nf.sql")
+    create_table_sql("#{module_name}/Dir1", 'd')
+    create_table_sql("#{module_name}/Dir1", 'e')
+
+    mock.expects(:open).with(config, true).in_sequence(@s)
+    mock.expects(:drop).with(database, config).in_sequence(@s)
+    mock.expects(:create_database).with(database, config).in_sequence(@s)
+    mock.expects(:close).with().in_sequence(@s)
+    mock.expects(:open).with(config, false).in_sequence(@s)
+    mock.expects(:create_schema).with(module_name).in_sequence(@s)
+    mock.expects(:close).with().in_sequence(@s)
+
+    assert_raises(RuntimeError) do
+      Dbt.runtime.create(database)
+    end
   end
 
   def test_drop
@@ -424,12 +521,45 @@ class TestRuntimeBasic < Dbt::TestCase
     create_file("databases/migrate22/003_x.sql", migrate_sql_3)
 
     mock.expects(:open).with(config, false).in_sequence(@s)
-    mock.expects(:"should_migrate?").with('default', '001_x').returns(true).in_sequence(@s)
+    expect_should_migrate(mock, 'default', '001_x', true)
     expect_migrate(mock, 'default', "001_x", migrate_sql_1)
-    mock.expects(:"should_migrate?").with('default', '002_x').returns(true).in_sequence(@s)
+    expect_should_migrate(mock, 'default', '002_x', true)
     expect_migrate(mock, 'default', "002_x", migrate_sql_2)
-    mock.expects(:"should_migrate?").with('default', '003_x').returns(true).in_sequence(@s)
+    expect_should_migrate(mock, 'default', '003_x', true)
     expect_migrate(mock, 'default', "003_x", migrate_sql_3)
+    mock.expects(:close).with().in_sequence(@s)
+
+    Dbt.runtime.migrate(database)
+  end
+
+  def test_migrate_from_major_version
+    mock = Dbt::DbDriver.new
+    Dbt.runtime.instance_variable_set("@db", mock)
+
+    config = create_postgres_config()
+
+    db_scripts = create_dir("databases")
+    module_name = 'MyModule'
+    table_names = ['[MyModule].[foo]']
+    database = create_simple_db_definition(db_scripts, module_name, table_names)
+    database.migrations = true
+    database.version = "Version_1"
+
+    Dbt::Config.default_migrations_dir_name = 'migrate22'
+    migrate_sql_1 = "SELECT 1"
+    create_file("databases/migrate22/001_x.sql", migrate_sql_1)
+    migrate_sql_2 = "SELECT 2"
+    create_file("databases/migrate22/002_Release-#{database.version}.sql", migrate_sql_2)
+    migrate_sql_3 = "SELECT 3"
+    create_file("databases/migrate22/003_z.sql", migrate_sql_3)
+
+    mock.expects(:open).with(config, false).in_sequence(@s)
+    expect_should_migrate(mock, 'default', '001_x', true)
+    expect_mark_migration_as_run(mock, 'default', "001_x")
+    expect_should_migrate(mock, 'default',  "002_Release-#{database.version}", true)
+    expect_mark_migration_as_run(mock, 'default', "002_Release-#{database.version}")
+    expect_should_migrate(mock, 'default',  '003_z', true)
+    expect_migrate(mock, 'default', "003_z", migrate_sql_3)
     mock.expects(:close).with().in_sequence(@s)
 
     Dbt.runtime.migrate(database)
@@ -456,9 +586,9 @@ class TestRuntimeBasic < Dbt::TestCase
     create_file("databases/migrate22/003_x.sql", migrate_sql_3)
 
     mock.expects(:open).with(config, false).in_sequence(@s)
-    mock.expects(:"should_migrate?").with('default', '001_x').returns(false).in_sequence(@s)
-    mock.expects(:"should_migrate?").with('default', '002_x').returns(false).in_sequence(@s)
-    mock.expects(:"should_migrate?").with('default', '003_x').returns(true).in_sequence(@s)
+    expect_should_migrate(mock, 'default',  '001_x', false)
+    expect_should_migrate(mock, 'default',  '002_x', false)
+    expect_should_migrate(mock, 'default',  '003_x', true)
     expect_migrate(mock, 'default', "003_x", migrate_sql_3)
     mock.expects(:close).with().in_sequence(@s)
 
@@ -525,13 +655,216 @@ class TestRuntimeBasic < Dbt::TestCase
     Dbt.runtime.create(database)
   end
 
-  # TODO: test import with module group
-  # TODO: test load_datasets_for_modules
-  # TODO: test up module group
-  # TODO: test down module group
-  # TODO: test dump_tables_to_fixtures
-  # TODO: test index files changing the order
-  # TODO: test filters ??
+  def test_load_dataset
+    mock = Dbt::DbDriver.new
+    Dbt.runtime.instance_variable_set("@db", mock)
+
+    config = create_postgres_config()
+
+    db_scripts = create_dir("databases")
+    module_name = 'MyModule'
+
+    database = create_db_definition(db_scripts,
+                                    'MyModule' => ['[MyModule].[foo]', '[MyModule].[bar]'],
+                                    'MyOtherModule' => ['[MyOtherModule].[baz]'])
+
+    Dbt::Config.default_datasets_dir_name = 'mydatasets'
+    create_file("databases/MyModule/mydatasets/mydataset/MyModule.foo.yml", "1:\n  ID: 1\n")
+    create_file("databases/MyModule/mydatasets/mydataset/MyModule.bar.yml", "1:\n  ID: 1\n")
+    create_file("databases/MyOtherModule/mydatasets/mydataset/MyOtherModule.baz.yml", "1:\n  ID: 1\n")
+
+    mock.expects(:open).with(config, false).in_sequence(@s)
+    expect_delete(mock, 'MyOtherModule', 'baz')
+    expect_delete(mock, module_name, 'bar')
+    expect_delete(mock, module_name, 'foo')
+    expect_fixture(mock, module_name, 'foo')
+    expect_fixture(mock, module_name, 'bar')
+    expect_fixture(mock, 'MyOtherModule', 'baz')
+    mock.expects(:close).with().in_sequence(@s)
+
+    Dbt.runtime.load_dataset(database, 'mydataset')
+  end
+
+  def test_import_with_module_group
+    mock = Dbt::DbDriver.new
+    Dbt.runtime.instance_variable_set("@db", mock)
+
+    config = create_postgres_config({}, 'import' => base_postgres_config().merge('database' => 'IMPORT_DB'))
+
+    db_scripts = create_dir("databases")
+    database = create_db_definition(db_scripts,
+                                    'MyModule' => ['[MyModule].[foo]', '[MyModule].[bar]'],
+                                    'MyOtherModule' => ['[MyOtherModule].[baz]'],
+                                    'MyThirdModule' => ['[MyThirdModule].[biz]'])
+    module_group = database.add_module_group('zz', :modules => ['MyOtherModule','MyThirdModule'], :import_enabled => true)
+    assert_equal module_group.modules, ['MyOtherModule', 'MyThirdModule']
+    assert_equal module_group.import_enabled?, true
+
+    import = database.add_import(:default, {})
+
+    mock.expects(:open).with(config, false).in_sequence(@s)
+    expect_delete_for_table_import(mock, 'MyOtherModule', 'baz')
+    expect_default_table_import(mock, import, 'MyOtherModule', 'baz')
+    mock.expects(:post_data_module_import).with(import, 'MyOtherModule').in_sequence(@s)
+    # TODO: This is wrong behaviour. All of deletes should occur first
+    expect_delete_for_table_import(mock, 'MyThirdModule', 'biz')
+    expect_default_table_import(mock, import, 'MyThirdModule', 'biz')
+    mock.expects(:post_data_module_import).with(import, 'MyThirdModule').in_sequence(@s)
+    mock.expects(:post_database_import).with(import).in_sequence(@s)
+
+    mock.expects(:close).with().in_sequence(@s)
+
+    Dbt.runtime.database_import(database.import_by_name(:default), database.module_group_by_name('zz'))
+  end
+
+  def test_module_group_up
+    mock = Dbt::DbDriver.new
+    Dbt.runtime.instance_variable_set("@db", mock)
+
+    config = create_postgres_config({}, 'import' => base_postgres_config().merge('database' => 'IMPORT_DB'))
+
+    db_scripts = create_dir("databases")
+    database = create_db_definition(db_scripts,
+                                    'MyModule' => ['[MyModule].[foo]', '[MyModule].[bar]'],
+                                    'MyOtherModule' => ['[MyOtherModule].[baz]'],
+                                    'MyThirdModule' => ['[MyThirdModule].[biz]'])
+    module_group = database.add_module_group('zz', :modules => ['MyOtherModule','MyThirdModule'])
+    assert_equal module_group.modules, ['MyOtherModule', 'MyThirdModule']
+
+    Dbt::Config.default_up_dirs = ['.']
+
+    create_table_sql('MyOtherModule', 'a')
+    create_table_sql('MyThirdModule', 'b')
+
+    mock.expects(:open).with(config, false).in_sequence(@s)
+    mock.expects(:create_schema).with('MyOtherModule').in_sequence(@s)
+    expect_create_table(mock, 'MyOtherModule', '', 'a')
+    mock.expects(:create_schema).with('MyThirdModule').in_sequence(@s)
+    expect_create_table(mock, 'MyThirdModule', '', 'b')
+    mock.expects(:close).with().in_sequence(@s)
+
+    Dbt.runtime.up_module_group(database.module_group_by_name('zz'))
+  end
+
+  def test_module_group_down
+    mock = Dbt::DbDriver.new
+    Dbt.runtime.instance_variable_set("@db", mock)
+
+    config = create_postgres_config({}, 'import' => base_postgres_config().merge('database' => 'IMPORT_DB'))
+
+    db_scripts = create_dir("databases")
+    database = create_db_definition(db_scripts,
+                                    'MyModule' => ['[MyModule].[foo]', '[MyModule].[bar]'],
+                                    'MyOtherModule' => ['[MyOtherModule].[baz]', '[MyOtherModule].[bark]'],
+                                    'MyThirdModule' => ['[MyThirdModule].[biz]'])
+    module_group = database.add_module_group('zz', :modules => ['MyOtherModule', 'MyThirdModule'])
+    database.schema_overrides['MyThirdModule'] = 'My3rdSchema'
+    assert_equal module_group.modules, ['MyOtherModule', 'MyThirdModule']
+
+    Dbt::Config.default_up_dirs = ['.']
+    Dbt::Config.default_down_dirs = ['Down2', 'Down3']
+
+    create_table_sql('MyOtherModule/Down2', 'a')
+    create_table_sql('MyThirdModule/Down3', 'b')
+
+    mock.expects(:open).with(config, false).in_sequence(@s)
+
+    expect_create_table(mock, 'MyThirdModule', 'Down3/', 'b')
+    mock.expects(:drop_schema).with('My3rdSchema', ['[MyThirdModule].[biz]']).in_sequence(@s)
+
+    expect_create_table(mock, 'MyOtherModule', 'Down2/', 'a')
+    mock.expects(:drop_schema).with('MyOtherModule', ['[MyOtherModule].[bark]','[MyOtherModule].[baz]']).in_sequence(@s)
+    mock.expects(:close).with().in_sequence(@s)
+
+    Dbt.runtime.down_module_group(database.module_group_by_name('zz'))
+  end
+
+  def test_dump_database_to_fixtures
+    mock = Dbt::DbDriver.new
+    Dbt.runtime.instance_variable_set("@db", mock)
+
+    fixture_dir = create_dir("output_fixtures")
+
+    config = create_postgres_config()
+
+    db_scripts = create_dir("databases")
+    table_names = ['[MyModule].[tblTable1]', '[MyModule].[tblTable2]']
+    module_name = 'MyModule'
+    database = create_simple_db_definition(db_scripts, module_name, table_names)
+
+    Dbt::Config.default_fixture_dir_name = 'fixturesXX'
+
+    expected_table2_sql = "SELECT * FROM [MyModule].[tblTable2] ORDER BY ID"
+    Object.const_set(:DUMP_SQL_FOR_MyModule_tblTable2, expected_table2_sql)
+
+    begin
+      mock.expects(:open).with(config, false).in_sequence(@s)
+      Dbt.runtime.expects(:info).with("Dumping [MyModule].[tblTable1]").in_sequence(@s)
+      mock.expects(:query).with("SELECT * FROM [MyModule].[tblTable1]").returns([{'ID' => 1}, {'ID' => 2}]).in_sequence(@s)
+      Dbt.runtime.expects(:info).with("Dumping [MyModule].[tblTable2]").in_sequence(@s)
+      mock.expects(:query).with(expected_table2_sql).returns([{'ID' => 1}, {'ID' => 2}]).in_sequence(@s)
+      mock.expects(:close).with().in_sequence(@s)
+
+      Dbt.runtime.dump_database_to_fixtures(database, fixture_dir)
+
+      assert_file_exist("#{fixture_dir}/MyModule/fixturesXX/MyModule.tblTable1.yml")
+      assert_file_exist("#{fixture_dir}/MyModule/fixturesXX/MyModule.tblTable2.yml")
+    ensure
+      Object.send(:remove_const, :DUMP_SQL_FOR_MyModule_tblTable2)
+    end
+  end
+
+  def test_dump_database_to_fixtures_with_data_set
+    mock = Dbt::DbDriver.new
+    Dbt.runtime.instance_variable_set("@db", mock)
+
+    fixture_dir = create_dir("output_fixtures")
+
+    config = create_postgres_config()
+
+    db_scripts = create_dir("databases")
+    table_names = ['[MyModule].[tblTable1]']
+    module_name = 'MyModule'
+    database = create_simple_db_definition(db_scripts, module_name, table_names)
+    data_set = 'foo'
+
+    Dbt::Config.default_datasets_dir_name = 'dataset123'
+
+    mock.expects(:open).with(config, false).in_sequence(@s)
+    Dbt.runtime.expects(:info).with("Dumping [MyModule].[tblTable1]").in_sequence(@s)
+    mock.expects(:query).with("SELECT * FROM [MyModule].[tblTable1]").returns([{'ID' => 1}, {'ID' => 2}]).in_sequence(@s)
+    mock.expects(:close).with().in_sequence(@s)
+
+    Dbt.runtime.dump_database_to_fixtures(database, fixture_dir, :data_set => data_set)
+
+    assert_file_exist("#{fixture_dir}/MyModule/dataset123/foo/MyModule.tblTable1.yml")
+  end
+
+  def test_dump_database_to_fixtures_with_filter
+    mock = Dbt::DbDriver.new
+    Dbt.runtime.instance_variable_set("@db", mock)
+
+    fixture_dir = create_dir("output_fixtures")
+
+    config = create_postgres_config()
+
+    db_scripts = create_dir("databases")
+    table_names = ['[MyModule].[tblTable1]', '[MyModule].[tblTable2]']
+    module_name = 'MyModule'
+    database = create_simple_db_definition(db_scripts, module_name, table_names)
+    filter = Proc.new {|t| t == '[MyModule].[tblTable1]'}
+
+    Dbt::Config.default_fixture_dir_name = 'fixturesXX'
+
+    mock.expects(:open).with(config, false).in_sequence(@s)
+    Dbt.runtime.expects(:info).with("Dumping [MyModule].[tblTable1]").in_sequence(@s)
+    mock.expects(:query).with("SELECT * FROM [MyModule].[tblTable1]").returns([{'ID' => 1}, {'ID' => 2}]).in_sequence(@s)
+    mock.expects(:close).with().in_sequence(@s)
+
+    Dbt.runtime.dump_database_to_fixtures(database, fixture_dir, :filter => filter)
+
+    assert_file_exist("#{fixture_dir}/MyModule/fixturesXX/MyModule.tblTable1.yml")
+  end
 
   def setup
     super
@@ -543,7 +876,7 @@ class TestRuntimeBasic < Dbt::TestCase
   end
 
   def create_fixture(module_name, table_name)
-    create_file("databases/#{module_name}/#{Dbt::Config.fixture_dir_name}/#{module_name}.#{table_name}.yml", "1:\n  ID: 1\n")
+    create_file("databases/#{module_name}/#{Dbt::Config.default_fixture_dir_name}/#{module_name}.#{table_name}.yml", "1:\n  ID: 1\n")
   end
 
   def expect_create_table(mock, module_name, dirname, table_name, seq = true)
@@ -566,6 +899,10 @@ class TestRuntimeBasic < Dbt::TestCase
     Dbt.runtime.expects(:info).with("Migration: #{migration_name}.sql").in_sequence(@s)
     mock.expects(:execute).with(sql, false).in_sequence(@s)
     expect_mark_migration_as_run(mock, database_key, migration_name)
+  end
+
+  def expect_should_migrate(mock, database_key, migration_name, result)
+    mock.expects(:"should_migrate?").with(database_key, migration_name).returns(result).in_sequence(@s)
   end
 
   def expect_mark_migration_as_run(mock, database_key, migration_name)
@@ -598,6 +935,15 @@ class TestRuntimeBasic < Dbt::TestCase
       db.rake_integration = false
       db.modules = [module_name]
       db.table_map = {module_name => table_names}
+      db.search_dirs = [db_scripts]
+    end
+  end
+
+  def create_db_definition(db_scripts, table_map)
+    Dbt.add_database(:default) do |db|
+      db.rake_integration = false
+      db.modules = table_map.keys
+      db.table_map = table_map
       db.search_dirs = [db_scripts]
     end
   end
