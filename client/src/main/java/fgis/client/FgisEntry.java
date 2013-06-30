@@ -142,7 +142,6 @@ public final class FgisEntry
 
   public static Vector createLayerFromJson( final String layerName, final String url )
   {
-
     final FixedStrategyOptions fOptions = new FixedStrategyOptions();
     final FixedStrategy fStrategy = new FixedStrategy( fOptions );
 
