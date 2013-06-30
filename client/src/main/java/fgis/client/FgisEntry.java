@@ -81,7 +81,7 @@ public final class FgisEntry
       }
     } );
 
-    final Vector polyLayer = createLayerFromJson( "Polygon Layer", "data/poly.json" );
+    final Vector polyLayer = createLayerFromJson( "Polygon Layer", GWT.getHostPageBaseURL() + "data/poly.json" );
     map.addLayer( polyLayer );
     //In the json we have defined styles in the properties, here we set these properties
     final Style style = new Style();
