@@ -6,16 +6,19 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.json.JsonValue;
 import org.geolatte.geom.Envelope;
+import org.geolatte.geom.crs.CrsId;
 
 public abstract class GjElement
 {
   @Nonnull
   private final Map<String, JsonValue> _additionalProperties;
-  private final boolean _includeCRS;
+  @Nullable
+  private final CrsId _crsId;
+  @Nullable
   private final Envelope _bbox;
 
-  protected GjElement( final boolean includeCRS,
-                       final Envelope bbox,
+  protected GjElement( @Nullable final CrsId crsId,
+                       @Nullable final Envelope bbox,
                        @Nullable final Map<String, JsonValue> additionalProperties )
   {
     if ( null != additionalProperties )
@@ -28,7 +31,7 @@ public abstract class GjElement
         }
       }
     }
-    _includeCRS = includeCRS;
+    _crsId = crsId;
     _bbox = bbox;
     _additionalProperties =
       null == additionalProperties ?
@@ -36,19 +39,20 @@ public abstract class GjElement
       Collections.unmodifiableMap( additionalProperties );
   }
 
-  public final boolean includeCRS()
+  @Nullable
+  public final CrsId getCrsId()
   {
-    return _includeCRS;
+    return _crsId;
   }
 
   @Nullable
-  public Envelope getBBox()
+  public final Envelope getBBox()
   {
     return _bbox;
   }
 
   @Nonnull
-  public Map<String, JsonValue> getAdditionalProperties()
+  public final Map<String, JsonValue> getAdditionalProperties()
   {
     return _additionalProperties;
   }

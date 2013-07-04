@@ -7,6 +7,7 @@ import javax.json.JsonValue;
 import org.geolatte.geom.Envelope;
 import org.geolatte.geom.Geometry;
 import org.geolatte.geom.GeometryCollection;
+import org.geolatte.geom.crs.CrsId;
 
 public final class GjGeometry
   extends GjElement
@@ -16,11 +17,11 @@ public final class GjGeometry
 
   @SuppressWarnings( "ConstantConditions" )
   public GjGeometry( @Nonnull final Geometry geometry,
-                     final boolean includeCRS,
-                     final Envelope bbox,
+                     @Nullable final CrsId crsId,
+                     @Nullable final Envelope bbox,
                      @Nullable final Map<String, JsonValue> additionalProperties )
   {
-    super( includeCRS, bbox, additionalProperties );
+    super( crsId, bbox, additionalProperties );
     if ( null == geometry )
     {
       throw new IllegalArgumentException( "geometry is null" );

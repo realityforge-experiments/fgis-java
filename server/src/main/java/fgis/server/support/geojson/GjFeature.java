@@ -5,6 +5,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.json.JsonValue;
 import org.geolatte.geom.Envelope;
+import org.geolatte.geom.crs.CrsId;
 
 public final class GjFeature
   extends GjElement
@@ -18,38 +19,38 @@ public final class GjFeature
 
   public GjFeature( @Nullable final JsonValue id,
                     @Nonnull final GjGeometry geometry,
-                    final boolean includeCRS,
-                    final Envelope bbox,
+                    @Nullable final CrsId crsId,
+                    @Nullable final Envelope bbox,
                     @Nullable final Map<String, JsonValue> additionalProperties )
   {
-    this( id, includeCRS, bbox, additionalProperties, geometry, null );
+    this( id, crsId, bbox, additionalProperties, geometry, null );
   }
 
   public GjFeature( @Nullable final JsonValue id,
                     @Nonnull final GjGeometryCollection geometryCollection,
-                    final boolean includeCRS,
-                    final Envelope bbox,
+                    @Nullable final CrsId crsId,
+                    @Nullable final Envelope bbox,
                     @Nullable final Map<String, JsonValue> additionalProperties )
   {
-    this( id, includeCRS, bbox, additionalProperties, null, geometryCollection );
+    this( id, crsId, bbox, additionalProperties, null, geometryCollection );
   }
 
   public GjFeature( @Nullable final JsonValue id,
-                    final boolean includeCRS,
-                    final Envelope bbox,
+                    @Nullable final CrsId crsId,
+                    @Nullable final Envelope bbox,
                     @Nullable final Map<String, JsonValue> additionalProperties )
   {
-    this( id, includeCRS, bbox, additionalProperties, null, null );
+    this( id, crsId, bbox, additionalProperties, null, null );
   }
 
   private GjFeature( @Nullable final JsonValue id,
-                     final boolean includeCRS,
-                     final Envelope bbox,
+                     @Nullable final CrsId crsId,
+                     @Nullable final Envelope bbox,
                      @Nullable final Map<String, JsonValue> additionalProperties,
                      @Nullable final GjGeometry geometry,
                      @Nullable final GjGeometryCollection geometryCollection )
   {
-    super( includeCRS, bbox, additionalProperties );
+    super( crsId, bbox, additionalProperties );
     _id = null == id ? JsonValue.NULL : id;
     _geometry = geometry;
     _geometryCollection = geometryCollection;

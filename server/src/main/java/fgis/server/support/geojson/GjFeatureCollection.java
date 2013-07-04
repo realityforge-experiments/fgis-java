@@ -19,7 +19,6 @@
 
 package fgis.server.support.geojson;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +26,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.json.JsonValue;
 import org.geolatte.geom.Envelope;
+import org.geolatte.geom.crs.CrsId;
 
 public final class GjFeatureCollection
   extends GjElement
@@ -34,11 +34,11 @@ public final class GjFeatureCollection
   private final List<GjFeature> _collection;
 
   public GjFeatureCollection( @Nonnull final List<GjFeature> collection,
-                              final boolean includeCRS,
-                              final Envelope bbox,
+                              @Nullable final CrsId crsId,
+                              @Nullable final Envelope bbox,
                               @Nullable final Map<String, JsonValue> additionalProperties )
   {
-    super( includeCRS, bbox, additionalProperties );
+    super( crsId, bbox, additionalProperties );
     _collection = Collections.unmodifiableList( collection );;
   }
 

@@ -16,6 +16,7 @@ import org.geolatte.geom.MultiPolygon;
 import org.geolatte.geom.Point;
 import org.geolatte.geom.PointCollection;
 import org.geolatte.geom.Polygon;
+import org.geolatte.geom.crs.CrsId;
 
 public class GeoJsonWriter
 {
@@ -51,7 +52,7 @@ public class GeoJsonWriter
     final Geometry geometry = element.getGeometry();
     if ( geometry instanceof Point )
     {
-      emitHeader( g, "Point", element.getBBox() );
+      emitHeader( g, "Point", element.getBBox(), element.getCrsId() );
 
       final Point p = (Point) geometry;
       g.writeStartArray( "coordinates" );
@@ -61,7 +62,7 @@ public class GeoJsonWriter
     }
     else if ( geometry instanceof LineString )
     {
-      emitHeader( g, "LineString", element.getBBox() );
+      emitHeader( g, "LineString", element.getBBox(), element.getCrsId() );
 
       g.writeStartArray( "coordinates" );
       emitLineStringBody( g, (LineString) g );
@@ -69,7 +70,7 @@ public class GeoJsonWriter
     }
     else if ( geometry instanceof Polygon )
     {
-      emitHeader( g, "Polygon", geometry.getEnvelope() );
+      emitHeader( g, "Polygon", geometry.getEnvelope(), element.getCrsId() );
 
       final Polygon p = (Polygon) geometry;
 
@@ -79,7 +80,7 @@ public class GeoJsonWriter
     }
     else if ( geometry instanceof MultiPoint )
     {
-      emitHeader( g, "MultiPoint", element.getBBox() );
+      emitHeader( g, "MultiPoint", element.getBBox(), element.getCrsId() );
       final MultiPoint mp = (MultiPoint) geometry;
       g.writeStartArray( "coordinates" );
       final PointCollection p = mp.getPoints();
@@ -95,7 +96,7 @@ public class GeoJsonWriter
     }
     else if ( geometry instanceof MultiLineString )
     {
-      emitHeader( g, "MultiLineString", element.getBBox() );
+      emitHeader( g, "MultiLineString", element.getBBox(), element.getCrsId() );
       g.writeStartArray( "coordinates" );
 
       final MultiLineString multiLineString = (MultiLineString) geometry;
@@ -112,7 +113,7 @@ public class GeoJsonWriter
     }
     else if ( geometry instanceof MultiPolygon )
     {
-      emitHeader( g, "MultiPolygon", element.getBBox() );
+      emitHeader( g, "MultiPolygon", element.getBBox(), element.getCrsId() );
       final MultiPolygon mp = (MultiPolygon) geometry;
 
       g.writeStartArray( "coordinates" );
@@ -200,7 +201,7 @@ public class GeoJsonWriter
   {
     g.writeStartObject();
 
-    emitHeader( g, "GeometryCollection", element.getBBox() );
+    emitHeader( g, "GeometryCollection", element.getBBox(), element.getCrsId() );
 
     g.writeStartArray( "geometries" );
     for ( final GjGeometry geometry : element.getCollection() )
@@ -216,7 +217,7 @@ public class GeoJsonWriter
                     @Nonnull final GjFeature element )
   {
     g.writeStartObject();
-    emitHeader( g, "Feature", element.getBBox() );
+    emitHeader( g, "Feature", element.getBBox(), element.getCrsId() );
     if ( JsonValue.NULL != element.getId() )
     {
       g.write( "id", element.getId() );
@@ -254,7 +255,7 @@ public class GeoJsonWriter
                     @Nonnull final GjFeatureCollection element )
   {
     g.writeStartObject();
-    emitHeader( g, "FeatureCollection", element.getBBox() );
+    emitHeader( g, "FeatureCollection", element.getBBox(), element.getCrsId() );
     g.writeStartArray( "features" );
     for ( final GjFeature feature : element.getCollection() )
     {
@@ -267,27 +268,37 @@ public class GeoJsonWriter
     g.writeEnd();
   }
 
-  private void emitHeader( final JsonGenerator g, final String type, final Envelope bbox )
-  {
-    emitType( g, type );
-    emitBbox( g, bbox );
-  }
-
-  private void emitType( final JsonGenerator g, final String type )
+  private void emitHeader( final JsonGenerator g,
+                           final String type,
+                           @Nullable final Envelope bbox,
+                           @Nullable final CrsId crsId )
   {
     g.write( "type", type );
+    writeBbox( g, bbox );
+    writeCrsId( g, crsId );
   }
 
-  private void emitBBox( final JsonGenerator g, final GjElement element )
+  private void writeCrsId( final JsonGenerator g, final CrsId crsId )
   {
-    emitBbox( g, element.getBBox() );
-  }
-
-  private void emitBbox( final JsonGenerator g, final Envelope bbox )
-  {
-    if( null != bbox )
+    if ( null != crsId )
     {
+      g.writeStartObject( "crs" );
+      g.write( "type", "name" );
+      g.writeStartObject( "properties" );
+      g.write( "name", crsId.getAuthority() + ":" + crsId.getCode() );
+      g.writeEnd();
+
+      g.writeEnd();
+    }
+  }
+
+  private void writeBbox( final JsonGenerator g, final Envelope bbox )
+  {
+    if ( null != bbox )
+    {
+      g.writeStartObject( "bbox" );
       emitPosition( g, bbox.getMinX(), bbox.getMinY(), bbox.getMaxX(), bbox.getMaxY() );
+      g.writeEnd();
     }
   }
 
