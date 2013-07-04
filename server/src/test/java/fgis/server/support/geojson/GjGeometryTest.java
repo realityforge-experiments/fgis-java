@@ -8,7 +8,7 @@ public final class GjGeometryTest
   extends AbstractGjElementTest
 {
   @Test
-  public void geometry()
+  public void basic()
     throws Exception
   {
     final Geometry geometry = fromWkT( "POINT (1 1)" );
@@ -20,7 +20,7 @@ public final class GjGeometryTest
 
   @SuppressWarnings( "ConstantConditions" )
   @Test
-  public void nullGeometryPassedToGeometry()
+  public void nullGeometry()
     throws Exception
   {
     try
@@ -36,7 +36,7 @@ public final class GjGeometryTest
 
   @SuppressWarnings( "ConstantConditions" )
   @Test
-  public void geometryCollectionPassedToGeometryShouldFail()
+  public void geometryCollectionPassedAsGeometryShouldFail()
     throws Exception
   {
     try
