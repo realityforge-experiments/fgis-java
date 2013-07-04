@@ -49,6 +49,22 @@ public class GeoJsonWriterTest
   }
 
   @Test
+  public void emitGeometryWithAdditionalAttributes()
+  {
+    final Geometry geometry = fromWkT( "POINT (1 1)" );
+    final HashMap<String, JsonValue> additionalProperties = new HashMap<>();
+    additionalProperties.put( "Foo", JsonValue.FALSE );
+    additionalProperties.put( "Bar", JsonValue.NULL );
+    final GjElement e = new GjGeometry( geometry, null, null, additionalProperties );
+
+    final JsonStructure result = writeAndRead( e );
+
+    final String expectedJson = "{\"type\":\"Point\",\"Foo\":false,\"Bar\":null,\"coordinates\":[1.0,1.0]}";
+    final JsonObject expected = (JsonObject) parse( expectedJson );
+    assertEquals( result, expected );
+  }
+
+  @Test
   public void emitGeometryWithCrs()
   {
     final Geometry geometry = fromWkT( "POINT (1 1)" );
