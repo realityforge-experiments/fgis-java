@@ -49,6 +49,21 @@ public class GeoJsonWriterTest
   }
 
   @Test
+  public void emitGeometryWithCrs()
+  {
+    final Geometry geometry = fromWkT( "POINT (1 1)" );
+    final CrsId crsId = CrsRegistry.getCrsIdForEPSG( 3111 );
+    final GjElement e = new GjGeometry( geometry, crsId, null, null );
+
+    final JsonStructure result = writeAndRead( e );
+
+    final String expectedJson =
+      "{\"type\":\"Point\",\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:3111\"}},\"coordinates\":[1.0,1.0]}";
+    final JsonObject expected = (JsonObject) parse( expectedJson );
+    assertEquals( result, expected );
+  }
+
+  @Test
   public void emitGeometryCollection()
   {
     final Geometry geometry = fromWkT( "POINT (1 1)" );
