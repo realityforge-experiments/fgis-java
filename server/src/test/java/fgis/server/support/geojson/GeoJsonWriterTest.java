@@ -30,6 +30,21 @@ public class GeoJsonWriterTest
     assertEquals( result, expected );
   }
 
+  @Test
+  public void emitGeometryCollection()
+  {
+    final Geometry geometry = fromWkT( "POINT (1 1)" );
+    final GjGeometry g = new GjGeometry( geometry, null, null, null );
+    final GjElement e = new GjGeometryCollection( Arrays.asList( g ), null, null, null );
+
+    final JsonStructure result = writeAndRead( e );
+
+    final String expectedJson =
+      "{\"type\":\"GeometryCollection\",\"geometries\":[{\"type\":\"Point\",\"coordinates\":[1.0,1.0]}]}";
+    final JsonObject expected = (JsonObject) parse( expectedJson );
+    assertEquals( result, expected );
+  }
+
   private JsonStructure writeAndRead( final GjElement e )
   {
     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
