@@ -66,6 +66,8 @@ define 'fgis' do
                  :javax_inject,
                  :eclipselink,
                  :javax_json,
+                 :slf4j_api,
+                 :slf4j_jdk14,
                  :postgresql,
                  :postgis_jdbc,
                  :jts,
