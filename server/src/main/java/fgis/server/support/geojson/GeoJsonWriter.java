@@ -48,6 +48,13 @@ public class GeoJsonWriter
   public void emit( @Nonnull final JsonGenerator g,
                     @Nonnull final GjGeometry element )
   {
+    g.writeStartObject();
+    emitGeometryBody( g, element );
+    g.writeEnd();
+  }
+
+  private void emitGeometryBody( final JsonGenerator g, final GjGeometry element )
+  {
     final Geometry geometry = element.getGeometry();
     if ( geometry instanceof Point )
     {
@@ -224,7 +231,7 @@ public class GeoJsonWriter
     if ( null != geometry )
     {
       g.writeStartObject( "geometry" );
-      emit( g, geometry );
+      emitGeometryBody( g, geometry );
       g.writeEnd();
     }
     else
