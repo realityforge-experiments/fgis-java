@@ -142,6 +142,22 @@ public class GeoJsonWriterTest
     assertEquals( result, expected );
   }
 
+  @Test
+  public void emitFeatureCollection()
+  {
+    final Geometry geometry = fromWkT( "POINT (1 1)" );
+    final GjGeometry g = new GjGeometry( geometry, null, null, null );
+    final GjFeature f = new GjFeature( null, g, null, null, null );
+    final GjElement e = new GjFeatureCollection( Arrays.asList( f ), null, null, null );
+
+    final JsonStructure result = writeAndRead( e );
+
+    final String expectedJson =
+      "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[1.0,1.0]},\"properties\":{}}]}";
+    final JsonObject expected = (JsonObject) parse( expectedJson );
+    assertEquals( result, expected );
+  }
+
   private JsonStructure writeAndRead( final GjElement e )
   {
     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
