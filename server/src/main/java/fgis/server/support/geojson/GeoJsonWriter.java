@@ -48,7 +48,6 @@ public class GeoJsonWriter
   public void emit( @Nonnull final JsonGenerator g,
                     @Nonnull final GjGeometry element )
   {
-    g.writeStartObject();
     final Geometry geometry = element.getGeometry();
     if ( geometry instanceof Point )
     {
@@ -130,7 +129,6 @@ public class GeoJsonWriter
     {
       throw new IllegalArgumentException( "Unknown geometry type: " + geometry.getClass().getName() );
     }
-    g.writeEnd();
   }
 
   private void emitPolygonBody( final JsonGenerator g, final Polygon p )
