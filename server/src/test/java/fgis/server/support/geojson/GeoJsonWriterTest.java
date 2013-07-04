@@ -137,7 +137,7 @@ public class GeoJsonWriterTest
     final JsonStructure result = writeAndRead( e );
 
     final String expectedJson =
-      "{\"type\":\"Feature\",\"id\":true,\"geometry\":{\"type\":\"Point\",\"coordinates\":[1.0,1.0]},\"properties\":{}}";
+      "{\"type\":\"Feature\",\"Foo\":false,\"Bar\":null,\"geometry\":{\"type\":\"Point\",\"coordinates\":[1.0,1.0]},\"properties\":{\"Foo\":false,\"Bar\":null}}";
     final JsonObject expected = (JsonObject) parse( expectedJson );
     assertEquals( result, expected );
   }
