@@ -296,8 +296,8 @@ public class GeoJsonWriter
   {
     if ( null != bbox )
     {
-      g.writeStartObject( "bbox" );
-      emitPosition( g, bbox.getMinX(), bbox.getMinY(), bbox.getMaxX(), bbox.getMaxY() );
+      g.writeStartArray( "bbox" );
+      emitPositionBody( g, bbox.getMinX(), bbox.getMinY(), bbox.getMaxX(), bbox.getMaxY() );
       g.writeEnd();
     }
   }
