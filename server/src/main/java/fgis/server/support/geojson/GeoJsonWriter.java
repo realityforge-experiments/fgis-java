@@ -268,8 +268,6 @@ public class GeoJsonWriter
     }
     g.writeEnd();
 
-    writeProperties( g, element.getAdditionalProperties() );
-
     g.writeEnd();
   }
 
