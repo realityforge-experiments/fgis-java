@@ -28,7 +28,7 @@ public final class GjGeometry
     }
     if ( geometry instanceof GeometryCollection )
     {
-      throw new IllegalStateException( "geometry is a GeometryCollection" );
+      throw new IllegalArgumentException( "geometry is a GeometryCollection" );
     }
     _geometry = geometry;
   }
