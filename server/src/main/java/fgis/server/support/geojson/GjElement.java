@@ -27,7 +27,7 @@ public abstract class GjElement
       {
         if ( !isPropertyAllowed( key ) )
         {
-          throw new IllegalStateException( "Property named '" + key + "' is not allowed." );
+          throw new IllegalArgumentException( "Property named '" + key + "' is not allowed." );
         }
       }
     }
