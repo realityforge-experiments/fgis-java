@@ -71,7 +71,7 @@ public class GeoJsonWriter
       emitHeader( g, "LineString", element, true );
 
       g.writeStartArray( "coordinates" );
-      emitLineStringBody( g, (LineString) g );
+      emitLineStringBody( g, (LineString) geometry );
       g.writeEnd();
     }
     else if ( geometry instanceof Polygon )
