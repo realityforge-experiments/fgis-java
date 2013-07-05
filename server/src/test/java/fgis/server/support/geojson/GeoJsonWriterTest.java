@@ -35,7 +35,7 @@ public class GeoJsonWriterTest
     assertEquals( result, expected );
   }
 
-@Test
+  @Test
   public void emitLineStringGeometry()
   {
     final Geometry geometry = fromWkT( "LINESTRING ( 1 1, 2 1 )" );
