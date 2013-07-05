@@ -89,14 +89,15 @@ public class GeoJsonWriter
       emitHeader( g, "MultiPoint", element, true );
       final MultiPoint mp = (MultiPoint) geometry;
       g.writeStartArray( "coordinates" );
-      final PointCollection p = mp.getPoints();
-      final int size = p.size();
-      for ( int i = 0; i < size; i++ )
+      final int count = mp.getNumGeometries();
+      for ( int i = 0; i < count; i++ )
       {
-        emitPositionBody( g, p.getX( i ),
-                          p.getY( i ),
-                          p.is3D() ? p.getZ( i ) : null,
-                          p.isMeasured() ? p.getM( i ) : null );
+        final Point p = mp.getGeometryN( i );
+        emitPosition( g,
+                      p.getX(),
+                      p.getY(),
+                      p.is3D() ? p.getZ() : null,
+                      p.isMeasured() ? p.getM() : null );
       }
       g.writeEnd();
     }
