@@ -51,12 +51,17 @@ public class GeoJsonWriterTest
   @Test
   public void emitPolygonGeometry()
   {
-    final Geometry geometry = fromWkT( "POLYGON ( ( 1 1, 2 1, 2 2, 1 2, 1 1 ) ( 1.25 1.25, 1.75 1.25, 1.75 1.75, 1.25 1.75, 1.25 1.25 ) )" );
+    final Geometry geometry = fromWkT( "POLYGON ( ( 100.0 0.0, 101.0 0.0, 101.0 1.0, 100.0 1.0, 100.0 0.0 ) ( 100.2 0.2, 100.8 0.2, 100.8 0.8, 100.2 0.8, 100.2 0.2 ) )" );
     final GjElement e = new GjGeometry( geometry, null, null, null );
 
     final JsonStructure result = writeAndRead( e );
 
-    final String expectedJson = "{\"type\":\"Polygon\",\"coordinates\":[[[1.0,1.0],[2.0,1.0],[2.0,2.0],[1.0,2.0],[1.0,1.0]],[[1.25,1.25],[1.75,1.25],[1.75,1.75],[1.25,1.75],[1.25,1.25]]]}";
+    final String expectedJson = "{ \"type\": \"Polygon\",\n" +
+                                "  \"coordinates\": [\n" +
+                                "    [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ],\n" +
+                                "    [ [100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2] ]\n" +
+                                "    ]\n" +
+                                " }";
     final JsonObject expected = (JsonObject) parse( expectedJson );
     assertEquals( result, expected );
   }
