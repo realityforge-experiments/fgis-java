@@ -26,7 +26,7 @@ public final class GjGeometry
     {
       throw new IllegalArgumentException( "geometry is null" );
     }
-    if ( geometry instanceof GeometryCollection )
+    if ( geometry.getClass() == GeometryCollection.class )
     {
       throw new IllegalArgumentException( "geometry is a GeometryCollection" );
     }
