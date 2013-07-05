@@ -62,6 +62,19 @@ public class GeoJsonWriterTest
   }
 
   @Test
+  public void emitMultiPointGeometry()
+  {
+    final Geometry geometry = fromWkT( "MULTIPOINT ( (1 1) (2 2) )" );
+    final GjElement e = new GjGeometry( geometry, null, null, null );
+
+    final JsonStructure result = writeAndRead( e );
+
+    final String expectedJson = "{\"type\":\"MultiPoint\",\"coordinates\":[[1.0,1.0],[2.0,2.0]]}";
+    final JsonObject expected = (JsonObject) parse( expectedJson );
+    assertEquals( result, expected );
+  }
+
+  @Test
   public void emitGeometryWithBBox()
   {
     final Geometry geometry = fromWkT( "POINT (1 1)" );
