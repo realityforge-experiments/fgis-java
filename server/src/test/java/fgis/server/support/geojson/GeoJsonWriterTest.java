@@ -77,12 +77,18 @@ public class GeoJsonWriterTest
   @Test
   public void emitMultiLineStringGeometry()
   {
-    final Geometry geometry = fromWkT( "MULTILINESTRING ( ( 1 1, 2 1 ) ( 1 1, 2 1 ) )" );
+    final Geometry geometry = fromWkT( "MULTILINESTRING ( ( 100.0 0.0, 101.0 1.0 ) ( 102.0 2.0, 103.0 3.0 ) )" );
     final GjElement e = new GjGeometry( geometry, null, null, null );
 
     final JsonStructure result = writeAndRead( e );
 
-    final String expectedJson = "{\"type\":\"MultiLineString\",\"coordinates\":[[[1.0,1.0],[2.0,1.0]],[[1.0,1.0],[2.0,1.0]]]}";
+
+    final String expectedJson = "{ \"type\": \"MultiLineString\",\n" +
+                                "  \"coordinates\": [\n" +
+                                "      [ [100.0, 0.0], [101.0, 1.0] ],\n" +
+                                "      [ [102.0, 2.0], [103.0, 3.0] ]\n" +
+                                "    ]\n" +
+                                "  }";
     final JsonObject expected = (JsonObject) parse( expectedJson );
     assertEquals( result, expected );
   }
