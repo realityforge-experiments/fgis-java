@@ -7,7 +7,6 @@ import fgis.server.entity.fgis.ResourceTrack;
 import fgis.server.entity.fgis.Resource_;
 import fgis.server.entity.fgis.dao.ResourceRepository;
 import fgis.server.entity.fgis.dao.ResourceTrackRepository;
-import fgis.server.support.FieldFilter;
 import java.io.StringWriter;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -58,6 +57,7 @@ import org.realityforge.jeo.geojson.GjElement;
 import org.realityforge.jeo.geojson.GjFeature;
 import org.realityforge.jeo.geojson.GjFeatureCollection;
 import org.realityforge.jeo.geojson.GjGeometry;
+import org.realityforge.rest.field_filter.FieldFilter;
 
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @TransactionAttribute( TransactionAttributeType.REQUIRED )
