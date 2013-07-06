@@ -46,14 +46,14 @@ addFeedItem = (time_diff, map, v) ->
 handleGeoJsonPacket = (map, v) ->
   #console.log v
   color = 'green'
-  if( v.type == 'Person' )
+  if( v.properties.resource_type == 'Person' )
     color = 'blue'
-  else if( v.type == 'Slip-On' )
+  else if( v.properties.resource_type == 'Slip-On' )
     color = 'yellow'
-  else if( v.type == 'Tanker' )
+  else if( v.properties.resource_type == 'Tanker' )
     color = 'red'
   current_time = new Date().getTime()
-  feature_time = new Date(v.updated_at).getTime()
+  feature_time = new Date(v.properties.updated_at).getTime()
   time_diff_in_minutes = Math.ceil((current_time - feature_time)/1000/60)
   time_diff_in_hours = Math.floor((current_time - feature_time)/1000/60/60)
   time_diff_in_days = Math.floor((current_time - feature_time)/1000/60/60/24)
@@ -63,7 +63,7 @@ handleGeoJsonPacket = (map, v) ->
     time_diff = time_diff_in_hours + " hours ago"
     if time_diff_in_hours == 0
       time_diff = time_diff_in_minutes + " minutes ago"
-  layer = L.geoJson(v.geo.features[0], {
+  layer = L.geoJson(v, {
     pointToLayer: (feature, latlon) ->
       markerIcon = L.icon
         iconUrl: 'images/marker-icon.png'
@@ -72,7 +72,7 @@ handleGeoJsonPacket = (map, v) ->
     style: (feature) ->
       return {color: color};
     onEachFeature: (feature, layer) ->
-      layer.bindPopup v.type + " - " + v.title + "<br><span style=\"float: right; font-size: 0.8em;\">(#{time_diff})</span>"
+      layer.bindPopup v.properties.resource_type + " - " + v.properties.title + "<br><span style=\"float: right; font-size: 0.8em;\">(#{time_diff})</span>"
   })
   if( !TopLayers[v.id] )
     TopLayers[v.id] = []
@@ -88,7 +88,7 @@ downloadResourceData = (map) ->
   handleDownloadCallback = (response) ->
     $('div.messages').empty()
 
-    response.forEach (v) ->
+    response.features.forEach (v) ->
       handleGeoJsonPacket(map, v)
   $.get '/fgis/api/resource', {}, handleDownloadCallback, 'json'
 
