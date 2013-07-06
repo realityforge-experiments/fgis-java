@@ -34,15 +34,6 @@ define 'fgis' do
                  :google_guice_assistedinject
 
 
-    desc 'Generate assets and move them to idea artifact'
-    task 'assets:artifact' => %w(assets) do
-      target = _(:artifacts, project.name)
-      mkdir_p target
-      ([_(:source, :main, :webapp)] + self.assets.paths).each do |asset|
-        cp_r Dir["#{asset}/*"], "#{target}/"
-      end
-    end
-
     package :jar
     package :sources
 
@@ -120,6 +111,15 @@ define 'fgis' do
 
   project.clean { rm_rf _("databases/generated") }
   project.clean { rm_rf _(:artifacts) }
+
+  desc 'Generate assets and move them to idea artifact'
+  task 'assets:artifact' => %w(assets) do
+    target = _(:artifacts, 'fgis')
+    mkdir_p target
+    project('client').assets.paths.each do |asset|
+      cp_r Dir["#{asset}/*"], "#{target}/"
+    end
+  end
 
   ipr.add_exploded_war_artifact(project,
                                 :name => 'fgis',
