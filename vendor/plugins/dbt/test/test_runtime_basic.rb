@@ -2,6 +2,26 @@ require File.expand_path('../helper', __FILE__)
 
 class TestRuntimeBasic < Dbt::TestCase
 
+  def test_query
+    mock = Dbt::DbDriver.new
+    Dbt.runtime.instance_variable_set("@db", mock)
+
+    config = create_postgres_config()
+
+    db_scripts = create_dir("databases")
+    module_name = 'MyModule'
+    table_names = ['[MyModule].[foo]', '[MyModule].[bar]', '[MyModule].[baz]']
+    database = create_simple_db_definition(db_scripts, module_name, table_names)
+
+    sql = "SELECT 42"
+
+    mock.expects(:open).with(config, false).in_sequence(@s)
+    mock.expects(:query).with(sql).in_sequence(@s)
+    mock.expects(:close).with().in_sequence(@s)
+
+    Dbt.runtime.query(database, sql)
+  end
+
   def test_create
     mock = Dbt::DbDriver.new
     Dbt.runtime.instance_variable_set("@db", mock)
@@ -949,7 +969,7 @@ class TestRuntimeBasic < Dbt::TestCase
   end
 
   def create_postgres_config(config = {}, top_level_config = {})
-    Dbt::Config.driver = 'Pg'
+    Dbt::Config.driver = 'postgres'
     Dbt.repository.configuration_data = {
       Dbt::Config.environment => base_postgres_config(config)
     }.merge(top_level_config)

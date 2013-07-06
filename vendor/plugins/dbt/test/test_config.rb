@@ -19,7 +19,7 @@ class TestConfig < Dbt::TestCase
     [:default_fixture_dir_name, 'fixtures', 'myfixtures'],
     [:index_file_name, 'index.txt', 'import-lite'],
     [:task_prefix, 'dbt', 'db'],
-    [:driver, 'Mssql', 'Postgres'],
+    [:driver, 'sql_server', 'postgres'],
     [:environment, 'development', 'production']
   ].each do |config_name, default_value, new_value|
     define_method(:"test_#{config_name}") do
@@ -61,5 +61,19 @@ class TestConfig < Dbt::TestCase
     Dbt::Config.default_import = :foo
     assert_equal Dbt::Config.default_import?(:foo), true
     assert_equal Dbt::Config.default_import?(:bar), false
+  end
+
+  def test_driver_config_class
+    Dbt::Config.driver = 'sql_server'
+    assert [Dbt::MssqlDbConfig, Dbt::TinyTdsDbConfig].include?(Dbt::Config.driver_config_class)
+    Dbt::Config.driver = 'postgres'
+    assert [Dbt::PostgresDbConfig, Dbt::PgDbConfig].include?(Dbt::Config.driver_config_class)
+  end
+
+  def test_driver_class
+    Dbt::Config.driver = 'sql_server'
+    assert [Dbt::MssqlDbDriver, Dbt::TinyTdsDbDriver].include?(Dbt::Config.driver_class)
+    Dbt::Config.driver = 'postgres'
+    assert [Dbt::PostgresDbDriver, Dbt::PgDbDriver].include?(Dbt::Config.driver_class)
   end
 end

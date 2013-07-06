@@ -51,6 +51,12 @@ class Dbt
       end
     end
 
+    def query(database, sql)
+      init_database(database.key) do
+        return db.query(sql)
+      end
+    end
+
     def backup(database)
       init_control_database(database.key) do
         db.backup(database, configuration_for_database(database))
@@ -151,6 +157,10 @@ class Dbt
       @db = nil
     end
 
+    def configuration_for_database(database)
+      configuration_for_key(config_key(database.key))
+    end
+
     private
 
     def dump_table_sql(table_name)
@@ -215,10 +225,6 @@ class Dbt
 
     def configuration_for_key(config_key)
       Dbt.repository.configuration_for_key(config_key)
-    end
-
-    def configuration_for_database(database)
-      configuration_for_key(config_key(database.key))
     end
 
     def init_database(database_key, &block)
@@ -595,7 +601,7 @@ class Dbt
     end
 
     def db
-      @db ||= Dbt.const_get("#{Dbt::Config.driver}DbDriver").new
+      @db ||= Dbt::Config.driver_class.new
     end
 
     def down_fixtures(database, module_name, fixtures)

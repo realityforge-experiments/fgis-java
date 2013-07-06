@@ -61,7 +61,7 @@ class TestFilterContainer < Dbt::TestCase
   def test_import_assert_filters
     c = TestFilterContainer.new
 
-    assert_equal c.import_assert_filters?, false
+    assert_equal c.import_assert_filters?, true
 
     c.import_assert_filters = true
 
@@ -77,7 +77,7 @@ class TestFilterContainer < Dbt::TestCase
   end
 
   def create_postgres_config(config = {}, top_level_config = {})
-    Dbt::Config.driver = 'Pg'
+    Dbt::Config.driver = 'postgres'
     Dbt.repository.configuration_data = {
       Dbt::Config.environment => base_postgres_config(config)
     }.merge(top_level_config)
