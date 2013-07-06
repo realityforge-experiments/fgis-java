@@ -46,6 +46,14 @@ module Buildr
           end
         end
       end
+
+      private
+
+      def out_of_date?(stamp)
+        super ||
+          self.paths.any? { |n| n.respond_to?(:needed?) && n.needed? }
+      end
+
     end
 
     module ProjectExtension
