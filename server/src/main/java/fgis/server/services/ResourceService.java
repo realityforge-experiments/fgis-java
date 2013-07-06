@@ -18,8 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.Nullable;
-import javax.ejb.ConcurrencyManagement;
-import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
@@ -65,7 +63,6 @@ import org.realityforge.jeo.geojson.GjGeometry;
 @TransactionAttribute( TransactionAttributeType.REQUIRED )
 @Startup
 @Singleton
-@ConcurrencyManagement( ConcurrencyManagementType.BEAN )
 @Path( "/resource" )
 @Produces( { MediaType.APPLICATION_JSON } )
 @Consumes( { MediaType.APPLICATION_JSON } )
