@@ -31,8 +31,6 @@ module Buildr
         @paths
       end
 
-      # TODO: Includes/excludes and exclude *.coffee, *.sass
-
       protected
 
       def initialize(*args) #:nodoc:
