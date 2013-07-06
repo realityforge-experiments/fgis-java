@@ -6,6 +6,7 @@ def define_jquery_dir(project)
     base_dir = "#{target_dir}/jquery/js"
     mkdir_p base_dir
     cp download_task.name, "#{base_dir}/jquery.js"
+    touch target_dir
   end
   target_dir
 end

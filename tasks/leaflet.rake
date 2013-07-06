@@ -9,6 +9,7 @@ def add_leaflet_media(project)
       unzip_task.from_path('CloudMade-Leaflet-165e50f/dist')
       unzip_task.extract
     end
+    touch target_dir
   end
   target_dir
 end

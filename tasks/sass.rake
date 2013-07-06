@@ -3,6 +3,7 @@ def define_process_sass_dir(project)
   source_dir = project._(:source, :main, :sass)
   project.assets.paths << project.file(target_dir => [FileList["#{source_dir}/**/*.scss"]]) do
     sh "scss -q --update #{source_dir}:#{target_dir}"
+    touch target_dir
   end
 
   p = project
