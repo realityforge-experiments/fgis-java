@@ -70,6 +70,7 @@ define 'fgis' do
                  :slf4j_jdk14,
                  :postgresql,
                  :postgis_jdbc,
+                 :jeo,
                  :jts,
                  :geolatte_geom,
                  :ejb_api,
@@ -134,6 +135,7 @@ define 'fgis' do
                                                   project('server'),
                                                   :javax_json,
                                                   :jts,
+                                                  :jeo,
                                                   :geolatte_geom])
 end
 

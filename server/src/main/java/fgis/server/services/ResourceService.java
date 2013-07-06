@@ -25,8 +25,10 @@ import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.json.Json;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonValue;
 import javax.json.stream.JsonGenerator;
-import javax.json.stream.JsonGeneratorFactory;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
@@ -47,12 +49,17 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import org.geolatte.geom.DimensionalFlag;
 import org.geolatte.geom.Geometry;
+import org.geolatte.geom.LineString;
 import org.geolatte.geom.Point;
 import org.geolatte.geom.PointSequenceBuilder;
 import org.geolatte.geom.PointSequenceBuilders;
 import org.geolatte.geom.Polygon;
 import org.geolatte.geom.crs.CrsId;
-import org.glassfish.json.JsonGeneratorFactoryImpl;
+import org.realityforge.jeo.geojson.GeoJsonWriter;
+import org.realityforge.jeo.geojson.GjElement;
+import org.realityforge.jeo.geojson.GjFeature;
+import org.realityforge.jeo.geojson.GjFeatureCollection;
+import org.realityforge.jeo.geojson.GjGeometry;
 
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @TransactionAttribute( TransactionAttributeType.REQUIRED )
@@ -89,8 +96,8 @@ public class ResourceService
     final CriteriaQuery<Resource> query = b.createQuery( Resource.class );
     final Root<Resource> entity = query.from( Resource.class );
     query.select( entity );
-    final ArrayList<Predicate> predicates = new ArrayList<Predicate>();
-    final Map<String, Object> params = new HashMap<String, Object>();
+    final ArrayList<Predicate> predicates = new ArrayList<>();
+    final Map<String, Object> params = new HashMap<>();
 
     if ( null != bbox )
     {
@@ -129,7 +136,7 @@ public class ResourceService
       entries.add( new ResourceEntry( resource, tracks ) );
     }
 
-    return toGeoJson( filter, entries );
+    return serialize( buildFeatureCollection( filter, entries ) );
   }
 
   @POST
@@ -183,7 +190,7 @@ public class ResourceService
     final Resource resource = getResource( resourceID );
 
     final List<ResourceTrack> tracks = getResourceTracks( resourceID );
-    return toGeoJson( filter, new ResourceEntry( resource, tracks ) );
+    return serialize( buildFeature( filter, new ResourceEntry( resource, tracks ) ) );
   }
 
   @GET
@@ -240,119 +247,76 @@ public class ResourceService
     return _resourceTrackService.findAllByResourceSince( resourceID, calendar.getTime() );
   }
 
-  private String toGeoJson( final FieldFilter filter,
-                            final ResourceEntry resource )
-  {
-    final StringWriter writer = new StringWriter();
-    final JsonGenerator g = newGenerator( writer );
-
-    writeResource( g, filter, resource );
-
-    g.close();
-
-    return writer.toString();
-  }
-
-  private String toGeoJson( final FieldFilter filter,
-                            final List<ResourceEntry> entries )
-  {
-    final StringWriter writer = new StringWriter();
-    final JsonGenerator g = newGenerator( writer );
-
-    g.writeStartArray();
-    for ( final ResourceEntry entry : entries )
-    {
-      writeResource( g, filter, entry );
-    }
-    g.writeEnd();
-
-    g.close();
-
-    return writer.toString();
-  }
-
-  private JsonGenerator newGenerator( final StringWriter writer )
-  {
-    final JsonGeneratorFactory factory = new JsonGeneratorFactoryImpl();
-    return factory.createGenerator( writer );
-  }
-
-  private void writeResource( final JsonGenerator g,
-                              final FieldFilter filter,
-                              final ResourceEntry entry )
+  private GjFeature buildFeature( final FieldFilter filter, final ResourceEntry entry )
   {
     final Resource resource = entry.getResource();
     final List<ResourceTrack> tracks = entry.getTracks();
 
-    g.writeStartObject();
+    final JsonObjectBuilder b = Json.createObjectBuilder();
 
-    if ( filter.allow( "id" ) )
+    if ( filter.allow( "resource_type" ) )
     {
-      g.write( "id", resource.getID() );
-    }
-
-    if ( filter.allow( "type" ) )
-    {
-      g.write( "type", resource.getType() );
+      b.add( "resource_type", resource.getType() );
     }
 
     if ( filter.allow( "title" ) )
     {
-      g.write( "title", resource.getName() );
+      b.add( "title", resource.getName() );
     }
 
     if ( filter.allow( "description" ) )
     {
-      g.write( "description", resource.getName() );
+      b.add( "description", resource.getName() );
     }
 
     if ( filter.allow( "updated_at" ) && tracks.size() > 0 )
     {
-      g.write( "updated_at", tracks.get( 0 ).getCollectedAt().getTime() );
-    }
-
-    if ( filter.allow( "updated_at" ) && tracks.size() == 0 )
-    {
-      g.write( "updated_at", 0 );
-    }
-
-    if ( filter.allow( "geo" ) )
-    {
-      g.writeStartObject( "geo" ).
-        write( "type", "FeatureCollection" ).
-        writeStartArray( "features" ).
-        writeStartObject().
-        write( "type", "Feature" ).
-        write( "id", resource.getID().toString() ).
-        writeStartObject( "properties" ).
-        writeEnd().
-        writeStartObject( "geometry" ).
-        write( "type", "LineString" ).
-        writeStartArray( "coordinates" );
-
-      for ( final ResourceTrack track : tracks )
+      final long updatedAt;
+      if ( tracks.size() > 0 )
       {
-        writePoint( g, track.getLocation().getX(), track.getLocation().getY() );
+        updatedAt = tracks.get( 0 ).getCollectedAt().getTime();
       }
-
-      g.
-        writeEnd().
-        writeEnd().
-        writeStartObject( "crs" ).
-        write( "type", "name" ).
-        writeStartObject( "properties" ).
-        write( "name", "urn:ogc:def:crs:OGC:1.3:CRS84" ).
-        writeEnd().
-        writeEnd().
-        writeEnd().
-        writeEnd().
-        writeEnd();
+      else
+      {
+        updatedAt = 0;
+      }
+      b.add( "updated_at", updatedAt );
     }
-    g.writeEnd();
+
+    final JsonValue id = Json.createObjectBuilder().add( "id", resource.getID() ).build().get( "id" );
+    final CrsId crsId = tracks.size() > 0 ? tracks.get( 0 ).getLocation().getCrsId() : CrsId.UNDEFINED;
+    final DimensionalFlag dimensionalFlag =
+      tracks.size() > 0 ? tracks.get( 0 ).getLocation().getDimensionalFlag() : DimensionalFlag.d2D;
+
+    final PointSequenceBuilder builder =
+      PointSequenceBuilders.fixedSized( tracks.size(), dimensionalFlag, crsId );
+    for ( final ResourceTrack track : tracks )
+    {
+      builder.add( track.getLocation().getX(), track.getLocation().getY() );
+    }
+    final LineString lineString = new LineString( builder.toPointSequence() );
+
+    return new GjFeature( id, new GjGeometry( lineString, null, null, null ), crsId, null, b.build() );
   }
 
-  private void writePoint( final JsonGenerator g, final double x, final double y )
+  private GjFeatureCollection buildFeatureCollection( final FieldFilter filter, final List<ResourceEntry> entries )
   {
-    g.writeStartArray().write( x ).write( y ).writeEnd();
+    final ArrayList<GjFeature> features = new ArrayList<>();
+    for ( final ResourceEntry entry : entries )
+    {
+      features.add( buildFeature( filter, entry ) );
+    }
+
+    return new GjFeatureCollection( features, null, null, null );
+  }
+
+  private String serialize( final GjElement collection )
+  {
+    final StringWriter writer = new StringWriter();
+    final JsonGenerator g = Json.createGenerator( writer );
+    new GeoJsonWriter().emit( g, collection );
+    g.close();
+
+    return writer.toString();
   }
 }
