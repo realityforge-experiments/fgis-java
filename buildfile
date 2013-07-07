@@ -56,6 +56,7 @@ define 'fgis' do
                  :javax_transaction,
                  :javax_inject,
                  :rest_field_filter,
+                 :geolatte_geom_eclipselink,
                  :eclipselink,
                  :javax_json,
                  :slf4j_api,
@@ -105,7 +106,7 @@ define 'fgis' do
         war.tap do |war| war.enhance([asset]) end
         war.include asset, :as => '.'
       end
-      war.with :libs => artifacts(:rest_field_filter, :javax_json, :jts, :geolatte_geom, project('server'), :gwt_openlayers_server)
+      war.with :libs => artifacts(:rest_field_filter, :geolatte_geom_eclipselink, :javax_json, :jts, :geolatte_geom, project('server'), :gwt_openlayers_server)
     end
     iml.add_web_facet(:webroots => [_(:source, :main, :webapp)] + project('client').assets.paths)
   end
@@ -135,6 +136,7 @@ define 'fgis' do
                                 :dependencies => [project,
                                                   project('server'),
                                                   :rest_field_filter,
+                                                  :geolatte_geom_eclipselink,
                                                   :javax_json,
                                                   :jts,
                                                   :jeo,
