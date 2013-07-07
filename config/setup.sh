@@ -10,8 +10,8 @@ if [ "$R" != 'yes' ]; then
   asadmin add-library ~/.m2/repository/postgresql/postgresql/9.1-901.jdbc4/postgresql-9.1-901.jdbc4.jar
 fi
 
-asadmin delete-jdbc-resource jdbc/FGISDS
-asadmin delete-jdbc-connection-pool FGISSQL
+asadmin delete-jdbc-resource jdbc/FGIS
+asadmin delete-jdbc-connection-pool FGISPool
 
 asadmin create-jdbc-connection-pool\
   --datasourceclassname org.postgresql.ds.PGSimpleDataSource\
@@ -20,7 +20,7 @@ asadmin create-jdbc-connection-pool\
   --validationmethod auto-commit\
   --ping true\
   --description "FGIS Connection Pool"\
-  --property "ServerName=127.0.0.1:User=${USER}:Password=letmein:PortNumber=5432:DatabaseName=${USER}_FGIS_DEV" FGISSQL
-asadmin create-jdbc-resource --connectionpoolid FGISSQL jdbc/FGISDS
+  --property "ServerName=127.0.0.1:User=${USER}:Password=letmein:PortNumber=5432:DatabaseName=${USER}_FGIS_DEV" FGISPool
+asadmin create-jdbc-resource --connectionpoolid FGISPool jdbc/FGIS
 
 asadmin set domain.resources.jdbc-connection-pool.FGISSQL.property.JDBC30DataSource=true
