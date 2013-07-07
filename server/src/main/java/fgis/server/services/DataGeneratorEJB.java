@@ -84,9 +84,6 @@ public class DataGeneratorEJB
 
   private void updateResourceLocation( final Resource resource, final Point point )
   {
-    //final String message =
-    //  "Generating point " + point.getX() + ", " + point.getY() + " for resource " + resource.getName();
-    //System.out.println( message );
     _resourceTrackRepository.persist( new ResourceTrack( resource, new Date(), point ) );
     resource.setLocation( point );
   }
