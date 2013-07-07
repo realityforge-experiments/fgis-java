@@ -268,15 +268,7 @@ public class ResourceService
 
     if ( filter.allow( "updated_at" ) && tracks.size() > 0 )
     {
-      final long updatedAt;
-      if ( tracks.size() > 0 )
-      {
-        updatedAt = tracks.get( 0 ).getCollectedAt().getTime();
-      }
-      else
-      {
-        updatedAt = 0;
-      }
+      final long updatedAt = tracks.size() > 0 ? tracks.get( 0 ).getCollectedAt().getTime() : 0;
       b.add( "updated_at", updatedAt );
     }
 
