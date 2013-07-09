@@ -273,19 +273,26 @@ public class ResourceService
     }
 
     final JsonValue id = Json.createObjectBuilder().add( "id", resource.getID() ).build().get( "id" );
-    final CrsId crsId = tracks.size() > 0 ? tracks.get( 0 ).getLocation().getCrsId() : CrsId.UNDEFINED;
-    final DimensionalFlag dimensionalFlag =
-      tracks.size() > 0 ? tracks.get( 0 ).getLocation().getDimensionalFlag() : DimensionalFlag.d2D;
-
-    final PointSequenceBuilder builder =
-      PointSequenceBuilders.fixedSized( tracks.size(), dimensionalFlag, crsId );
-    for ( final ResourceTrack track : tracks )
+    if ( tracks.size() < 2 )
     {
-      builder.add( track.getLocation().getX(), track.getLocation().getY() );
+      return new GjFeature( id, null, null, b.build() );
     }
-    final LineString lineString = new LineString( builder.toPointSequence() );
+    else
+    {
+      final CrsId crsId = tracks.size() > 0 ? tracks.get( 0 ).getLocation().getCrsId() : CrsId.UNDEFINED;
+      final DimensionalFlag dimensionalFlag =
+        tracks.size() > 0 ? tracks.get( 0 ).getLocation().getDimensionalFlag() : DimensionalFlag.d2D;
 
-    return new GjFeature( id, new GjGeometry( lineString, null, null, null ), crsId, null, b.build() );
+      final PointSequenceBuilder builder =
+        PointSequenceBuilders.fixedSized( tracks.size(), dimensionalFlag, crsId );
+      for ( final ResourceTrack track : tracks )
+      {
+        builder.add( track.getLocation().getX(), track.getLocation().getY() );
+      }
+      final LineString lineString = new LineString( builder.toPointSequence() );
+
+      return new GjFeature( id, new GjGeometry( lineString, null, null, null ), crsId, null, b.build() );
+    }
   }
 
   private GjFeatureCollection buildFeatureCollection( final FieldFilter filter, final List<ResourceEntry> entries )
