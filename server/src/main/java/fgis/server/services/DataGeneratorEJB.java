@@ -9,11 +9,8 @@ import java.util.Random;
 import javax.ejb.EJB;
 import javax.ejb.Schedule;
 import javax.ejb.Stateless;
-import org.geolatte.geom.DimensionalFlag;
 import org.geolatte.geom.Point;
-import org.geolatte.geom.PointSequenceBuilder;
-import org.geolatte.geom.PointSequenceBuilders;
-import org.geolatte.geom.crs.CrsId;
+import org.geolatte.geom.Points;
 
 @javax.ejb.Local
 @Stateless
@@ -53,17 +50,9 @@ public class DataGeneratorEJB
     final double latPosition = startX + jitterLocation();
     final double longPosition = startY + jitterLocation();
 
-    final Point point = toPoint( latPosition, longPosition );
+    final Point point = Points.create2D( latPosition, longPosition );
 
     updateResourceLocation( resource, point );
-  }
-
-  private Point toPoint( final double latPosition, final double longPosition )
-  {
-    final PointSequenceBuilder builder =
-      PointSequenceBuilders.variableSized( DimensionalFlag.d2D, CrsId.UNDEFINED );
-    builder.add( latPosition, longPosition );
-    return new Point( builder.toPointSequence() );
   }
 
   private double jitterLocation()
