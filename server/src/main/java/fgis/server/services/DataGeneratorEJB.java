@@ -31,6 +31,7 @@ public class DataGeneratorEJB
   @Schedule( second = "*/5", minute = "*", hour = "*", persistent = false )
   public void insertData()
   {
+    System.out.println( "DataGeneratorEJB.insertData..." );
     jitterResource( "Person", "Peter" );
     jitterResource( "Person", "Phil" );
     jitterResource( "Person", "James" );
@@ -38,6 +39,7 @@ public class DataGeneratorEJB
     jitterResource( "Slip-On", "THX-1138" );
     jitterResource( "Passenger Vehicle", "LUH-3417" );
     jitterResource( "Tanker", "SEN-5241" );
+    System.out.println( "...DataGeneratorEJB.insertData" );
   }
 
   private void jitterResource( final String resourceType, final String resourceName )
