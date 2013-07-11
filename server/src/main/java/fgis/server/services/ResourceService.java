@@ -240,7 +240,7 @@ public class ResourceService
   private List<ResourceTrack> getResourceTracks( final int resourceID )
   {
     final Calendar calendar = Calendar.getInstance();
-    calendar.roll( Calendar.MINUTE, -1 );
+    calendar.roll( Calendar.HOUR, -1 );
     return _resourceTrackService.findAllByResourceSince( resourceID, calendar.getTime() );
   }
 
