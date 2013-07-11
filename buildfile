@@ -115,7 +115,7 @@ define 'fgis' do
   project.clean { rm_rf _(:artifacts) }
 
   desc 'Generate assets and move them to idea artifact'
-  task 'assets:artifact' => %w(assets) do
+  task 'assets:artifact' => %w(client:assets) do
     target = _(:artifacts, 'fgis')
     mkdir_p target
     project('client').assets.paths.each do |asset|
