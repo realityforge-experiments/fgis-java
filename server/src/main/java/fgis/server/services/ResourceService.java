@@ -272,7 +272,7 @@ public class ResourceService
       b.add( "updated_at", updatedAt );
     }
 
-    final JsonValue id = Json.createObjectBuilder().add( "id", resource.getID() ).build().get( "id" );
+    final JsonValue id = Json.createObjectBuilder().add( "id", String.valueOf( resource.getID() ) ).build().get( "id" );
     if ( tracks.size() < 2 )
     {
       return new GjFeature( id, null, null, b.build() );
