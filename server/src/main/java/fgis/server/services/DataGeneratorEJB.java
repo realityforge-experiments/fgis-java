@@ -75,7 +75,7 @@ public class DataGeneratorEJB
 
   private void updateResourceLocation( final Resource resource, final Point point )
   {
-    _resourceTrackRepository.persist( new ResourceTrack( resource, new Date(), point ) );
     resource.setLocation( point );
+    _resourceTrackRepository.persist( new ResourceTrack( resource, new Date(), point ) );
   }
 }
