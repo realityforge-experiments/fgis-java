@@ -38,12 +38,15 @@ addFeedItem = (time_diff, map, v) ->
   $('div.message').click ->
     geoList = $(this).data('geo').features
     geoList.forEach (geo) ->
-      switch geo.geometry.type
-        when "Point" then map.panTo [geo.geometry.coordinates[1], geo.geometry.coordinates[0]]
-        when "LineString" then map.panTo [geo.geometry.coordinates[0][1], geo.geometry.coordinates[0][0]]
-        when "Polygon" then map.panTo [geo.geometry.coordinates[0][0][1], geo.geometry.coordinates[0][0][0]]
+      if geo.geometry
+        switch geo.geometry.type
+          when "Point" then map.panTo [geo.geometry.coordinates[1], geo.geometry.coordinates[0]]
+          when "LineString" then map.panTo [geo.geometry.coordinates[0][1], geo.geometry.coordinates[0][0]]
+          when "Polygon" then map.panTo [geo.geometry.coordinates[0][0][1], geo.geometry.coordinates[0][0][0]]
 
 handleGeoJsonPacket = (map, v) ->
+  if !v.geometry
+    return
   #console.log v
   color = 'green'
   if( v.properties.resource_type == 'Person' )
