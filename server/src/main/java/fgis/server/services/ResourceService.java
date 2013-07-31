@@ -27,6 +27,7 @@ import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 import javax.json.stream.JsonGenerator;
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -216,6 +217,7 @@ public class ResourceService
   private Resource getResource( final int resourceID )
   {
     final Resource resource = _resourceService.findByID( resourceID );
+    _em.lock( resource, LockModeType.WRITE );
     if ( null == resource )
     {
       throw new WebApplicationException( ResponseUtil.entityNotFoundResponse() );
