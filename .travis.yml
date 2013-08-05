@@ -3,7 +3,7 @@ jdk:
   - openjdk7
   - oraclejdk7
 install:
-  - apt-get install freetds-dev
+  - sudo apt-get install freetds-dev
   - gem install bundler
   - bundle install
   - npm install coffee-script
