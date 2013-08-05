@@ -164,7 +164,6 @@ if ARGV.length == 0
 end
 
 database = Dbt.add_database(:#{database.key}) do |database|
-  database.version = #{database.version.inspect}
   database.resource_prefix = "data"
   database.fixture_dir_name = "#{database.fixture_dir_name}"
   database.datasets_dir_name = "#{database.datasets_dir_name}"
@@ -211,7 +210,7 @@ puts "Environment: \#{Dbt::Config.environment}"
 puts "Config File: \#{Dbt::Config.config_filename}"
 puts "Commands: \#{ARGV.join(' ')}"
 
-Dbt.runtime.load_configuration_data(Dbt::Config.config_filename)
+Dbt.repository.load_configuration_data(Dbt::Config.config_filename)
 Dbt.runtime.load_database_config(database)
 
 ARGV.each do |command|
@@ -220,7 +219,7 @@ end
 TXT
     end
     prefix = options[:jruby_version] ? "RBENV_VERSION=jruby-#{options[:jruby_version]} RUBYOPT= rbenv exec " : ''
-    sh "#{prefix}jrubyc --dir #{::Buildr::Util.relative_path(package_dir, Dir.pwd)} #{::Buildr::Util.relative_path(package_dir, Dir.pwd)}/org/realityforge/dbt/dbtcli.rb"
+    sh "#{prefix}jrubyc --dir #{::Buildr::Util.relative_path(package_dir, Dir.pwd)} #{::Buildr::Util.relative_path(package_dir, Dir.pwd)}"
     FileUtils.cp_r Dir.glob("#{File.expand_path(File.dirname(__FILE__) + '/..')}/*"), package_dir
   end
 end
