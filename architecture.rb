@@ -31,7 +31,7 @@ Domgen.repository(:FGIS) do |repository|
 
       t.query('findByName')
 
-      t.sql.index([:Location], :index_type => :gist)
+      #t.sql.index([:Location], :index_type => :spatial)
     end
 
     data_module.entity(:ResourceTrack) do |t|
@@ -54,7 +54,7 @@ Domgen.repository(:FGIS) do |repository|
         q.integer(:ResourceID)
       end
 
-      t.sql.index([:Location], :index_type => :gist)
+      #t.sql.index([:Location], :index_type => :gist)
     end
   end
 end
