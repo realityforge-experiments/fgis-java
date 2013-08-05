@@ -47,4 +47,4 @@ artifacts:
 
   rest_field_filter: org.realityforge.rest.field_filter:rest-field-filter:jar:0.1
 
-  geolatte_geom_eclipselink: org.realityforge.jeo.geolatte.jpa.eclipselink:geolatte-geom-eclipselink:jar:0.2
+  geolatte_geom_eclipselink: org.realityforge.jeo.geolatte.jpa.eclipselink:geolatte-geom-eclipselink:jar:0.2-10-gc1cb1b5
