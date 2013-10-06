@@ -109,7 +109,10 @@ define 'fgis' do
       end
       war.with :libs => artifacts(:rest_field_filter, :geolatte_geom_eclipselink, :javax_json, :jts, :geolatte_geom, project('server'), :gwt_openlayers_server)
     end
-    iml.add_web_facet(:webroots => [_(:source, :main, :webapp)] + project('client').assets.paths)
+
+    webroots = {_(:source, :main, :webapp) => "/"}
+    project('client').assets.paths.each {|p| webroots[p] = '/'}
+    iml.add_web_facet(:webroots => webroots)
   end
 
   project.clean { rm_rf _("database/generated") }
