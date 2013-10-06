@@ -86,22 +86,11 @@ module Domgen
     class GwtModule < Domgen.ParentedElement(:data_module)
       include Domgen::Java::ClientServerJavaPackage
 
-      attr_writer :client_data_type_package
-
-      def client_data_type_package
-        @client_data_type_package || "#{parent_facet.client_data_type_package}.#{package_key}"
-      end
-
-      attr_writer :client_event_package
-
-      def client_event_package
-        @client_event_package || "#{parent_facet.client_event_package}.#{package_key}"
-      end
-
       attr_writer :server_servlet_package
 
       def server_servlet_package
-        @server_servlet_package || "#{parent_facet.server_servlet_package}.#{package_key}"
+        @server_servlet_package || "#{data_module.repository.gwt_rpc.server_servlet_package}.#{package_key}"
+        #@server_servlet_package || "#{parent_facet.server_servlet_package}.#{package_key}"
       end
 
       protected
@@ -160,6 +149,16 @@ module Domgen
       end
     end
 
+    class GwtException < Domgen.ParentedElement(:exception)
+      def name
+        exception.name.to_s =~ /Exception$/ ? exception.name.to_s : "#{exception.name}Exception"
+      end
+
+      def qualified_name
+        "#{exception.data_module.gwt_rpc.shared_data_type_package}.#{name}"
+      end
+    end
+
     class GwtApplication < Domgen.ParentedElement(:repository)
       include Domgen::Java::JavaClientServerApplication
 
@@ -195,12 +194,6 @@ module Domgen
         @client_ioc_package || "#{client_package}.ioc"
       end
 
-      attr_writer :client_event_package
-
-      def client_event_package
-        @client_event_package || "#{client_package}.event"
-      end
-
       attr_writer :server_servlet_package
 
       def server_servlet_package
@@ -231,6 +224,7 @@ module Domgen
                               Method => Domgen::GwtRpc::GwtMethod,
                               Parameter => Domgen::GwtRpc::GwtParameter,
                               Result => Domgen::GwtRpc::GwtReturn,
+                              Exception => Domgen::GwtRpc::GwtException,
                               DataModule => Domgen::GwtRpc::GwtModule,
                               Repository => Domgen::GwtRpc::GwtApplication
                             }, [:gwt])
