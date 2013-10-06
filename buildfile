@@ -111,7 +111,7 @@ define 'fgis' do
     iml.add_web_facet(:webroots => [_(:source, :main, :webapp)] + project('client').assets.paths)
   end
 
-  project.clean { rm_rf _("databases/generated") }
+  project.clean { rm_rf _("database/generated") }
   project.clean { rm_rf _(:artifacts) }
 
   desc 'Generate assets and move them to idea artifact'

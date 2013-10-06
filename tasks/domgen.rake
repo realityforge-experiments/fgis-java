@@ -9,6 +9,6 @@ Domgen::LoadSchema.new("#{workspace_dir}/architecture.rb")
 #sql_type = :pgsql
 sql_type = :mssql
 
-Domgen::GenerateTask.new(:FGIS, "sql", [sql_type], "#{workspace_dir}/databases/generated") do |t|
+Domgen::GenerateTask.new(:FGIS, "sql", [sql_type], "#{workspace_dir}/database/generated") do |t|
   t.verbose = !!ENV['DEBUG_DOMGEN']
 end

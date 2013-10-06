@@ -19,6 +19,6 @@ Dbt.add_database(:default,
                  :migrations => true,
                  :backup => true,
                  :restore => true) do |database|
-  database.search_dirs = ["#{workspace_dir}/databases/generated", "#{workspace_dir}/databases"]
+  database.search_dirs = ["#{workspace_dir}/database/generated", "#{workspace_dir}/database"]
   database.enable_domgen(:FGIS, 'domgen:load', 'domgen:sql')
 end
