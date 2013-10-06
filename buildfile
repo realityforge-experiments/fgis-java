@@ -124,6 +124,8 @@ define 'fgis' do
     end
   end
 
+  ipr.version = '13'
+
   ipr.add_exploded_war_artifact(project,
                                 :name => 'fgis',
                                 :build_on_make => true,
