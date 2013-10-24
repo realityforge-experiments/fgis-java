@@ -3,6 +3,7 @@ package fgis.server.services;
 import javax.persistence.NoResultException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
@@ -16,7 +17,7 @@ public class NoResultExceptionMapper
   public Response toResponse( final NoResultException nre )
   {
     return Response.
-      status( 404 ).
+      status( Status.NOT_FOUND ).
       entity( nre.getMessage() ).
       type( MediaType.TEXT_PLAIN ).build();
   }
