@@ -2,6 +2,8 @@ require 'buildr/git_auto_version'
 require 'buildr/top_level_generate_dir'
 require 'buildr/single_intermediate_layout'
 
+JEE_GWT_JARS = [:javax_inject, :javax_annotation, :javax_validation, :javax_validation_sources]
+GWT_JARS = JEE_GWT_JARS
 
 desc 'FGIS: Fire Ground Information System'
 define 'fgis' do
@@ -24,10 +26,7 @@ define 'fgis' do
                  :gwt_dev,
                  :gwt_gin,
                  :mgwt,
-                 :javax_inject,
-                 :javax_validation,
-                 :javax_validation_sources,
-                 :javax_annotation,
+                 JEE_GWT_JARS,
                  :findbugs_annotations,
                  :google_guice,
                  :aopalliance,
@@ -90,10 +89,7 @@ define 'fgis' do
                           # packages deliberately. It is needed for the
                           # generators to access classes in annotations.
                           project('client'),
-                          :javax_annotation,
-                          # Validation needed to quieten warnings from gwt compiler
-                          :javax_validation,
-                          :javax_validation_sources],
+                          GWT_JARS],
         :java_args => ["-Xms512M", "-Xmx1024M", "-XX:PermSize=128M", "-XX:MaxPermSize=256M"],
         :draft_compile => (ENV["FAST_GWT"] == 'true'),
         #:log_level => 'ALL',
