@@ -4,6 +4,19 @@ require 'buildr/single_intermediate_layout'
 
 JEE_GWT_JARS = [:javax_inject, :javax_annotation, :javax_validation, :javax_validation_sources]
 GWT_JARS = JEE_GWT_JARS
+JEE_JARS = [:javax_persistence,
+            :javax_transaction,
+            :javax_inject,
+            :javax_json,
+            :ejb_api,
+            :javax_rs,
+            :javax_servlet,
+            :javax_annotation,
+            :javax_validation]
+GEO_DEPS = [:jeo, :geolatte_geom_eclipselink, :geolatte_geom, :jts, :slf4j_api, :slf4j_jdk14]
+JACKSON_DEPS = [:jackson_core, :jackson_mapper]
+PROVIDED_DEPS = JACKSON_DEPS + JEE_JARS
+INCLUDED_DEPENDENCIES = [:rest_field_filter, :javax_json, :mgwt, :gwt_openlayers_server] + GEO_DEPS
 
 desc 'FGIS: Fire Ground Information System'
 define 'fgis' do
@@ -52,25 +65,7 @@ define 'fgis' do
                              _(:target, :generated, "domgen"),
                              project)
 
-    compile.with :javax_persistence,
-                 :javax_transaction,
-                 :javax_inject,
-                 :rest_field_filter,
-                 :geolatte_geom_eclipselink,
-                 :javax_json,
-                 :slf4j_api,
-                 :slf4j_jdk14,
-                 :mgwt,
-                 :jeo,
-                 :jts,
-                 :geolatte_geom,
-                 :ejb_api,
-                 :javaee_api,
-                 :javax_validation,
-                 :javax_annotation,
-                 :jackson_core,
-                 :jackson_mapper,
-                 :javax_validation
+    compile.with INCLUDED_DEPENDENCIES, PROVIDED_DEPS
 
     test.using :testng
 
@@ -101,7 +96,7 @@ define 'fgis' do
         war.tap do |w| w.enhance([asset]) end
         war.include asset, :as => '.'
       end
-      war.with :libs => artifacts(:rest_field_filter, :geolatte_geom_eclipselink, :javax_json, :jts, :mgwt, :geolatte_geom, project('server'), :gwt_openlayers_server)
+      war.with :libs => artifacts(INCLUDED_DEPENDENCIES, project('server'))
     end
 
     iml.add_web_facet
@@ -131,14 +126,7 @@ define 'fgis' do
                                 :war_module_names => [project('client').iml.id, project('web').iml.id],
                                 :ejb_module_names => [project('server').iml.id],
                                 :jpa_module_names => [project('server').iml.id],
-                                :dependencies => [project,
-                                                  project('server'),
-                                                  :rest_field_filter,
-                                                  :geolatte_geom_eclipselink,
-                                                  :javax_json,
-                                                  :jts,
-                                                  :jeo,
-                                                  :geolatte_geom])
+                                :dependencies => [project, project('server'),] + INCLUDED_DEPENDENCIES)
 end
 
 task('domgen:all').enhance(%w(fgis:client:assets))
