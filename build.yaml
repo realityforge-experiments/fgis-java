@@ -27,8 +27,8 @@ artifacts:
 
   gwt_openlayers: org.gwtopenmaps.openlayers:gwt-openlayers-client:jar:0.9
   gwt_openlayers_server: org.gwtopenmaps.openlayers:gwt-openlayers-server:jar:0.9
-  gwt_user: com.google.gwt:gwt-user:jar:2.5.1
-  gwt_dev: com.google.gwt:gwt-dev:jar:2.5.1
+  gwt_user: com.google.gwt:gwt-user:jar:2.6.0-rc1
+  gwt_dev: com.google.gwt:gwt-dev:jar:2.6.0-rc1
   gwt_gin: com.google.gwt.inject:gin:jar:2.1.2
   javax_validation: javax.validation:validation-api:jar:1.0.0.GA
   javax_validation_sources: javax.validation:validation-api:jar:sources:1.0.0.GA
