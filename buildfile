@@ -25,6 +25,7 @@ define 'fgis' do
                  :gwt_user,
                  :gwt_dev,
                  :gwt_gin,
+                 :mgwt,
                  :javax_inject,
                  :javax_validation,
                  :javax_validation_sources,
@@ -65,6 +66,7 @@ define 'fgis' do
                  :slf4j_jdk14,
                  :postgresql,
                  :postgis_jdbc,
+                 :mgwt,
                  :jeo,
                  :jts,
                  :geolatte_geom,
@@ -105,10 +107,10 @@ define 'fgis' do
 
     package(:war).tap do |war|
       project('client').assets.paths.each do |asset|
-        war.tap do |war| war.enhance([asset]) end
+        war.tap do |w| w.enhance([asset]) end
         war.include asset, :as => '.'
       end
-      war.with :libs => artifacts(:rest_field_filter, :geolatte_geom_eclipselink, :javax_json, :jts, :geolatte_geom, project('server'), :gwt_openlayers_server)
+      war.with :libs => artifacts(:rest_field_filter, :geolatte_geom_eclipselink, :javax_json, :jts, :mgwt, :geolatte_geom, project('server'), :gwt_openlayers_server)
     end
 
     iml.add_web_facet

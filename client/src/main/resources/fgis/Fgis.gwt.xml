@@ -11,6 +11,12 @@
   <source path='client'/>
   <source path='shared'/>
 
+  <inherits name="com.googlecode.mgwt.linker.Linker"/>
+  <add-linker name="permutationmaplinker"/>
+
+  <extend-configuration-property name="html5manifestlinker_files" value="./"/>
+  <extend-configuration-property name="html5manifestlinker_files" value="index.html"/>
+
   <!-- To change the default logLevel -->
   <!-- To change the default logLevel -->
   <set-property name="gwt.logging.logLevel" value="ALL"/>
