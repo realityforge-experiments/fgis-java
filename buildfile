@@ -38,6 +38,7 @@ define 'fgis' do
     package :jar
     package :sources
 
+    iml.add_web_facet
     iml.add_gwt_facet({'fgis.FgisDev' => true,
                        'fgis.Fgis' => false},
                       :settings => {:compilerMaxHeapSize => "1024",
@@ -110,9 +111,7 @@ define 'fgis' do
       war.with :libs => artifacts(:rest_field_filter, :geolatte_geom_eclipselink, :javax_json, :jts, :geolatte_geom, project('server'), :gwt_openlayers_server)
     end
 
-    webroots = {_(:source, :main, :webapp) => "/"}
-    project('client').assets.paths.each {|p| webroots[p] = '/'}
-    iml.add_web_facet(:webroots => webroots)
+    iml.add_web_facet
   end
 
   project.clean { rm_rf _("database/generated") }
@@ -136,7 +135,7 @@ define 'fgis' do
                                 :enable_gwt => true,
                                 :enable_jpa => true,
                                 :gwt_module_names => [project('client').iml.id],
-                                :war_module_names => [project('web').iml.id],
+                                :war_module_names => [project('client').iml.id, project('web').iml.id],
                                 :ejb_module_names => [project('server').iml.id],
                                 :jpa_module_names => [project('server').iml.id],
                                 :dependencies => [project,
