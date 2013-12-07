@@ -19,10 +19,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.Nullable;
 import javax.ejb.EJB;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
+import javax.ejb.Stateless;
 import javax.json.Json;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
@@ -61,10 +58,7 @@ import org.realityforge.jeo.geojson.GjFeatureCollection;
 import org.realityforge.jeo.geojson.GjGeometry;
 import org.realityforge.rest.field_filter.FieldFilter;
 
-@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-@TransactionAttribute( TransactionAttributeType.REQUIRED )
-@Startup
-@Singleton
+@Stateless
 @Path( "/resource" )
 @Produces( { MediaType.APPLICATION_JSON } )
 @Consumes( { MediaType.APPLICATION_JSON } )
