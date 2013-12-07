@@ -8,7 +8,7 @@ Domgen.repository(:FGIS) do |repository|
   repository.jpa.provider = :eclipselink
   repository.jpa.exclude_unlisted_classes = false
   repository.jpa.properties["eclipselink.session-event-listener"] = "org.realityforge.jeo.geolatte.jpa.eclipselink.GeolatteExtension"
-  repository.jpa.properties["geolatte.geom.driver"] = "sqlserver"
+  repository.jpa.properties["geolatte.geom.driver"] = "postgres"
 
   repository.data_module(:FGIS) do |data_module|
 
