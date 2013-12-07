@@ -2,8 +2,9 @@ require 'buildr/git_auto_version'
 require 'buildr/top_level_generate_dir'
 require 'buildr/single_intermediate_layout'
 
-JEE_GWT_JARS = [:javax_inject, :javax_annotation, :javax_validation, :javax_validation_sources]
-GWT_JARS = JEE_GWT_JARS
+JEE_GWT_JARS = [:javax_inject, :javax_annotation, :javax_validation, :javax_validation_sources, :findbugs_annotations]
+GWT_JARS = JEE_GWT_JARS +
+  [:gwt_openlayers, :gwt_user, :gwt_dev, :gwt_gin, :google_guice, :aopalliance, :google_guice_assistedinject]
 JEE_JARS = [:javax_persistence,
             :javax_transaction,
             :javax_inject,
@@ -26,80 +27,29 @@ define 'fgis' do
   compile.options.target = '1.7'
   compile.options.lint = 'all'
 
-  desc 'FGIS Client Code'
-  define 'client' do
-    define_process_sass_dir(project)
-    define_coffee_script_dir(project)
+  Domgen::GenerateTask.new(:FGIS, "server", [:ee], _(:target, :generated, "domgen"))
 
-    compile.with :gwt_openlayers,
-                 :gwt_user,
-                 :gwt_dev,
-                 :gwt_gin,
-                 :gwt_appcache_server,
-                 JEE_GWT_JARS,
-                 :findbugs_annotations,
-                 :google_guice,
-                 :aopalliance,
-                 :google_guice_assistedinject
+  define_process_sass_dir(project)
+  define_coffee_script_dir(project)
 
+  compile.with GWT_JARS, INCLUDED_DEPENDENCIES, PROVIDED_DEPS
 
-    package :jar
-    package :sources
+  gwt(["fgis.Fgis"],
+      :java_args => ["-Xms512M", "-Xmx1024M", "-XX:PermSize=128M", "-XX:MaxPermSize=256M"],
+      :draft_compile => (ENV["FAST_GWT"] == 'true'))
 
-    iml.add_web_facet
-    iml.add_gwt_facet({'fgis.FgisDev' => true,
-                       'fgis.Fgis' => false},
-                      :settings => {:compilerMaxHeapSize => "1024",
-                                    :additionalCompilerParameters => '-Dgwt.usearchives=false -Dgwt.persistentunitcache=false'})
+  test.using :testng
 
-  end
-
-  desc 'FGIS Server Code'
-  define 'server' do
-    Domgen::GenerateTask.new(:FGIS,
-                             "server",
-                             [:ee],
-                             _(:target, :generated, "domgen"),
-                             project)
-
-    compile.with INCLUDED_DEPENDENCIES, PROVIDED_DEPS
-
-    test.using :testng
-
-    package :jar
-
-    iml.add_ejb_facet
-    iml.add_jpa_facet
-  end
-
-  desc 'FGIS Web Archive'
-  define 'web' do
-
-    gwt(["fgis.Fgis"],
-        :dependencies => [project('client').compile.dependencies,
-                          # The following picks up both the jar and sources
-                          # packages deliberately. It is needed for the
-                          # generators to access classes in annotations.
-                          project('client'),
-                          GWT_JARS],
-        :java_args => ["-Xms512M", "-Xmx1024M", "-XX:PermSize=128M", "-XX:MaxPermSize=256M"],
-        :draft_compile => (ENV["FAST_GWT"] == 'true'),
-        #:log_level => 'ALL',
-        # Closure compiler seems to result in an error in GWT/GIN code. Unknown reason
-        :enable_closure_compiler => false)
-
-    package(:war).tap do |war|
-      project('client').assets.paths.each do |asset|
-        war.tap do |w| w.enhance([asset]) end
-        war.include asset, :as => '.'
+  package(:war).tap do |war|
+    project.assets.paths.each do |asset|
+      war.tap do |w|
+        w.enhance([asset])
       end
-      war.with :libs => artifacts(INCLUDED_DEPENDENCIES, project('server'))
+      war.include asset, :as => '.'
     end
-
-    iml.add_web_facet
+    war.with :libs => artifacts(INCLUDED_DEPENDENCIES)
   end
 
-  project.clean { rm_rf _("database/generated") }
   project.clean { rm_rf _(:artifacts) }
 
   desc 'Generate assets and move them to idea artifact'
@@ -113,17 +63,23 @@ define 'fgis' do
 
   ipr.version = '13'
 
+  iml.add_web_facet
+  iml.add_gwt_facet({'fgis.FgisDev' => true,
+                     'fgis.Fgis' => false},
+                    :settings => {:compilerMaxHeapSize => "1024",
+                                  :additionalCompilerParameters => '-Dgwt.usearchives=false -Dgwt.persistentunitcache=false'})
+
+  iml.add_ejb_facet
+  iml.add_jpa_facet
+
   ipr.add_exploded_war_artifact(project,
                                 :name => 'fgis',
                                 :build_on_make => true,
                                 :enable_ejb => true,
                                 :enable_gwt => true,
                                 :enable_jpa => true,
-                                :gwt_module_names => [project('client').iml.id],
-                                :war_module_names => [project('client').iml.id, project('web').iml.id],
-                                :ejb_module_names => [project('server').iml.id],
-                                :jpa_module_names => [project('server').iml.id],
-                                :dependencies => [project, project('server'),] + INCLUDED_DEPENDENCIES)
+                                :enable_web => true,
+                                :dependencies => [project] + INCLUDED_DEPENDENCIES)
 end
 
 task('domgen:all').enhance(%w(fgis:client:assets))
