@@ -5,10 +5,8 @@ $LOAD_PATH.unshift(File.expand_path("#{workspace_dir}/vendor/plugins/domgen/lib"
 require 'domgen'
 
 Domgen::LoadSchema.new("#{workspace_dir}/architecture.rb")
-#Domgen::Sql.dialect = Domgen::Sql::PgDialect
-#sql_type = :pgsql
-sql_type = :mssql
+Domgen::Sql.dialect = Domgen::Sql::PgDialect
 
-Domgen::GenerateTask.new(:FGIS, "sql", [sql_type], "#{workspace_dir}/database/generated") do |t|
+Domgen::GenerateTask.new(:FGIS, "sql", [:pgsql], "#{workspace_dir}/database/generated") do |t|
   t.verbose = !!ENV['DEBUG_DOMGEN']
 end
