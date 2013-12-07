@@ -76,11 +76,7 @@ define 'fgis' do
   webroots[_(:source, :main, :webapp)] = "/" if File.exist?(_(:source, :main, :webapp))
   assets.paths.each { |path| webroots[path.to_s] = "/" if path.to_s != gwt_dir.to_s }
   iml.add_web_facet(:webroots => webroots)
-  iml.add_gwt_facet({'fgis.FgisDev' => true,
-                     'fgis.Fgis' => false},
-                    :settings => {:compilerMaxHeapSize => "1024",
-                                  :additionalCompilerParameters => '-Dgwt.usearchives=false -Dgwt.persistentunitcache=false'})
-
+  iml.add_gwt_facet({'fgis.FgisDev' => true, 'fgis.Fgis' => false}, :settings => {:compilerMaxHeapSize => "1024"})
   iml.add_ejb_facet
   iml.add_jpa_facet
 
