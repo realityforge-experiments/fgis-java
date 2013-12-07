@@ -79,7 +79,6 @@ public class ResourceService
   private ResourceTrackRepository _resourceTrackService;
 
   @GET
-  @Produces( { MediaType.APPLICATION_JSON } )
   public String getResources( @QueryParam( "types" ) @Nullable final String types,
                               @QueryParam( "fields" ) @Nullable final String fields,
                               @QueryParam( "bbox" ) @Nullable final String bbox,
@@ -138,7 +137,6 @@ public class ResourceService
   }
 
   @POST
-  @Produces( { MediaType.APPLICATION_JSON } )
   public void createResource( final ResourceDetailsDTO details )
     throws ParseException
   {
@@ -178,7 +176,6 @@ public class ResourceService
 
   @GET
   @Path( "/{id}" )
-  @Produces( { MediaType.APPLICATION_JSON } )
   public String getResource( @PathParam( "id" ) final int resourceID,
                              @QueryParam( "fields" ) @Nullable final String fields )
     throws ParseException
@@ -193,7 +190,6 @@ public class ResourceService
 
   @GET
   @Path( "/{id}/location" )
-  @Consumes( { MediaType.APPLICATION_JSON } )
   public String updateResourceLocation( @PathParam( "id" ) final int resourceID,
                                         @QueryParam( "x" ) final double x,
                                         @QueryParam( "y" ) final double y )
@@ -207,7 +203,6 @@ public class ResourceService
 
   @POST
   @Path( "/{id}/location" )
-  @Consumes( { MediaType.APPLICATION_JSON } )
   public void updateResourceLocation( @PathParam( "id" ) final int resourceID, final LocationUpdateDTO update )
     throws ParseException
   {
