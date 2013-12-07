@@ -49,3 +49,5 @@ artifacts:
 
   g_leaflet_draw: org.peimari:g-leaflet-draw:jar:0.4.0
   g_leaflet: org.peimari:g-leaflet:jar:0.4.0
+
+  gwtbootstrap3: com.svenjacobs.gwtbootstrap3:gwtbootstrap3:jar:0.2

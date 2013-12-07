@@ -6,6 +6,7 @@ JEE_GWT_JARS = [:javax_inject, :javax_annotation, :javax_validation, :javax_vali
 GWT_JARS = JEE_GWT_JARS +
   [:g_leaflet,
    :g_leaflet_draw,
+   :gwtbootstrap3,
    :gwt_user,
    :gwt_dev,
    :gwt_gin,

@@ -1,6 +1,7 @@
 package fgis.client;
 
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
@@ -13,6 +14,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.RootPanel;
+import fgis.client.ioc.FgisGinjector;
 import org.peimari.gleaflet.client.AbstractPath;
 import org.peimari.gleaflet.client.Circle;
 import org.peimari.gleaflet.client.CircleOptions;
@@ -49,6 +51,8 @@ public final class FgisEntry
 {
   public void onModuleLoad()
   {
+    final FgisGinjector injector = GWT.create( FgisGinjector.class );
+    RootPanel.get().add( injector.getSimpleUI().asWidget() );
     LeafletDrawResourceInjector.ensureInjected();
     // This is enough if no draw features are used:
     // LeafletResourceInjector.ensureInjected();
