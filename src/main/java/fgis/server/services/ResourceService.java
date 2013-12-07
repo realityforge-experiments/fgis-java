@@ -2,6 +2,7 @@ package fgis.server.services;
 
 import fgis.server.data_type.fgis.LocationUpdateDTO;
 import fgis.server.data_type.fgis.ResourceDetailsDTO;
+import fgis.server.entity.FGISPersistenceUnit;
 import fgis.server.entity.fgis.Resource;
 import fgis.server.entity.fgis.ResourceTrack;
 import fgis.server.entity.fgis.Resource_;
@@ -69,7 +70,7 @@ import org.realityforge.rest.field_filter.FieldFilter;
 @Consumes( { MediaType.APPLICATION_JSON } )
 public class ResourceService
 {
-  @PersistenceContext( unitName = "FGIS" )
+  @PersistenceContext(unitName = FGISPersistenceUnit.NAME)
   private EntityManager _em;
 
   @EJB
