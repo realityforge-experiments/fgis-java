@@ -1,162 +1,301 @@
 package fgis.client;
 
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
+import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import java.util.List;
-import org.gwtopenmaps.openlayers.client.LonLat;
-import org.gwtopenmaps.openlayers.client.Map;
-import org.gwtopenmaps.openlayers.client.MapOptions;
-import org.gwtopenmaps.openlayers.client.MapWidget;
-import org.gwtopenmaps.openlayers.client.OpenLayers;
-import org.gwtopenmaps.openlayers.client.Projection;
-import org.gwtopenmaps.openlayers.client.Style;
-import org.gwtopenmaps.openlayers.client.StyleMap;
-import org.gwtopenmaps.openlayers.client.control.LayerSwitcher;
-import org.gwtopenmaps.openlayers.client.control.OverviewMap;
-import org.gwtopenmaps.openlayers.client.control.ScaleLine;
-import org.gwtopenmaps.openlayers.client.control.SelectFeature;
-import org.gwtopenmaps.openlayers.client.event.VectorFeatureSelectedListener;
-import org.gwtopenmaps.openlayers.client.feature.VectorFeature;
-import org.gwtopenmaps.openlayers.client.format.GeoJSON;
-import org.gwtopenmaps.openlayers.client.layer.TransitionEffect;
-import org.gwtopenmaps.openlayers.client.layer.Vector;
-import org.gwtopenmaps.openlayers.client.layer.VectorOptions;
-import org.gwtopenmaps.openlayers.client.layer.WMS;
-import org.gwtopenmaps.openlayers.client.layer.WMSOptions;
-import org.gwtopenmaps.openlayers.client.layer.WMSParams;
-import org.gwtopenmaps.openlayers.client.protocol.HTTPProtocol;
-import org.gwtopenmaps.openlayers.client.protocol.HTTPProtocolOptions;
-import org.gwtopenmaps.openlayers.client.strategy.FixedStrategy;
-import org.gwtopenmaps.openlayers.client.strategy.FixedStrategyOptions;
-import org.gwtopenmaps.openlayers.client.strategy.Strategy;
+import org.peimari.gleaflet.client.AbstractPath;
+import org.peimari.gleaflet.client.Circle;
+import org.peimari.gleaflet.client.CircleOptions;
+import org.peimari.gleaflet.client.ClickListener;
+import org.peimari.gleaflet.client.EditableFeature;
+import org.peimari.gleaflet.client.EditableMap;
+import org.peimari.gleaflet.client.FeatureEditedListener;
+import org.peimari.gleaflet.client.GeoJSON;
+import org.peimari.gleaflet.client.ILayer;
+import org.peimari.gleaflet.client.LatLng;
+import org.peimari.gleaflet.client.LatLngBounds;
+import org.peimari.gleaflet.client.MapWidget;
+import org.peimari.gleaflet.client.MouseEvent;
+import org.peimari.gleaflet.client.PathOptions;
+import org.peimari.gleaflet.client.Polygon;
+import org.peimari.gleaflet.client.Polyline;
+import org.peimari.gleaflet.client.PolylineOptions;
+import org.peimari.gleaflet.client.Rectangle;
+import org.peimari.gleaflet.client.TileLayer;
+import org.peimari.gleaflet.client.TileLayerOptions;
+import org.peimari.gleaflet.client.draw.Draw;
+import org.peimari.gleaflet.client.draw.DrawControlOptions;
+import org.peimari.gleaflet.client.draw.LayerCreatedEvent;
+import org.peimari.gleaflet.client.draw.LayerCreatedListener;
+import org.peimari.gleaflet.client.draw.LayerType;
+import org.peimari.gleaflet.client.draw.LayersDeletedEvent;
+import org.peimari.gleaflet.client.draw.LayersDeletedListener;
+import org.peimari.gleaflet.client.draw.LayersEditedEvent;
+import org.peimari.gleaflet.client.draw.LayersEditedListener;
+import org.peimari.gleaflet.client.resources.LeafletDrawResourceInjector;
 
 public final class FgisEntry
   implements EntryPoint
 {
   public void onModuleLoad()
   {
-    OpenLayers.setProxyHost( GWT.getHostPageBaseURL() + "map_proxy?targetURL=" );
-    //create some MapOptions
-    final MapOptions defaultMapOptions = new MapOptions();
-    //causes the mouse popup to display coordinates in this format
-    defaultMapOptions.setDisplayProjection( new Projection( "EPSG:4326" ) );
-    defaultMapOptions.setNumZoomLevels( 16 );
+    LeafletDrawResourceInjector.ensureInjected();
+    // This is enough if no draw features are used:
+    // LeafletResourceInjector.ensureInjected();
 
-    //Create a MapWidget
-    final MapWidget mapWidget = new MapWidget( "500px", "500px", defaultMapOptions );
-    //Create a WMS layer as base layer
-    final WMSParams wmsParams = new WMSParams();
-    wmsParams.setFormat( "image/png" );
-    wmsParams.setLayers( "topp:tasmania_state_boundaries" );
-    wmsParams.setStyles( "" );
+    final MapWidget mapWidget = new MapWidget();
 
-    //create a WMS layer
-    final WMSOptions wmsLayerParams = new WMSOptions();
-    wmsLayerParams.setUntiled();
-    wmsLayerParams.setTransitionEffect( TransitionEffect.RESIZE );
+    RootPanel.get().add( mapWidget );
 
-    final String wmsUrl = "http://demo.opengeo.org/geoserver/wms";
-    final WMS wmsLayer = new WMS( "Basic WMS", wmsUrl, wmsParams, wmsLayerParams );
+    /* EditableMap is Leaflet.Draw spiced js overlay for L.Map */
+    final EditableMap map = mapWidget.getMap().cast();
 
-    //Add the WMS to the map
-    final Map map = mapWidget.getMap();
-    map.addLayer( wmsLayer );
+    map.setView( LatLng.create( 61, 22 ), 5 );
 
-    //The actual refresh
-    final Button butRefresh = new Button( "Refresh WMS", new ClickHandler()
+    final TileLayerOptions tileOptions = TileLayerOptions.create();
+    tileOptions.setSubDomains( "a", "b", "c" );
+    TileLayer layer = TileLayer.create(
+      "http://{s}.tile.osm.org/{z}/{x}/{y}.png", tileOptions );
+    map.addLayer( layer );
+
+    final CheckBox checkBox = new CheckBox( "Toggle click listener" );
+    checkBox.addClickHandler( new ClickHandler()
     {
-      public void onClick( final ClickEvent event )
+
+      final ClickListener leafletClickListener = new ClickListener()
       {
-        final WMSParams wmsParams = new WMSParams();
-        wmsParams.setParameter( ( (Double) Math.random() ).toString(), ( (Double) Math.random() ).toString() );
-        wmsLayer.mergeNewParams( wmsParams );
-        wmsLayer.redraw();
-      }
-    } );
-
-    final Vector polyLayer = createLayerFromJson( "Polygon Layer", GWT.getHostPageBaseURL() + "data/poly.json" );
-    map.addLayer( polyLayer );
-    //In the json we have defined styles in the properties, here we set these properties
-    final Style style = new Style();
-    style.setFillColor( "${fill}" );
-    style.setStrokeColor( "${stroke}" );
-
-    final StyleMap styleMap = new StyleMap( style );
-    polyLayer.setStyleMap( styleMap );
-
-    polyLayer.redraw();
-
-    //SelectFeature control to capture clicks on the vectors.
-    //We use this to unSelect the selected feature
-    final SelectFeature selectFeature = new SelectFeature( polyLayer );
-    selectFeature.setAutoActivate( true );
-    map.addControl( selectFeature );
-    polyLayer.addVectorFeatureSelectedListener( new VectorFeatureSelectedListener()
-    {
-      public void onFeatureSelected( FeatureSelectedEvent eventObject )
-      {
-        final VectorFeature selectedFeature = eventObject.getVectorFeature();
-        selectFeature.unSelect( eventObject.getVectorFeature() );
-
-        final List<String> attrNames = selectedFeature.getAttributes().getAttributeNames();
-        String s = "";
-        for ( final String attrName : attrNames )
+        public void onClick( final MouseEvent event )
         {
-          s += attrName + ": " + selectedFeature.getAttributes().getAttributeAsString( attrName ) + "\n";
+          final LatLng latLng = event.getLatLng();
+          Window.alert( "Clicked at " + latLng );
+        }
+      };
+
+      public void onClick( ClickEvent event )
+      {
+        if ( checkBox.getValue() )
+        {
+          map.addClickListener( leafletClickListener );
+        }
+        else
+        {
+          map.removeClickListeners();
         }
 
-        Window.alert( "You clicked on a polygon with the following properties in the json file :\n " + s );
       }
     } );
 
-    //Lets add some default controls to the map
-    //+ sign in the upper right corner to display the layer switcher
-    map.addControl( new LayerSwitcher() );
-    //+ sign in the lower right to display the overview map
-    map.addControl( new OverviewMap() );
-    //Display the scale line
-    map.addControl( new ScaleLine() );
+    RootPanel.get().add( checkBox );
 
-    //Center and zoom to a location
-    final LonLat center = new LonLat( 146.7, -41.8 );
-    final int zoomLevel = 6;
-    map.setCenter( center, zoomLevel );
+    // Leaflet.Draw & GeoJSON usage example:
 
-    final Panel panel = new VerticalPanel();
+    final GeoJSON featureGroup = GeoJSON.create();
 
-    panel.add( mapWidget );
-    panel.add( butRefresh );
+    CircleOptions pathOptions = CircleOptions.create();
+    pathOptions.setColor( "red" );
+    Circle circle = Circle.create( LatLng.create( 61, 22 ),
+                                   50000d,
+                                   pathOptions );
+    circle.addClickListener( new ClickListener()
+    {
+      @Override
+      public void onClick( final MouseEvent event )
+      {
+        Window.alert( "Boo: " + event );
+        Window.alert( "X" );
+      }
+    } );
+    featureGroup.addLayer( circle );
 
-    RootPanel.get().add( panel );
+    map.addLayer( featureGroup );
 
-    //force the map to fall behind popups
-    mapWidget.getElement().getFirstChildElement().getStyle().setZIndex( 0 );
-  }
+    DrawControlOptions drawOptions = DrawControlOptions.create();
+    drawOptions.setEditableFeatureGroup( featureGroup );
+    Draw drawControl = Draw.create( drawOptions );
 
-  public static Vector createLayerFromJson( final String layerName, final String url )
-  {
-    final FixedStrategyOptions fOptions = new FixedStrategyOptions();
-    final FixedStrategy fStrategy = new FixedStrategy( fOptions );
+    map.addControl( drawControl );
 
-    final GeoJSON geoJson = new GeoJSON();
+    map.addLayersEditedListener( new LayersEditedListener()
+    {
 
-    final HTTPProtocolOptions httpProtOptions = new HTTPProtocolOptions();
-    httpProtOptions.setUrl( url );
-    httpProtOptions.setFormat( geoJson );
+      @Override
+      public void onEdit( LayersEditedEvent event )
+      {
+        Window.alert( "Edited " + event.getLayers().getLayers().length
+                      + " layer(s)" );
+      }
+    } );
 
-    final HTTPProtocol httpProt = new HTTPProtocol( httpProtOptions );
+    map.addLayersDeletedListener( new LayersDeletedListener()
+    {
 
-    final VectorOptions options = new VectorOptions();
-    options.setStrategies( new Strategy[]{ fStrategy } );
-    options.setProtocol( httpProt );
+      @Override
+      public void onDelete( LayersDeletedEvent event )
+      {
+        Window.alert( "Deleted " + event.getLayers().getLayers().length
+                      + " layer(s)" );
+      }
+    } );
 
-    return new Vector( layerName, options );
+    map.addLayerCreatedListener( new LayerCreatedListener()
+    {
+
+      public void onCreate( LayerCreatedEvent event )
+      {
+        LayerType type = event.getLayerType();
+                                /* type specific actions... */
+        switch ( type )
+        {
+          case marker:
+            featureGroup.addLayer( event.getLayer() );
+            return;
+
+          case circle:
+            Circle c = (Circle) event.getLayer();
+            LatLng latLng = c.getLatLng();
+            double radius = c.getRadius();
+            Window.alert( "Created circle at " + latLng + " with "
+                          + radius + "m radius. {"
+                          + new JSONObject( c.toGeoJSON() ).toString() + "}" );
+            break;
+          case polygon:
+            Polygon p = (Polygon) event.getLayer();
+            LatLng[] latlngs = p.getLatLngs();
+            Window.alert( "Created polygon: " + p.getRawLatLngs() );
+            break;
+          case polyline:
+            Polyline pl = (Polyline) event.getLayer();
+            LatLng[] latLngs2 = pl.getLatLngs();
+            Window.alert( "Created polyline: " + pl.getRawLatLngs() );
+            break;
+          case rectangle:
+            Rectangle r = (Rectangle) event.getLayer();
+            LatLng[] latLngs3 = r.getLatLngs();
+            LatLngBounds bounds = r.getBounds();
+            Window.alert( "Created rectangle: " + r.getRawLatLngs() );
+            break;
+          default:
+            break;
+        }
+        PathOptions newPathOptions = PathOptions.create();
+        newPathOptions.setColor( "green" );
+        AbstractPath path = (AbstractPath) event.getLayer();
+        path.setStyle( newPathOptions );
+        path.redraw();
+        featureGroup.addLayer( path );
+
+      }
+    } );
+
+    Button button = new Button( "Save layer to LocalStorage" );
+
+    button.addClickHandler( new ClickHandler()
+    {
+
+      public void onClick( ClickEvent event )
+      {
+
+        String key = Window.prompt( "Name for your layer?",
+                                    "my saved map" );
+
+        ILayer[] layers = featureGroup.getLayers();
+
+        JsArray<JavaScriptObject> geojsFeatures = JsArray.createArray()
+          .cast();
+        for ( ILayer iLayer : layers )
+        {
+          AbstractPath p = (AbstractPath) iLayer;
+          geojsFeatures.push( p.toGeoJSON() );
+        }
+
+        String geojsonstr = new JSONArray( geojsFeatures ).toString();
+
+        Storage.getLocalStorageIfSupported().setItem( key, geojsonstr );
+
+      }
+    } );
+
+    RootPanel.get().add( button );
+
+    button = new Button( "Load saved map" );
+
+    button.addClickHandler( new ClickHandler()
+    {
+
+      public void onClick( ClickEvent event )
+      {
+        String key = Window.prompt( "Name for your layer?",
+                                    "my saved map" );
+
+        try
+        {
+          String geojsonstr = Storage.getLocalStorageIfSupported()
+            .getItem( key );
+          System.out.println( geojsonstr );
+          JsArray<JavaScriptObject> features = JsonUtils
+            .safeEval( geojsonstr );
+          featureGroup.clearLayers();
+
+          for ( int i = 0; i < features.length(); i++ )
+          {
+            featureGroup.addData( features.get( i ) );
+          }
+
+          Window.alert( "Loaded " + features.length() + " feature(s)." );
+
+        }
+        catch ( Exception e )
+        {
+          Window.alert( "Failed to load features" );
+        }
+
+      }
+    } );
+
+    RootPanel.get().add( button );
+
+    JsArray<LatLng> jsArray = JsArray.createArray().cast();
+    jsArray.push( LatLng.create( 60, 23 ) );
+    jsArray.push( LatLng.create( 61, 24 ) );
+    PolylineOptions options = PolylineOptions.create();
+    options.setColor( "green" );
+    Polyline polyline = Polyline.create( jsArray, options );
+    map.addLayer( polyline );
+
+                /* Editable feature contains generic editing API */
+    final EditableFeature editableFeature = polyline.cast();
+
+    editableFeature.addEditListener( new FeatureEditedListener()
+    {
+
+      @Override
+      public void onEdit()
+      {
+        Window.alert( "Green feature edited" );
+      }
+    } );
+
+    button = new Button( "Toggle green polyline edit mode" );
+    button.addClickHandler( new ClickHandler()
+    {
+
+      @Override
+      public void onClick( ClickEvent event )
+      {
+        editableFeature.setEnabled( !editableFeature.isEnabled() );
+      }
+    } );
+
+    RootPanel.get().add( button );
   }
 }

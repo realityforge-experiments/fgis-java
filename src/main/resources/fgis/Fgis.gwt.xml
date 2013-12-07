@@ -4,8 +4,8 @@
   <inherits name='com.google.gwt.user.theme.clean.Clean'/>
   <inherits name="com.google.gwt.inject.Inject"/>
   <inherits name="com.google.gwt.logging.Logging"/>
-  <inherits name='org.gwtopenmaps.openlayers.OpenLayers'/>
   <inherits name="org.realityforge.gwt.appcache.linker.Linker"/>
+  <inherits name="org.peimari.gleaflet.GLeafletDraw"/>
 
   <entry-point class='fgis.client.FgisEntry'/>
 

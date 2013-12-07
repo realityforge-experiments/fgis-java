@@ -4,6 +4,7 @@ repositories:
    - http://download.eclipse.org/rt/eclipselink/maven.repo
    - http://repository.codehaus.org
    - http://github.com/realityforge/repository/raw/master
+   - http://maven.vaadin.com/vaadin-addons
 
 artifacts:
   javax_servlet: org.apache.geronimo.specs:geronimo-servlet_3.0_spec:jar:1.0
@@ -22,8 +23,6 @@ artifacts:
 
   javax_json: org.glassfish:javax.json:jar:1.0.1
 
-  gwt_openlayers: org.gwtopenmaps.openlayers:gwt-openlayers-client:jar:0.9
-  gwt_openlayers_server: org.gwtopenmaps.openlayers:gwt-openlayers-server:jar:0.9
   gwt_user: com.google.gwt:gwt-user:jar:2.6.0-rc3
   gwt_dev: com.google.gwt:gwt-dev:jar:2.6.0-rc3
   gwt_gin: com.google.gwt.inject:gin:jar:2.1.2
@@ -47,3 +46,6 @@ artifacts:
   geolatte_geom_eclipselink: org.realityforge.jeo.geolatte.jpa.eclipselink:geolatte-geom-eclipselink:jar:0.3
 
   gwt_appcache_server: org.realityforge.gwt.appcache:gwt-appcache-server:jar:0.2
+
+  g_leaflet_draw: org.peimari:g-leaflet-draw:jar:0.4.0
+  g_leaflet: org.peimari:g-leaflet:jar:0.4.0

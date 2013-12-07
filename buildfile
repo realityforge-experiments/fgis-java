@@ -4,7 +4,14 @@ require 'buildr/single_intermediate_layout'
 
 JEE_GWT_JARS = [:javax_inject, :javax_annotation, :javax_validation, :javax_validation_sources, :findbugs_annotations]
 GWT_JARS = JEE_GWT_JARS +
-  [:gwt_openlayers, :gwt_user, :gwt_dev, :gwt_gin, :google_guice, :aopalliance, :google_guice_assistedinject]
+  [:g_leaflet,
+   :g_leaflet_draw,
+   :gwt_user,
+   :gwt_dev,
+   :gwt_gin,
+   :google_guice,
+   :aopalliance,
+   :google_guice_assistedinject]
 JEE_JARS = [:javax_persistence,
             :javax_transaction,
             :javax_inject,
@@ -17,7 +24,7 @@ JEE_JARS = [:javax_persistence,
 GEO_DEPS = [:jeo, :geolatte_geom_eclipselink, :geolatte_geom, :jts, :slf4j_api, :slf4j_jdk14]
 JACKSON_DEPS = [:jackson_core, :jackson_mapper]
 PROVIDED_DEPS = JACKSON_DEPS + JEE_JARS
-INCLUDED_DEPENDENCIES = [:rest_field_filter, :javax_json, :gwt_appcache_server, :gwt_openlayers_server] + GEO_DEPS
+INCLUDED_DEPENDENCIES = [:rest_field_filter, :javax_json, :gwt_appcache_server] + GEO_DEPS
 
 desc 'FGIS: Fire Ground Information System'
 define 'fgis' do
