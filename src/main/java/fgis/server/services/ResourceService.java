@@ -200,7 +200,8 @@ public class ResourceService
     throws ParseException
   {
     System.out.println( "updateResourceLocation(" + resourceID + "," + x + "," + y + ")" );
-    updateResourceLocation( getResource( resourceID ), toPoint( x, y ) );
+    final Resource resource = getResource( resourceID );
+    updateResourceLocation( resource, toPoint( x, y ) );
     return "{\"result\":\"OK\"}";
   }
 
@@ -217,11 +218,11 @@ public class ResourceService
   private Resource getResource( final int resourceID )
   {
     final Resource resource = _resourceService.findByID( resourceID );
-    _em.lock( resource, LockModeType.WRITE );
     if ( null == resource )
     {
       throw new WebApplicationException( ResponseUtil.entityNotFoundResponse() );
     }
+    _em.lock( resource, LockModeType.WRITE );
     return resource;
   }
 
