@@ -82,4 +82,4 @@ define 'fgis' do
                                 :dependencies => [project] + INCLUDED_DEPENDENCIES)
 end
 
-task('domgen:all').enhance(%w(fgis:client:assets))
+task('domgen:all').enhance(%w(fgis:assets))
