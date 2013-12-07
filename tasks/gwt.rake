@@ -23,7 +23,7 @@ module Buildr
       end
 
       def version
-        @version || '2.6.0-rc1'
+        @version || '2.6.0-rc3'
       end
 
       # The specs for requirements

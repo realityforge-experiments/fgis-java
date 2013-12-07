@@ -24,8 +24,8 @@ artifacts:
 
   gwt_openlayers: org.gwtopenmaps.openlayers:gwt-openlayers-client:jar:0.9
   gwt_openlayers_server: org.gwtopenmaps.openlayers:gwt-openlayers-server:jar:0.9
-  gwt_user: com.google.gwt:gwt-user:jar:2.6.0-rc1
-  gwt_dev: com.google.gwt:gwt-dev:jar:2.6.0-rc1
+  gwt_user: com.google.gwt:gwt-user:jar:2.6.0-rc3
+  gwt_dev: com.google.gwt:gwt-dev:jar:2.6.0-rc3
   gwt_gin: com.google.gwt.inject:gin:jar:2.1.2
   javax_validation: javax.validation:validation-api:jar:1.0.0.GA
   javax_validation_sources: javax.validation:validation-api:jar:sources:1.0.0.GA
@@ -42,8 +42,8 @@ artifacts:
   slf4j_api: org.slf4j:slf4j-api:jar:1.6.6
   slf4j_jdk14: org.slf4j:slf4j-jdk14:jar:1.6.6
 
-  rest_field_filter: org.realityforge.rest.field_filter:rest-field-filter:jar:0.1
+  rest_field_filter: org.realityforge.rest.field_filter:rest-field-filter:jar:0.3
 
   geolatte_geom_eclipselink: org.realityforge.jeo.geolatte.jpa.eclipselink:geolatte-geom-eclipselink:jar:0.3
 
-  mgwt: com.googlecode.mgwt:mgwt:jar:1.1.2
+  gwt_appcache_server: org.realityforge.gwt.appcache:gwt-appcache-server:jar:0.2
