@@ -12,16 +12,6 @@
     <servlet-class>org.gwtopenmaps.openlayers.server.GwtOpenLayersProxyServlet</servlet-class>
   </servlet>
 
-  <servlet>
-    <servlet-name>ManifestServlet</servlet-name>
-    <servlet-class>fgis.server.ManifestServlet</servlet-class>
-  </servlet>
-
-  <servlet-mapping>
-    <servlet-name>ManifestServlet</servlet-name>
-    <url-pattern>/footprints.manifest</url-pattern>
-  </servlet-mapping>
-
   <servlet-mapping>
     <servlet-name>map_proxy</servlet-name>
     <url-pattern>/map_proxy/*</url-pattern>
