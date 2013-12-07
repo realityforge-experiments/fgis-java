@@ -34,7 +34,7 @@ class Dbt #nodoc
         Dbt::Config.driver_config_class(:jruby => true).jdbc_driver_dependencies
 
     dependencies.each do |spec|
-      jar.merge(Buildr.artifact(spec))
+      jar.merge(::Buildr.artifact(spec))
     end
     jar.include "#{package_dir}/code", :as => '.'
     jar.include "#{package_dir}/data"
@@ -199,8 +199,6 @@ TXT
         import_config = {
           :modules => definition.modules,
           :dir => definition.dir,
-          :reindex => definition.reindex?,
-          :shrink => definition.shrink?,
           :pre_import_dirs => definition.pre_import_dirs,
           :post_import_dirs => definition.post_import_dirs
         }
@@ -214,7 +212,7 @@ puts "Environment: \#{Dbt::Config.environment}"
 puts "Config File: \#{Dbt::Config.config_filename}"
 puts "Commands: \#{ARGV.join(' ')}"
 
-Dbt.repository.load_configuration_data(Dbt::Config.config_filename)
+Dbt.repository.load_configuration_data
 Dbt.runtime.load_database_config(database)
 
 ARGV.each do |command|
