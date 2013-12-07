@@ -147,7 +147,7 @@ module Domgen
 
       def ql=(ql)
         @ql = ql
-        self.query_spec = (ql =~ /\sFROM\s/ix) ? :statement : :criteria
+        self.query_spec = (ql =~ /\sFROM\s/ix) ? :statement : :criteria unless @query_spec
       end
     end
 
@@ -212,6 +212,14 @@ module Domgen
 
       def traversable?
         @traversable.nil? ? (self.inverse.traversable? && self.inverse.attribute.referenced_entity.jpa?) : @traversable
+      end
+
+      def java_traversable=(java_traversable)
+        @java_traversable = java_traversable
+      end
+
+      def java_traversable?
+        @java_traversable.nil? ? traversable? : @java_traversable
       end
     end
 
@@ -313,15 +321,15 @@ module Domgen
       end
 
       def pre_verify
-        entity.query('findAll')
-        entity.query("findBy#{entity.primary_key.name}")
-        entity.query("getBy#{entity.primary_key.name}")
+        entity.query(:FindAll)
+        entity.query(:"FindBy#{entity.primary_key.name}")
+        entity.query(:"GetBy#{entity.primary_key.name}")
         entity.queries.select { |query| query.jpa? && query.jpa.no_ql? }.each do |query|
           jpql = ''
           query_text = nil
-          query_text = $1 if query.name =~ /^findAllBy(.+)$/
-          query_text = $1 if query.name =~ /^findBy(.+)$/
-          query_text = $1 if query.name =~ /^getBy(.+)$/
+          query_text = $1 if query.name =~ /^[fF]indAllBy(.+)$/
+          query_text = $1 if query.name =~ /^[fF]indBy(.+)$/
+          query_text = $1 if query.name =~ /^[gG]etBy(.+)$/
           next unless query_text
 
           entity_prefix = "O."
@@ -374,11 +382,11 @@ module Domgen
     class PersistenceUnit < Domgen.ParentedElement(:repository)
 
       def version
-        @version || "2.0"
+        @version || (repository.ee.version == '6' ? '2.0' : '2.1')
       end
 
       def version=(version)
-        raise "Unknown version '#{version}'" unless ["2.0","2.1"].include?(version)
+        raise "Unknown version '#{version}'" unless ['2.0','2.1'].include?(version)
         @version = version
       end
 
@@ -396,6 +404,14 @@ module Domgen
         @properties ||= {"eclipselink.logging.logger" => "JavaLogger",
                          #"eclipselink.logging.level" => "FINE",
                          "eclipselink.temporal.mutable" => "false"}
+      end
+
+      def unit_descriptor_name
+        @eunit_descriptor_name || "#{repository.name}PersistenceUnit"
+      end
+
+      def qualified_unit_descriptor_name
+        "#{entity_package}.#{unit_descriptor_name}"
       end
 
       attr_writer :ejb_module_name
@@ -431,6 +447,9 @@ module Domgen
 
       attr_accessor :field_naming
 
+      def persistence_file_fragments
+        @persistence_file_fragments ||= []
+      end
     end
   end
 

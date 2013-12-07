@@ -43,9 +43,9 @@ module Domgen
         s << gen_relation_annotation(attribute, false)
         s << gen_fetch_mode_if_specified(attribute)
         if attribute.inverse.multiplicity == :many
-          s << "  private java.util.List<#{attribute.entity.jpa.qualified_name}> #{Domgen::Naming.pluralize(attribute.inverse.relationship_name)};\n"
+          s << "  private java.util.List<#{attribute.entity.jpa.qualified_name}> #{Domgen::Naming.pluralize(attribute.entity.jpa.to_field_name(attribute.inverse.relationship_name))};\n"
         else # attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
-          s << "  private #{attribute.entity.jpa.qualified_name} #{attribute.inverse.relationship_name};\n"
+          s << "  private #{attribute.entity.jpa.qualified_name} #{attribute.entity.jpa.to_field_name(attribute.inverse.relationship_name)};\n"
         end
         s
       end
@@ -57,6 +57,10 @@ module Domgen
         parameters << "updatable = #{attribute.updatable?}"
         parameters << "unique = #{attribute.unique?}"
         parameters << "insertable = #{!attribute.generated_value? || attribute.primary_key?}"
+
+        if attribute.reference?
+          parameters << "referencedColumnName = \"#{attribute.referenced_entity.primary_key.sql.column_name}\""
+        end
 
         if !attribute.reference? && attribute.has_non_max_length?
           parameters << "length = #{attribute.length}"
@@ -78,11 +82,13 @@ module Domgen
 
         if declaring_relationship
           parameters << "optional = #{attribute.nullable?}"
+          parameters << "targetEntity = #{attribute.referenced_entity.jpa.qualified_name}.class"
         end
 
         if !declaring_relationship
           parameters << "orphanRemoval = #{attribute.inverse.jpa.orphan_removal?}"
           parameters << "mappedBy = \"#{attribute.jpa.field_name}\""
+          parameters << "targetEntity = #{attribute.entity.jpa.qualified_name}.class"
         end
 
         #noinspection RubyUnusedLocalVariable
@@ -145,7 +151,7 @@ JAVA
       def j_declared_attribute_and_relation_accessors(entity)
         relation_methods = entity.referencing_attributes.collect do |attribute|
 
-          if attribute.abstract? || attribute.inherited? || !attribute.entity.jpa? || !attribute.jpa.persistent? || !attribute.inverse.jpa.traversable? || attribute.referenced_entity != entity
+          if attribute.abstract? || attribute.inherited? || !attribute.entity.jpa? || !attribute.jpa.persistent? || !attribute.inverse.jpa.java_traversable? || attribute.referenced_entity != entity
             # Ignore abstract attributes as will appear in child classes
             # Ignore inherited attributes as appear in parent class
             # Ignore attributes that have no inverse relationship
@@ -154,7 +160,7 @@ JAVA
             j_has_many_attribute(attribute)
           else #attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
             name = attribute.inverse.relationship_name
-            field_name = entity.to_field_name( name )
+            field_name = entity.jpa.to_field_name( name )
             type = nullable_annotate(attribute, attribute.entity.jpa.qualified_name, false, true)
 
             java = description_javadoc_for attribute
@@ -281,7 +287,7 @@ JAVA
         name = attribute.jpa.name
         field_name = attribute.jpa.field_name
         inverse_name = attribute.inverse.relationship_name
-        if !attribute.inverse.jpa.traversable?
+        if !attribute.inverse.jpa.java_traversable?
           ''
         else
           null_guard(attribute.nullable?, field_name) { "this.#{field_name}.add#{inverse_name}( this );" }
@@ -292,7 +298,7 @@ JAVA
         name = attribute.jpa.name
         field_name = attribute.jpa.field_name
         inverse_name = attribute.inverse.relationship_name
-        if !attribute.inverse.jpa.traversable?
+        if !attribute.inverse.jpa.java_traversable?
           ''
         else
           null_guard(true, field_name) { "#{field_name}.remove#{inverse_name}( this );" }
@@ -355,6 +361,7 @@ STR
       def j_has_many_attribute(attribute)
         name = attribute.inverse.relationship_name
         plural_name = Domgen::Naming.pluralize(name)
+        field_name = attribute.entity.jpa.to_field_name(plural_name)
         type = attribute.entity.jpa.qualified_name
         java = description_javadoc_for attribute
         java << <<STR
@@ -365,28 +372,28 @@ STR
 
   #{j_deprecation_warning(attribute)} final void add#{name}( final #{type} value )
   {
-    final java.util.List<#{type}> #{plural_name} = safeGet#{plural_name}();
-    if ( !#{plural_name}.contains( value ) )
+    final java.util.List<#{type}> #{field_name}Safe = safeGet#{plural_name}();
+    if ( !#{field_name}Safe.contains( value ) )
     {
-      #{plural_name}.add( value );
+      #{field_name}Safe.add( value );
     }
   }
 
   public final void remove#{name}( final #{type} value )
   {
-    if ( null != #{plural_name} && #{plural_name}.contains( value ) )
+    if ( null != #{field_name} && #{field_name}.contains( value ) )
     {
-      #{plural_name}.remove( value );
+      #{field_name}.remove( value );
     }
   }
 
   private java.util.List<#{type}> safeGet#{plural_name}()
   {
-    if( null == #{plural_name} )
+    if( null == #{field_name} )
     {
-      #{plural_name} = new java.util.LinkedList<#{type}>();
+      #{field_name} = new java.util.LinkedList<#{type}>();
     }
-    return #{plural_name};
+    return #{field_name};
   }
 STR
         java
@@ -524,6 +531,86 @@ JAVADOC
         "#{getter_prefix(attribute)}#{name}()"
       end
 
+      def validation_name(constraint_name)
+        "Validate#{constraint_name}"
+      end
+
+      def jpa_validation_in_jpa?(constraint)
+        entity = constraint.entity
+        if constraint.is_a?(CodependentConstraint) || constraint.is_a?(IncompatibleConstraint)
+          return constraint.attribute_names.all? { |attribute_name| a = entity.attribute_by_name(attribute_name); a.jpa? && a.jpa.persistent? }
+        elsif constraint.is_a?(RelationshipConstraint)
+          lhs = entity.attribute_by_name(constraint.lhs_operand)
+          rhs = entity.attribute_by_name(constraint.rhs_operand)
+          return lhs.jpa? && lhs.jpa.persistent? && rhs.jpa? && rhs.jpa.persistent?
+        elsif constraint.is_a?(CycleConstraint)
+          target_attribute = entity.attribute_by_name(constraint.attribute_name)
+          scoping_attribute = target_attribute.referenced_entity.attribute_by_name(constraint.scoping_attribute)
+
+          current_entity = entity
+          elements = constraint.attribute_name_path.collect do |element_name|
+            new_attr = current_entity.attribute_by_name(element_name)
+            current_entity = new_attr.referenced_entity
+            new_attr
+          end + [target_attribute, scoping_attribute]
+          return elements.all? { |attribute| attribute.jpa? && attribute.jpa.persistent? }
+        elsif constraint.is_a?(DependencyConstraint)
+          target_attribute = entity.attribute_by_name(constraint.attribute_name)
+
+          return target_attribute.jpa? &&
+            constraint.dependent_attribute_names.all? { |attribute_name| a = entity.attribute_by_name(attribute_name); a.jpa? && a.jpa.persistent? }
+        else
+          return false
+        end
+      end
+
+      def validation_prefix(constraint_name, entity)
+        return <<JAVA
+  @java.lang.annotation.Target( { java.lang.annotation.ElementType.TYPE } )
+  @java.lang.annotation.Retention( java.lang.annotation.RetentionPolicy.RUNTIME )
+  @javax.validation.Constraint( validatedBy = #{constraint_name}Validator.class )
+  @java.lang.annotation.Documented
+  public @interface #{validation_name(constraint_name)}
+  {
+    String message() default "{#{entity.jpa.qualified_name}.#{constraint_name}}";
+
+    Class<?>[] groups() default { };
+
+    Class<? extends javax.validation.Payload>[] payload() default { };
+  }
+
+  public static class #{constraint_name}Validator
+    implements javax.validation.ConstraintValidator<#{validation_name(constraint_name)}, #{entity.jpa.name}>
+  {
+    @Override
+    public void initialize( final #{validation_name(constraint_name)} constraintAnnotation )
+    {
+    }
+
+    @Override
+    public boolean isValid( final #{entity.jpa.name} object, final javax.validation.ConstraintValidatorContext constraintContext )
+    {
+      if ( null == object )
+      {
+        return true;
+      }
+      try
+      {
+JAVA
+      end
+
+      def validation_suffix
+        return <<JAVA
+      }
+      catch( final Throwable t )
+      {
+        return false;
+      }
+      return true;
+    }
+  }
+JAVA
+      end
     end
   end
 end
