@@ -28,11 +28,8 @@ define 'fgis' do
 
   desc 'FGIS Client Code'
   define 'client' do
-    add_bootstrap_media(project)
-    add_leaflet_media(project)
     define_process_sass_dir(project)
     define_coffee_script_dir(project)
-    define_jquery_dir(project)
 
     compile.with :gwt_openlayers,
                  :gwt_user,
