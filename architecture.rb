@@ -55,7 +55,7 @@ Domgen.repository(:FGIS) do |repository|
         q.integer(:ResourceID)
       end
 
-      #t.sql.index([:Location], :index_type => :gist)
+      t.sql.index([:Location], :index_type => :gist)
     end
   end
 end
