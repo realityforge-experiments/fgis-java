@@ -9,14 +9,6 @@ import javax.inject.Inject;
 public class SimpleUI
   extends Composite
 {
-  private EventBus _eventBus;
-
-  @Inject
-  public void setEventBus( final EventBus eventBus )
-  {
-    _eventBus = eventBus;
-  }
-
   @Override
   public Widget asWidget()
   {

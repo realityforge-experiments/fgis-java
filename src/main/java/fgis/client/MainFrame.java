@@ -1,14 +1,14 @@
 package fgis.client;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.SpanElement;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
-import com.svenjacobs.gwtbootstrap3.client.ui.ListItem;
+import com.svenjacobs.gwtbootstrap3.client.ui.Icon;
+import com.svenjacobs.gwtbootstrap3.client.ui.constants.IconType;
 
 public class MainFrame
   extends Composite
@@ -23,18 +23,20 @@ public class MainFrame
   public MainFrame()
   {
     initWidget( uiBinder.createAndBindUi( this ) );
+    setOnline( true );
   }
 
   @UiField
-  ListItem gridSystemLink;
+  Icon connectionIcon;
+  @UiField
+  SpanElement connectionText;
 
-  /*
-  * Method name is not relevant, the binding is done according to the class
-  * of the parameter.
-  */
-  @UiHandler( "gridSystemLink" )
-  void doClickSubmit( final ClickEvent event )
+  public void setOnline( final boolean online )
   {
-    Window.alert( "Click Linked!" );
+    connectionIcon.setType( online ? IconType.ARROW_CIRCLE_UP : IconType.ARROW_CIRCLE_DOWN );
+    connectionText.setInnerText( online ? "Connected" : "Disconnected" );
+    final Element element = connectionText.getParentElement();
+    element.removeClassName( online ? "disconnected" : "connected" );
+    element.addClassName( online ? "connected" : "disconnected" );
   }
 }
