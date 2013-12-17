@@ -3,16 +3,8 @@ require 'buildr/top_level_generate_dir'
 require 'buildr/single_intermediate_layout'
 
 JEE_GWT_JARS = [:javax_inject, :javax_annotation, :javax_validation, :javax_validation_sources, :findbugs_annotations]
-GWT_JARS = JEE_GWT_JARS +
-  [:g_leaflet,
-   :g_leaflet_draw,
-   :gwtbootstrap3,
-   :gwt_user,
-   :gwt_dev,
-   :gwt_gin,
-   :google_guice,
-   :aopalliance,
-   :google_guice_assistedinject]
+GIN_JARS = [:gwt_gin, :google_guice, :aopalliance, :google_guice_assistedinject]
+GWT_JARS = JEE_GWT_JARS + GIN_JARS + [:gwt_user, :gwt_dev]
 JEE_JARS = [:javax_persistence,
             :javax_transaction,
             :javax_inject,
