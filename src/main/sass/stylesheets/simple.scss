@@ -1,5 +1,6 @@
 $primary_color: #1a1917;
 $secondary_color: #e8e2d2;
+$highlight: #ef4343;
 body, html {
   height: 85%;
   font-weight: bold;
@@ -34,7 +35,7 @@ body, html {
       color: #9add5a;
     }
     &.disconnected {
-      color: #ef4343;
+      color: $highlight;
     }
     &:after {
       content: "";
@@ -51,7 +52,7 @@ body, html {
 .navbar .nav > .active > a:hover,
 .navbar .nav > .active > a:focus {
   background: none;
-  color: #ef4343;
+  color: $highlight;
 }
 
 .main {
@@ -79,7 +80,7 @@ body, html {
       margin-left: 15px;
     }
     &.active {
-      color: #ef4343;
+      color: $highlight;
     }
   }
 }
@@ -167,7 +168,7 @@ body, html {
   background: $secondary_color;
   padding: 3px 95px;
   em {
-    color: #ef4343;
+    color: $highlight;
     font-style: normal;
   }
 }
