@@ -4,7 +4,8 @@ require 'buildr/single_intermediate_layout'
 
 JEE_GWT_JARS = [:javax_inject, :javax_annotation, :javax_validation, :javax_validation_sources, :findbugs_annotations]
 GIN_JARS = [:gwt_gin, :google_guice, :aopalliance, :google_guice_assistedinject]
-GWT_JARS = JEE_GWT_JARS + GIN_JARS + [:gwt_user, :gwt_dev]
+APPCACHE_GWT_JARS = [:gwt_appcache_client, :gwt_appcache_linker]
+GWT_JARS = JEE_GWT_JARS + GIN_JARS + [:gwt_user, :gwt_dev] + APPCACHE_GWT_JARS
 JEE_JARS = [:javax_persistence,
             :javax_transaction,
             :javax_inject,
