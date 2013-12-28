@@ -21,7 +21,7 @@ artifacts:
 
   infomas_annotation_detector: eu.infomas:annotation-detector:jar:3.0.0
 
-  javax_json: org.glassfish:javax.json:jar:1.0.1
+  javax_json: org.glassfish:javax.json:jar:1.0.3
 
   gwt_user: com.google.gwt:gwt-user:jar:2.6.0-rc3
   gwt_dev: com.google.gwt:gwt-dev:jar:2.6.0-rc3
