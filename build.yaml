@@ -34,7 +34,7 @@ artifacts:
   aopalliance: aopalliance:aopalliance:jar:1.0 # Required for guice
   findbugs_annotations: com.google.code.findbugs:annotations:jar:1.3.9
 
-  jeo: org.realityforge.jeo:jeo:jar:0.2
+  jeo: org.realityforge.jeo:jeo:jar:0.5
 
   geolatte_geom: org.geolatte:geolatte-geom:jar:0.12-rf
   jts: com.vividsolutions:jts:jar:1.13

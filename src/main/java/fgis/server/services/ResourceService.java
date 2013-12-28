@@ -8,7 +8,6 @@ import fgis.server.entity.fgis.ResourceTrack;
 import fgis.server.entity.fgis.Resource_;
 import fgis.server.entity.fgis.dao.ResourceRepository;
 import fgis.server.entity.fgis.dao.ResourceTrackRepository;
-import java.io.StringWriter;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -23,7 +22,6 @@ import javax.ejb.Stateless;
 import javax.json.Json;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
-import javax.json.stream.JsonGenerator;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
@@ -51,8 +49,6 @@ import org.geolatte.geom.PointSequenceBuilder;
 import org.geolatte.geom.PointSequenceBuilders;
 import org.geolatte.geom.Polygon;
 import org.geolatte.geom.crs.CrsId;
-import org.realityforge.jeo.geojson.GeoJsonWriter;
-import org.realityforge.jeo.geojson.GjElement;
 import org.realityforge.jeo.geojson.GjFeature;
 import org.realityforge.jeo.geojson.GjFeatureCollection;
 import org.realityforge.jeo.geojson.GjGeometry;
@@ -128,7 +124,9 @@ public class ResourceService
       entries.add( new ResourceEntry( resource, tracks ) );
     }
 
-    return serialize( buildFeatureCollection( filter, entries ) );
+    final GjFeatureCollection collection = buildFeatureCollection( filter, entries );
+
+    return collection.toString();
   }
 
   @POST
@@ -180,7 +178,8 @@ public class ResourceService
     final Resource resource = getResource( resourceID );
 
     final List<ResourceTrack> tracks = getResourceTracks( resourceID );
-    return serialize( buildFeature( filter, new ResourceEntry( resource, tracks ) ) );
+    final GjFeature feature = buildFeature( filter, new ResourceEntry( resource, tracks ) );
+    return feature.toString();
   }
 
   @GET
@@ -295,17 +294,6 @@ public class ResourceService
     {
       features.add( buildFeature( filter, entry ) );
     }
-
     return new GjFeatureCollection( features, null, null, null );
-  }
-
-  private String serialize( final GjElement collection )
-  {
-    final StringWriter writer = new StringWriter();
-    final JsonGenerator g = Json.createGenerator( writer );
-    new GeoJsonWriter().emit( g, collection );
-    g.close();
-
-    return writer.toString();
   }
 }
