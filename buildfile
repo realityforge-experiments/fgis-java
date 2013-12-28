@@ -82,5 +82,3 @@ define 'fgis' do
                                 :enable_web => true,
                                 :dependencies => [project] + INCLUDED_DEPENDENCIES)
 end
-
-task('domgen:all').enhance(%w(fgis:assets))
