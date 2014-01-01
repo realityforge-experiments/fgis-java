@@ -18,7 +18,7 @@ JEE_JARS = [:javax_persistence,
 GEO_DEPS = [:jeo, :geolatte_geom_eclipselink, :geolatte_geom, :jts, :slf4j_api, :slf4j_jdk14]
 JACKSON_DEPS = [:jackson_core, :jackson_mapper]
 PROVIDED_DEPS = JACKSON_DEPS + JEE_JARS
-INCLUDED_DEPENDENCIES = [:rest_field_filter, :javax_json, :gwt_appcache_server] + GEO_DEPS
+INCLUDED_DEPENDENCIES = [:rest_field_filter, :javax_json, :gwt_appcache_server, :gwt_cache_filter] + GEO_DEPS
 
 desc 'FGIS: Fire Ground Information System'
 define 'fgis' do
