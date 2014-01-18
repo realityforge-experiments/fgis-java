@@ -41,7 +41,7 @@ artifacts:
   slf4j_api: org.slf4j:slf4j-api:jar:1.6.6
   slf4j_jdk14: org.slf4j:slf4j-jdk14:jar:1.6.6
 
-  rest_field_filter: org.realityforge.rest.field_filter:rest-field-filter:jar:0.3
+  rest_field_filter: org.realityforge.rest.field_filter:rest-field-filter:jar:0.4
 
   geolatte_geom_eclipselink: org.realityforge.jeo.geolatte.jpa.eclipselink:geolatte-geom-eclipselink:jar:0.3
 
