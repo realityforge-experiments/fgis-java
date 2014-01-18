@@ -21,7 +21,7 @@ module Domgen
     end
   end
 end
-Domgen.template_set(:imit) do |template_set|
+Domgen.template_set(:imit_entity) do |template_set|
   template_set.template(Domgen::Generator::Imit::FACETS,
                         :entity,
                         "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/entity.java.erb",
@@ -43,6 +43,16 @@ Domgen.template_set(:imit_json) do |template_set|
 end
 
 Domgen.template_set(:imit_gwt_proxy) do |template_set|
+  template_set.template(Domgen::Generator::Imit::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/async_callback.java.erb",
+                        'main/java/#{repository.imit.qualified_async_callback_name.gsub(".","/")}.java',
+                        Domgen::Generator::Imit::HELPERS)
+  template_set.template(Domgen::Generator::Imit::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/async_error_callback.java.erb",
+                        'main/java/#{repository.imit.qualified_async_error_callback_name.gsub(".","/")}.java',
+                        Domgen::Generator::Imit::HELPERS)
   template_set.template(Domgen::Generator::Imit::FACETS,
                         :service,
                         "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/service.java.erb",
@@ -90,4 +100,13 @@ Domgen.template_set(:imit_jpa) do |template_set|
                         "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/message_generator.java.erb",
                         'main/java/#{repository.imit.qualified_message_generator_name.gsub(".","/")}.java',
                         helpers)
+  template_set.template(facets,
+                        :repository,
+                        "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/message_constants.java.erb",
+                        'main/java/#{repository.imit.qualified_message_constants_name.gsub(".","/")}.java',
+                        helpers)
 end
+
+Domgen.template_set(:imit_server => [:imit_jpa, :imit_json])
+Domgen.template_set(:imit_client => [:imit_gwt_proxy_service_test, :imit_gwt_proxy, :imit_entity])
+Domgen.template_set(:imit => [:imit_client, :imit_server])

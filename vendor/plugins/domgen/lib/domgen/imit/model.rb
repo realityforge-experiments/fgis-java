@@ -204,6 +204,25 @@ module Domgen
 
     class ImitationApplication < Domgen.ParentedElement(:repository)
       include Domgen::Java::ClientJavaApplication
+      attr_writer :async_callback_name
+
+      def async_callback_name
+        @async_callback_name || "#{repository.name}AsyncCallback"
+      end
+
+      def qualified_async_callback_name
+        "#{service_package}.#{async_callback_name}"
+      end
+
+      attr_writer :async_error_callback_name
+
+      def async_error_callback_name
+        @async_error_callback_name || "#{repository.name}AsyncErrorCallback"
+      end
+
+      def qualified_async_error_callback_name
+        "#{service_package}.#{async_error_callback_name}"
+      end
 
       def ioc_package
         repository.gwt_rpc.client_ioc_package
@@ -227,6 +246,14 @@ module Domgen
 
       def qualified_change_mapper_name
         "#{entity_package}.#{change_mapper_name}"
+      end
+
+      def message_constants_name
+        "#{repository.name}MessageConstants"
+      end
+
+      def qualified_message_constants_name
+        "#{encoder_package}.#{message_constants_name}"
       end
 
       def message_generator_name
