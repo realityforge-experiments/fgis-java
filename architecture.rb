@@ -30,7 +30,7 @@ Domgen.repository(:FGIS) do |repository|
         a.description("Location derived form last known location")
       end
 
-      t.query('findByName')
+      t.query(:FindByName)
 
       #t.sql.index([:Location], :index_type => :spatial)
     end
@@ -41,13 +41,13 @@ Domgen.repository(:FGIS) do |repository|
       t.datetime(:CollectedAt, :immutable => true)
       t.point(:Location, :immutable => true)
 
-      t.query('findAllByResourceSince') do |q|
+      t.query(:FindAllByResourceSince) do |q|
         q.jpa.jpql = "O.Resource.ID = :ResourceID AND O.CollectedAt >= :StartAt ORDER BY O.CollectedAt DESC"
         q.integer(:ResourceID)
         q.datetime(:StartAt)
       end
 
-      t.query('findAllByResource') do |q|
+      t.query(:FindAllByResource) do |q|
         q.jpa.jpql = "O.Resource.ID = :ResourceID"
         q.jpa.limit = true
         q.jpa.offset = true
