@@ -97,13 +97,13 @@ public class ResourceService
                                             b.function( "ST_GeomFromText",
                                                         Geometry.class,
                                                         extent ),
-                                            entity.get( Resource_.Location ) ) ) );
+                                            entity.get( Resource_.location ) ) ) );
       params.put( "Extent", extents.asText() );
     }
 
     if ( null != types )
     {
-      predicates.add( entity.get( Resource_.Type ).in( (Object[]) types.split( "," ) ) );
+      predicates.add( entity.get( Resource_.type ).in( (Object[]) types.split( "," ) ) );
     }
 
     query.where( b.and( predicates.toArray( new Predicate[ predicates.size() ] ) ) );
