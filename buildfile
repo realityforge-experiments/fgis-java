@@ -2,19 +2,11 @@ require 'buildr/git_auto_version'
 require 'buildr/top_level_generate_dir'
 require 'buildr/single_intermediate_layout'
 
-JEE_GWT_JARS = [:javax_inject, :javax_annotation, :javax_validation, :javax_validation_sources, :findbugs_annotations]
+JEE_GWT_JARS = [:javax_inject, :javax_jsr305, :javax_validation, :javax_validation_sources]
 GIN_JARS = [:gwt_gin, :google_guice, :aopalliance, :google_guice_assistedinject]
 APPCACHE_GWT_JARS = [:gwt_appcache_client, :gwt_appcache_linker]
 GWT_JARS = JEE_GWT_JARS + GIN_JARS + [:gwt_user, :gwt_dev] + APPCACHE_GWT_JARS + [:g_leaflet_draw, :g_leaflet]
-JEE_JARS = [:javax_persistence,
-            :javax_transaction,
-            :javax_inject,
-            :javax_json,
-            :ejb_api,
-            :javax_rs,
-            :javax_servlet,
-            :javax_annotation,
-            :javax_validation]
+JEE_JARS = [:javax_javaee, :javax_javaee_endorsed, :javax_jsr305]
 GEO_DEPS = [:jeo, :geolatte_geom_eclipselink, :geolatte_geom, :jts, :slf4j_api, :slf4j_jdk14]
 JACKSON_DEPS = [:jackson_core, :jackson_mapper]
 PROVIDED_DEPS = JACKSON_DEPS + JEE_JARS
