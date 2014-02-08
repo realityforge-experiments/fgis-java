@@ -42,12 +42,6 @@ define 'fgis' do
   test.using :testng
 
   package(:war).tap do |war|
-    project.assets.paths.each do |asset|
-      war.tap do |w|
-        w.enhance([asset])
-      end
-      war.include asset, :as => '.'
-    end
     war.with :libs => artifacts(INCLUDED_DEPENDENCIES)
   end
 
