@@ -1,7 +1,7 @@
 package fgis.server.services;
 
-import fgis.server.entity.fgis.Resource;
-import fgis.server.entity.fgis.ResourceTrack;
+import fgis.server.entity.Resource;
+import fgis.server.entity.ResourceTrack;
 import java.util.List;
 
 final class ResourceEntry

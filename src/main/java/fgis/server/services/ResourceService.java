@@ -1,13 +1,13 @@
 package fgis.server.services;
 
-import fgis.server.data_type.fgis.LocationUpdateDTO;
-import fgis.server.data_type.fgis.ResourceDetailsDTO;
+import fgis.server.data_type.LocationUpdateDTO;
+import fgis.server.data_type.ResourceDetailsDTO;
 import fgis.server.entity.FGISPersistenceUnit;
-import fgis.server.entity.fgis.Resource;
-import fgis.server.entity.fgis.ResourceTrack;
-import fgis.server.entity.fgis.Resource_;
-import fgis.server.entity.fgis.dao.ResourceRepository;
-import fgis.server.entity.fgis.dao.ResourceTrackRepository;
+import fgis.server.entity.Resource;
+import fgis.server.entity.ResourceTrack;
+import fgis.server.entity.Resource_;
+import fgis.server.entity.dao.ResourceRepository;
+import fgis.server.entity.dao.ResourceTrackRepository;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;

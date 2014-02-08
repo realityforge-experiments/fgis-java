@@ -1,9 +1,9 @@
 package fgis.server.services;
 
-import fgis.server.entity.fgis.Resource;
-import fgis.server.entity.fgis.ResourceTrack;
-import fgis.server.entity.fgis.dao.ResourceRepository;
-import fgis.server.entity.fgis.dao.ResourceTrackRepository;
+import fgis.server.entity.Resource;
+import fgis.server.entity.ResourceTrack;
+import fgis.server.entity.dao.ResourceRepository;
+import fgis.server.entity.dao.ResourceTrackRepository;
 import java.util.Date;
 import java.util.Random;
 import javax.ejb.EJB;
