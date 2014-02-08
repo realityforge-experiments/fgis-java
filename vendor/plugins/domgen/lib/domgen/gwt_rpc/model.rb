@@ -89,13 +89,13 @@ module Domgen
       attr_writer :server_servlet_package
 
       def server_servlet_package
-        @server_servlet_package || "#{data_module.repository.gwt_rpc.server_servlet_package}.#{package_key}"
+        @server_servlet_package || resolve_package(:server_servlet_package)
       end
 
       protected
 
       def facet_key
-        :gwt
+        :gwt_rpc
       end
     end
 
@@ -177,16 +177,6 @@ module Domgen
 
       def module_name
         @module_name || Domgen::Naming.underscore(repository.name)
-      end
-
-      attr_writer :request_builder_name
-
-      def request_builder_name
-        @request_builder_name || "#{repository.name}RequestBuilder"
-      end
-
-      def qualified_request_builder_name
-        "#{client_ioc_package}.#{request_builder_name}"
       end
 
       attr_writer :rpc_services_module_name

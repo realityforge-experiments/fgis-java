@@ -52,6 +52,19 @@ public class <%= service.gwt_rpc.proxy_name %>
     }
     <% if parameter.nullable? %>}<% end %>
   <% end %>
+<% if method.imit? %>
+  final org.realityforge.replicant.client.transport.ClientSession session = org.realityforge.replicant.client.transport.SessionContext.getSession();
+  final org.realityforge.replicant.client.transport.RequestEntry request;
+  if( null != session )
+  {
+    request = session.getRequestManager().newRequestRegistration( <%= method.imit.graph_to_subscribe.nil? ? 'null' : "#{method.service.data_module.repository.imit.qualified_graph_enum_name}.#{Domgen::Naming.uppercase_constantize(method.service.data_module.repository.imit.graph_by_name(method.imit.graph_to_subscribe).key)}.name()" %>, <%= method.imit.bulk_load? %> );
+    org.realityforge.replicant.client.transport.SessionContext.setRequest( request );
+  }
+  else
+  {
+    request = null;
+  }
+<% end %>
   _service.<%= method.gwt_rpc.name %>(<%= method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.collect do |parameter|
   param_value = parameter.name
   if parameter.collection? && (parameter.enumeration? || parameter.struct?)
@@ -75,8 +88,34 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
     {
     public void onFailure( final Throwable caught )
     {
-      if( null != errorCallback ) errorCallback.onFailure( caught );
-      _callback.onFailure( caught );
+      final Runnable runnable = new Runnable()
+      {
+        @Override
+        public void run()
+        {
+          if ( null != errorCallback )
+          {
+            errorCallback.onFailure( caught );
+          }
+          _callback.onFailure( caught );
+        }
+      };
+<% if method.imit? %>
+      if( null != request && request.isExpectingResults() && !request.haveResultsArrived() )
+      {
+        request.setNonNormalCompletionAction( runnable );
+      }
+      else
+<% end %>
+      {
+        runnable.run();
+<% if method.imit? %>
+        if ( null != session )
+        {
+          session.getRequestManager().removeRequest( request.getRequestID() );
+        }
+<% end %>
+      }
     }
 
     public void onSuccess( final <%= method.return_value.gwt_rpc.non_primitive_java_type(:transport) %> result )
@@ -128,10 +167,39 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
       }
     }
   <% end %>
-      if( null != callback ) callback.onSuccess( <%= result_string %> );
-      _callback.onSuccess( result );
+      final Runnable runnable = new Runnable()
+      {
+        @Override
+        public void run()
+        {
+          if ( null != callback )
+          {
+            callback.onSuccess( <%= result_string %> );
+          }
+          _callback.onSuccess( result );
+        }
+      };
+<% if method.imit? %>
+      if ( null != request && request.isExpectingResults() && !request.haveResultsArrived() )
+      {
+        request.setNormalCompletionAction( runnable );
+      }
+      else
+<% end %>
+      {
+        runnable.run();
+<% if method.imit? %>
+        if ( null != session )
+        {
+          session.getRequestManager().removeRequest( request.getRequestID() );
+        }
+<% end %>
+      }
     }
-  });
+    });
+<% if method.imit? %>
+    org.realityforge.replicant.client.transport.SessionContext.setRequest( null );
+<% end %>
   }
 
 <% end %>}
