@@ -1,4 +1,5 @@
 $primary_color: #1a1917;
+$background_color: #1a1917;
 $secondary_color: #e8e2d2;
 $highlight: #ef4343;
 body, html {
@@ -10,7 +11,7 @@ body, html {
 .navbar-fixed-top {
   margin-bottom: 0;
   .navbar-inner {
-    background: $secondary_color;
+    background: $background_color;
     color: $secondary_color;
     text-transform: uppercase;
     padding-left: 80px;
@@ -67,7 +68,7 @@ body, html {
   right: 0;
   top: 60px;
   height: 25px;
-  background: $secondary_color;
+  background: $background_color;
   border-radius: 0;
   padding: 0 100px;
   li {
@@ -104,7 +105,7 @@ body, html {
   overflow: auto;
   -webkit-overflow-scrolling: touch;
   border-radius: 10px;
-  background: $secondary_color;
+  background: $background_color;
   padding: 30px;
   width: 270px;
   em {
@@ -165,7 +166,7 @@ body, html {
   bottom: 25px;
   left: 0;
   right: 0;
-  background: $secondary_color;
+  background: $background_color;
   padding: 3px 95px;
   em {
     color: $highlight;
@@ -182,11 +183,11 @@ body, html {
 }
 
 .message {
-  @include gradient($secondary_color, $secondary_color);
+  @include gradient($background_color, $background_color);
   margin-bottom: 2px;
   padding: 10px 0;
   &:hover {
-    @include gradient($secondary_color, $secondary_color);
+    @include gradient($background_color, $background_color);
     cursor: pointer;
   }
   p {
