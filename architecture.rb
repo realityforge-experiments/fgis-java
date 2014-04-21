@@ -42,13 +42,13 @@ Domgen.repository(:FGIS) do |repository|
       t.point(:Location, :immutable => true)
 
       t.query(:FindAllByResourceSince) do |q|
-        q.jpa.jpql = 'O.resource.ID = :ResourceID AND O.collectedAt >= :StartAt ORDER BY O.collectedAt DESC'
+        q.jpa.jpql = 'O.resource.id = :ResourceID AND O.collectedAt >= :StartAt ORDER BY O.collectedAt DESC'
         q.integer(:ResourceID)
         q.datetime(:StartAt)
       end
 
       t.query(:FindAllByResource) do |q|
-        q.jpa.jpql = 'O.resource.ID = :ResourceID'
+        q.jpa.jpql = 'O.resource.id = :ResourceID'
         q.jpa.limit = true
         q.jpa.offset = true
         q.jpa.order_by = 'O.collectedAt DESC'
