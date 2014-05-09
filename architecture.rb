@@ -3,7 +3,6 @@ Domgen.repository(:FGIS) do |repository|
   repository.enable_facet(:jackson)
   repository.enable_facet(:ejb)
   repository.enable_facet(:jaxrs)
-  repository.enable_facet(:xml)
 
   repository.jpa.provider = :eclipselink
 
