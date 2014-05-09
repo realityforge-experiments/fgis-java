@@ -39,7 +39,7 @@ artifacts:
 
   rest_field_filter: org.realityforge.rest.field_filter:rest-field-filter:jar:0.4
 
-  geolatte_geom_eclipselink: org.realityforge.jeo.geolatte.jpa.eclipselink:geolatte-geom-eclipselink:jar:0.3
+  geolatte_geom_jpa: org.realityforge.geolatte.jpa:geolatte-geom-jpa:jar:0.1
 
   gwt_appcache_client: org.realityforge.gwt.appcache:gwt-appcache-client:jar:1.0.4
   gwt_appcache_linker: org.realityforge.gwt.appcache:gwt-appcache-linker:jar:1.0.4
