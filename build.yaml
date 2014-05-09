@@ -23,8 +23,8 @@ artifacts:
   javax_validation_sources: javax.validation:validation-api:jar:sources:1.0.0.GA
 
   # Jackson Dependencies
-  jackson_core: org.codehaus.jackson:jackson-core-asl:jar:1.9.4
-  jackson_mapper: org.codehaus.jackson:jackson-mapper-asl:jar:1.9.4
+  jackson_core: org.codehaus.jackson:jackson-core-asl:jar:1.9.13
+  jackson_mapper: org.codehaus.jackson:jackson-mapper-asl:jar:1.9.13
 
   google_guice: com.google.inject:guice:jar:3.0
   google_guice_assistedinject: com.google.inject.extensions:guice-assistedinject:jar:3.0
