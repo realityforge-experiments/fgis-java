@@ -17,4 +17,3 @@ test:
 import:
   database: <%= prefix %>FGIS_DEV
   <<: *devhost
-
