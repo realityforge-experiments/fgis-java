@@ -21,16 +21,16 @@ define 'fgis' do
   compile.options.target = '1.7'
   compile.options.lint = 'all'
 
-  Domgen::GenerateTask.new(:FGIS, "server", [:ee], _(:target, :generated, "domgen"))
+  Domgen::GenerateTask.new(:FGIS, :server, [:ee], _(:target, :generated, 'domgen'))
 
   define_process_sass_dir(project)
   define_coffee_script_dir(project)
 
   compile.with GWT_JARS, INCLUDED_DEPENDENCIES, PROVIDED_DEPS
 
-  gwt_dir = gwt(["fgis.Fgis"],
-      :java_args => ["-Xms512M", "-Xmx1024M", "-XX:PermSize=128M", "-XX:MaxPermSize=256M"],
-      :draft_compile => (ENV["FAST_GWT"] == 'true'))
+  gwt_dir = gwt(['fgis.Fgis'],
+      :java_args => ['-Xms512M', '-Xmx1024M', '-XX:PermSize=128M', '-XX:MaxPermSize=256M'],
+      :draft_compile => (ENV['FAST_GWT'] == 'true'))
 
   test.using :testng
 
@@ -53,10 +53,10 @@ define 'fgis' do
 
   # Hacke to remove GWT from path
   webroots = {}
-  webroots[_(:source, :main, :webapp)] = "/" if File.exist?(_(:source, :main, :webapp))
-  assets.paths.each { |path| webroots[path.to_s] = "/" if path.to_s != gwt_dir.to_s }
+  webroots[_(:source, :main, :webapp)] = '/' if File.exist?(_(:source, :main, :webapp))
+  assets.paths.each { |path| webroots[path.to_s] = '/' if path.to_s != gwt_dir.to_s }
   iml.add_web_facet(:webroots => webroots)
-  iml.add_gwt_facet({'fgis.FgisDev' => true, 'fgis.Fgis' => false}, :settings => {:compilerMaxHeapSize => "1024"})
+  iml.add_gwt_facet({'fgis.FgisDev' => true, 'fgis.Fgis' => false}, :settings => {:compilerMaxHeapSize => '1024'})
   iml.add_ejb_facet
   iml.add_jpa_facet
 

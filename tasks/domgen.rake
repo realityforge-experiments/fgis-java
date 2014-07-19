@@ -7,6 +7,6 @@ require 'domgen'
 Domgen::LoadSchema.new("#{workspace_dir}/architecture.rb")
 Domgen::Sql.dialect = Domgen::Sql::PgDialect
 
-Domgen::GenerateTask.new(:FGIS, "sql", [:pgsql], "#{workspace_dir}/database/generated") do |t|
+Domgen::GenerateTask.new(:FGIS, :sql, [:pgsql], "#{workspace_dir}/database/generated") do |t|
   t.verbose = !!ENV['DEBUG_DOMGEN']
 end
