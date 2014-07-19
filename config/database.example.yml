@@ -13,7 +13,3 @@ development:
 test:
   database: <%= prefix %>FGIS_TEST
   <<: *devhost
-
-import:
-  database: <%= prefix %>FGIS_DEV
-  <<: *devhost
