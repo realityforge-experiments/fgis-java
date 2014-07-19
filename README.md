@@ -1,7 +1,7 @@
 FGIS - Fire Ground Information System
 =====================================
 
-[![Build Status](https://secure.travis-ci.org/rhok-melbourne/fgis-java.png?branch=master)](http://travis-ci.org/rhok-melbourne/fgis-java)
+[![Build Status](https://secure.travis-ci.org/realityforge-experiments/fgis-java.png?branch=master)](http://travis-ci.org/realityforge-experiments/fgis-java)
 
 What is FGIS
 --------------
