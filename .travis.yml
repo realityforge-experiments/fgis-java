@@ -9,3 +9,5 @@ install:
   - npm install coffee-script
   - export PATH=$PATH:./node_modules/.bin
 script: buildr clean package
+git:
+  depth: 10
