@@ -1,6 +1,6 @@
 source 'http://rubygems.org'
 
-gem 'buildr', '= 1.4.22'
+gem 'buildr', '= 1.4.23'
 gem 'realityforge-braid', '= 0.9.9'
 gem 'pg', '= 0.15.1'
 gem 'tiny_tds', '= 0.6.2'
